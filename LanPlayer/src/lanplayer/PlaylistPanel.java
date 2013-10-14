@@ -2,10 +2,13 @@ package lanplayer;
 
 import javax.swing.JPanel;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.Insets;
@@ -65,12 +68,12 @@ public class PlaylistPanel extends JPanel {
 			musicDirctory.mkdir();
 		}
 		lanData = new LanData(musicDirctory, dataFile, 1);
-		lanData.clearNonExistingFiles();
-		
+			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(lanPlayerInit, MyIp.getMyIP());
 		}
-		lanData.setAndStoreCurPlayed(1);
+		lanData.clearNonExistingFiles();
+		//lanData.setAndStoreCurPlayed(1);
 	}
 	
 	private void initialize() {
@@ -105,12 +108,29 @@ public class PlaylistPanel extends JPanel {
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 		
 		String[] playlistColumnNames = {"Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "IP" };
-		playlistTableModel = new PlaylistTableModel(lanData , playlistColumnNames);
-		playlistTable = new JTable(playlistTableModel);
+		playlistTable = new JTable();
+		playlistTableModel = new PlaylistTableModel(playlistTable, lanData , playlistColumnNames);
+		playlistTable.setModel(playlistTableModel);
 		playlistTable.getTableHeader().setReorderingAllowed(false);
 		playlistTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setPlaylistTableColumnSizes();
 		scrollPane.setViewportView(playlistTable);
+		
+		playlistTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+			 	@Override
+			    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+			    {
+			        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			        if(!isSelected && playlistTableModel.isCurrentlyPlayed(row)) {
+			        	c.setBackground(Color.GREEN);
+			        }
+			        else if(!isSelected) {
+			        	c.setBackground(Color.WHITE);
+			        }
+			        return c;
+			    }
+		});
+		
 	}
 	
 	private void setPlaylistTableColumnSizes() {

@@ -16,6 +16,17 @@ public class MP3Info extends MusicInfo {
 		mp3FileIDTags = new MP3FileID3Controller(getMultimediaContainer().getFileURL());
 		
 	}
+	
+	@Override
+	public String getTitle() {
+		if (mp3FileIDTags.id3v1Exists()) {
+			return mp3FileIDTags.getTitle(MP3FileID3Controller.ID3V1);
+		}
+		else if(mp3FileIDTags.id3v2Exists()) {
+			return mp3FileIDTags.getTitle(MP3FileID3Controller.ID3V2);
+		}
+		return "";
+	}
 
 	@Override
 	public String getArtist() {
@@ -25,7 +36,7 @@ public class MP3Info extends MusicInfo {
 		else if(mp3FileIDTags.id3v2Exists()) {
 			return mp3FileIDTags.getArtist(MP3FileID3Controller.ID3V2);
 		}
-		return null;
+		return "";
 	}
 
 	@Override
@@ -36,7 +47,7 @@ public class MP3Info extends MusicInfo {
 		else if(mp3FileIDTags.id3v2Exists()) {
 			return mp3FileIDTags.getAlbum(MP3FileID3Controller.ID3V2);
 		}
-		return null;
+		return "";
 	}
 
 	@Override
@@ -47,7 +58,7 @@ public class MP3Info extends MusicInfo {
 		else if(mp3FileIDTags.id3v2Exists()) {
 			return mp3FileIDTags.getTrack(MP3FileID3Controller.ID3V2);
 		}
-		return null;
+		return "";
 	}
 
 }

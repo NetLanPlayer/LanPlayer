@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
@@ -18,14 +19,23 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	public ArrayList<MusicData> getPlayList() {
 		return playList;
 	}
+	
+	private JTable table;
 	private LanData lanData;
 	private String[] columnNames;
 	
-	public PlaylistTableModel(LanData lanData, String[] columnNames) {
+	public PlaylistTableModel(JTable table, LanData lanData, String[] columnNames) {
+		this.table = table;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		this.lanData.addObserver(this);
 		reloadList();
+	}
+	
+	public boolean isCurrentlyPlayed(int row) {
+		Integer currentlyPlayedPos = this.lanData.getCurrentlyPlayed();
+		if(currentlyPlayedPos == null) return false;
+		return row == this.lanData.getCurrentlyPlayed() - 1;
 	}
 	
 	private void reloadList() {
@@ -37,7 +47,6 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		for(int i = 0; i < lanData.getLastPosition(); i++) {
 			playList.add(lanData.getMusicData(i + 1));
 		}
-		
 	}
 	private boolean columnSortable = false;
 	public void setColumnSortable(boolean sortable) {
@@ -89,7 +98,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		if(playList == null || playList.isEmpty()) return null;
+		if(playList == null || playList.isEmpty() || rowIndex >= playList.size()) return null;
 		MusicData musicData = playList.get(rowIndex);
 		Object retObj = null;
 		if(musicData != null) {
@@ -113,9 +122,19 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public void update(Observable observable, Object obj) {
-		if(obj.equals(LanData.FILE_TAG)) {
+		if(obj.equals(LanData.FILE_TAG)) {			
+			int selectedRow = -1;
+			if(table != null) {
+				selectedRow = table.getSelectedRow();
+			}
+			int modelRowIndex = table.convertRowIndexToModel(selectedRow);
 			reloadList();
 			fireTableDataChanged();
+			
+			if(table != null && modelRowIndex > 0 && modelRowIndex < table.getRowCount()) {
+				table.getSelectionModel().setSelectionInterval(0, modelRowIndex);
+			}
+			
 		}
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG)) {
 			

@@ -1,6 +1,20 @@
 #LAN DATA
-#Mon Oct 14 16:47:55 CEST 2013
-[pos]1[/pos]=[file]C\:/Simon Gwerder/HSR/workspace/Music/LanPlayer/src/antipasta.xm[/file][ip]2002\:9860\:ecc1\:0\:0\:0\:9860\:ecc1[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
-[currentlyPlayed]=1
-[lastPos]=2
-[pos]2[/pos]=[file]C\:/Simon Gwerder/HSR/workspace/Music/LanPlayer/LanMusic/uis.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+#Mon Oct 14 23:37:33 CEST 2013
+[pos]1[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/src/antipasta.xm[/file][ip]192.168.0.106[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]8[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/1. Der Die Sonne Schlafen Schickt.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]11[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/12. Die Beute.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]7[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/4. Himmel und H\u00F6lle.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]10[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/11. Bella Donna.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[currentlyPlayed]=4
+[pos]3[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/7. Feuertaufe.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]2[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/2. Wege Ohne Namen.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]13[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/14. Meie Din.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]9[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/10. Alles Schon Gesehen.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]12[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/13. Bunter Vogel.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[participants]=15
+[lastPos]=15
+[pos]6[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/3. Lebemann.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]5[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/8. Du und Ich.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]4[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/6. Kunstraub.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]15[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/9. Doof.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]
+[pos]14[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/5. Gaukler.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip]

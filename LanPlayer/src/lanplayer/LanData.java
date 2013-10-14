@@ -21,7 +21,7 @@ public class LanData extends Observable {
 	
 	private int participants = 1;
 	private int currentlyPlayed = 1;
-	private int lastPosition = 0;
+	private int lastPosition = 1;
 	
 	private final static int SEARCH_TIMER_MS = 5000;
 	
@@ -486,24 +486,40 @@ public class LanData extends Observable {
 		}
 
 		int lastPos = getLastPosition();
+		int participants = getParticipants();
+		int currentlyPlayed = getCurrentlyPlayed();
 		
 		for(int i = 1; i <= lastPos; i++) {
 			String formValue = data.getProperty(setValue(POS_TAG, "" + i));
 			String filePath = getValue(FILE_TAG, formValue);
-			File test = new File(filePath);
-			if(test.exists()) {
-				validFiles.add(formValue);
+			if(filePath != null) {
+				File test = new File(filePath);
+				if(test.exists()) {
+					validFiles.add(formValue);
+				}
+				else {
+					if(i < currentlyPlayed) {
+						currentlyPlayed--;
+					}
+					else if(i == currentlyPlayed) { // a currentlyPlayed file has been deleted
+						currentlyPlayed++;
+					}
+				}
 			}
+
 		}
 		
+		if(currentlyPlayed > validFiles.size()) {
+			currentlyPlayed = 1;
+		}
 		
 		String originalChecksum = MD5Hash.getChecksum(propertyFile);
 		
 		data.clear();
-				
+		
+		setAndStoreCurPlayed(currentlyPlayed);
 		setAndStoreLastPos(validFiles.size());
-		//setAndStoreCurPlayed(0);
-		//setAndStoreParticipants(1);
+		setAndStoreParticipants(participants);
 				
 		for(int x = 0; x < validFiles.size(); x++) {
 			data.setProperty(setValue(POS_TAG, "" + (x + 1)), validFiles.get(x));
@@ -512,6 +528,7 @@ public class LanData extends Observable {
 			storeData();
 		} catch (IOException e) {
 		}
+		
 		resetLoadedFiles();
 		
 		String newChecksum = MD5Hash.getChecksum(propertyFile);

@@ -1,6 +1,7 @@
 package lanplayer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -11,18 +12,23 @@ import de.quippy.javamod.system.Helpers;
 
 abstract class MusicInfo {
 	
-	private MultimediaContainer mc;
-	
+	private File musicFile;
+		
 	public MultimediaContainer getMultimediaContainer() {
-		return mc;
+		try {
+			return MultimediaContainerManager.getMultimediaContainer(musicFile);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	public String getTitle() {
-		return mc.getSongName();
+		return getMultimediaContainer() == null ? "" : getMultimediaContainer().getSongName();
 	}
 	
 	public String getDuration() {
-		Object[] infos = mc.getSongInfosFor(mc.getFileURL());
+		if(getMultimediaContainer() == null) return "";
+		Object[] infos = getMultimediaContainer().getSongInfosFor(getMultimediaContainer().getFileURL());
 		return Helpers.getTimeStringFromMilliseconds((long) infos[1]);
 	}
 	
@@ -32,8 +38,8 @@ abstract class MusicInfo {
 	
 	public abstract String getTrackNumber();
 	
-	public MusicInfo(File musicFile) throws MalformedURLException, UnsupportedAudioFileException {
-		mc = MultimediaContainerManager.getMultimediaContainer(musicFile);
+	public MusicInfo(File musicFile) {
+		this.musicFile = musicFile;
 	}
 	
 }
