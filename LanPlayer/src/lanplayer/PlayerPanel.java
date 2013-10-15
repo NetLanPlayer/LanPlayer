@@ -152,7 +152,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	public void reloadPlaylist() {
 		List<MusicData> filesToPlay = playlistPanel.getPlaylist();
 		if(filesToPlay.isEmpty()) {
-			File[] files = { playlistPanel.getLanPlayerInit() };
+			File[] files = { PlaylistPanel.LAN_PLAYER_INIT };
 			doOpenFile(files);
 		}
 		else {
@@ -900,7 +900,6 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 				return doNextPlayListEntry();
 			}
 		} catch (Throwable ex) {
-			Log.error("[MainForm::loadMultimediaOrPlayListFile]", ex);
 			currentPlayList = null;
 		}
 		return false;
@@ -996,8 +995,13 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	 * @see de.quippy.javamod.main.gui.playlist.PlaylistGUIChangeListener#userSelectedPlaylistEntry()
 	 * @since 13.02.2012
 	 */
-	public void userSelectedPlaylistEntry() {
-		loadCurrentEntry(true);
+	public void userSelectedPlaylistEntry(int index) {
+		if(currentPlayList != null && index >= 0 && index < currentPlayList.size()) {
+			currentPlayList.setCurrentElement(index);
+			loadCurrentEntry(true);
+			cascadeOtherEntryPlaying();
+		}
+		
 	}
 
 	private void setPlayListIcons() {

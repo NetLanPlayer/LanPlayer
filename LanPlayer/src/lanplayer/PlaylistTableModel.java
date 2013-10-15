@@ -10,9 +10,6 @@ import javax.swing.table.AbstractTableModel;
 
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 8800273125331888962L;
 	
 	private ArrayList<MusicData> playList = new ArrayList<MusicData>();
@@ -79,16 +76,16 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		return this.playList.size();
 	}
 
-//	public Class<?> getColumnClass(int column) {
-//		Class<?> returnValue = Object.class;
-//        if ((column >= 0) && (column < getColumnCount()) && (getValueAt(0, column) != null)) {
-//        	Object temp = getValueAt(0, column);
-//        	if(temp != null) {
-//        		returnValue = temp.getClass();
-//        	}
-//        }
-//        return returnValue;
-//    }
+	public Class<?> getColumnClass(int column) {
+		Class<?> returnValue = Object.class;
+        if ((column >= 0) && (column < getColumnCount()) && (getValueAt(0, column) != null)) {
+        	Object temp = getValueAt(0, column);
+        	if(temp != null) {
+        		returnValue = temp.getClass();
+        	}
+        }
+        return returnValue;
+    }
 	
 	public String getColumnName(int column) {
 		if(column < columnNames.length) {
@@ -128,19 +125,9 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	@Override
 	public void update(Observable observable, Object obj) {
 		if(obj.equals(LanData.FILE_TAG)) {			
-			int selectedRow = -1;
-			JTable thisTable = playlistPanel.getPlaylistTable();
-			if(thisTable != null) {
-				selectedRow = thisTable.getSelectedRow();
-			}
-			int modelRowIndex = thisTable.convertRowIndexToModel(selectedRow);
 			reloadList();
 			fireTableDataChanged();
-			
-			if(thisTable != null && modelRowIndex > 0 && modelRowIndex < thisTable.getRowCount()) {
-				thisTable.getSelectionModel().setSelectionInterval(0, modelRowIndex);
-			}
-			
+			playlistPanel.restoreSelection();
 			PlayerPanel player = this.playlistPanel.getPlayerPanel();
 			if(player != null) {
 				player.reloadPlaylist();
@@ -150,6 +137,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG)) {
 			//reloadList();
 			fireTableDataChanged();
+			playlistPanel.restoreSelection();
 		}
 	}
 

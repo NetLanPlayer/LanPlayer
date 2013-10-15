@@ -8,12 +8,19 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,20 +32,23 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import utilities.MyIp;
+import utilities.SimpleDate;
 
 public class PlaylistPanel extends JPanel {
 		
-	private static int INIT_PARTICIPANTS = 10;
-	private static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
-	private static File MUSIC_DIR = new File("./LanMusic");
-	public final String LAN_DATA_FILE = "./LanMusicData.property";
-
+	private final static int INIT_PARTICIPANTS = 10;
+	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
+	private final static File MUSIC_DIR = new File("./LanMusic");
+	public final static String LAN_DATA_FILE = "./LanMusicData.property";
+	
 	private PlayerPanel playerPanel;
 	
 	public void setPlayerPanel(PlayerPanel playerPanel) {
@@ -56,7 +66,7 @@ public class PlaylistPanel extends JPanel {
 	}
 	
 	private PlaylistTableModel playlistTableModel;
-	
+	private int selectedRow = -1;
 	
 	private LanData lanData = null;
 	
@@ -72,7 +82,7 @@ public class PlaylistPanel extends JPanel {
 		initLanData();
 		initialize();
 	}
-	
+		
 	private void initLanData() {
 		File dataFile = new File(LAN_DATA_FILE);
 		if(!dataFile.exists()) {
@@ -133,24 +143,41 @@ public class PlaylistPanel extends JPanel {
 		setPlaylistTableColumnSizes();
 		scrollPane.setViewportView(playlistTable);
 		
-		playlistTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-	
-			private static final long serialVersionUID = 5645578888040470423L;
-
-			@Override
-		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-		    {
-		        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		        int modelIndex = table.convertRowIndexToModel(row);
-		        if(!isSelected && playlistTableModel.isCurrentlyPlayed(modelIndex)) {
-		        	c.setBackground(Color.GREEN);
+		for(int i = 0; i < playlistTable.getColumnCount(); i++) {
+			playlistTable.getColumnModel().getColumn(i).setCellRenderer(new PlaylistTableCellRenderer());
+		}
+		
+		playlistTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e){
+				if (e.getClickCount() == 2) {
+					int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
+					playerPanel.userSelectedPlaylistEntry(modelIndex);
 		        }
-		        else if(!isSelected) {
-		        	c.setBackground(Color.WHITE);
-		        }
-		        return c;
 		    }
 		});
+		
+		// Save selected row table
+		playlistTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+		    @Override
+		    public void valueChanged(ListSelectionEvent e) {
+		        selectedRow = e.getFirstIndex();
+		    }
+		});
+			
+//		// Restore selected raw table
+//		playlistTable.getModel().addTableModelListener(new TableModelListener() {      
+//		    @Override
+//		    public void tableChanged(TableModelEvent e) {
+//		        SwingUtilities.invokeLater(new Runnable() {
+//		            @Override
+//		            public void run() {
+//		                if (selectedRow >= 0 && selectedRow < playlistTable.getRowCount()) {
+//		                	playlistTable.addRowSelectionInterval(selectedRow, selectedRow);
+//		                }
+//		             }
+//		        });
+//		    }
+//		});
 		
 		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(playlistTable.getModel()) {			
 			public boolean isSortable(int column) {
@@ -163,8 +190,16 @@ public class PlaylistPanel extends JPanel {
 				}
 			}
 		};
-		playlistTable.setRowSorter(playlistSorter);			
+		playlistTable.setRowSorter(playlistSorter);
+		playlistSorter.toggleSortOrder(0);
+		playlistSorter.setSortsOnUpdates(true);
 		
+	}
+	
+	public void restoreSelection() {
+		if (selectedRow >= 0 && selectedRow < playlistTable.getRowCount()) {
+			playlistTable.addRowSelectionInterval(selectedRow, selectedRow);
+        }
 	}
 	
 	private void setPlaylistTableColumnSizes() {
@@ -201,9 +236,37 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getColumnModel().getColumn(10).setPreferredWidth(100);
 		playlistTable.getColumnModel().getColumn(10).setMinWidth(65);
 	}
-	
-	public File getLanPlayerInit() {
-		return LAN_PLAYER_INIT;
+		
+	class PlaylistTableCellRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
+		
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+	        JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	        
+	        int modelIndex = table.convertRowIndexToModel(row);
+	        if(!isSelected && playlistTableModel.isCurrentlyPlayed(modelIndex)) {
+	        	label.setBackground(Color.GREEN);
+	        }
+	        else if(!isSelected) {
+	        	label.setBackground(Color.WHITE);
+	        }
+	        
+	        if(value instanceof String) {
+	            label.setToolTipText((String) value);
+	            label.setIconTextGap(5);
+	            label.setHorizontalAlignment(SwingConstants.LEADING);
+	        }
+	        else if(value instanceof Number) {
+	            String valueStr = value.toString();
+	            int countDigits = valueStr.length();
+	            label.setHorizontalAlignment(SwingConstants.TRAILING);
+	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
+	        }
+	        else if(value instanceof SimpleDate) {
+	        	//label.setHorizontalAlignment(SwingConstants.CENTER);
+	        }
+	        return label;
+	    }
+		
 	}
 		
 }
