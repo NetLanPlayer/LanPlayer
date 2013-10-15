@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import utilities.MD5Hash;
+import utilities.SimpleDate;
 
 public class LanData extends Observable {
 	
@@ -35,6 +36,7 @@ public class LanData extends Observable {
 	public final static String SKIP_TAG = "[skip]" + PLACEHOLDER + "[/skip]";
 	public final static String IP_TAG = "[ip]" + PLACEHOLDER + "[/ip]";
 	public final static String FILE_TAG = "[file]" + PLACEHOLDER + "[/file]";
+	public final static String DATE_TAG = "[date]" + PLACEHOLDER + "[/date]";
 	
 	private File propertyFile = null;
 	private File musicDirectory = null;
@@ -148,6 +150,10 @@ public class LanData extends Observable {
 		String playedStr = getValue(PLAYED_TAG, formValue);
 		String ratingStr = getValue(RATING_TAG, formValue);
 		String skipStr = getValue(SKIP_TAG, formValue);
+		String dateStr = getValue(DATE_TAG, formValue);
+		
+		Date date = SimpleDate.parseDate(dateStr);
+		
 		int played = 0; int skip = 0; int rating = 0;
 		try {
 			played = Integer.parseInt(playedStr);
@@ -161,9 +167,8 @@ public class LanData extends Observable {
 		File musicFile = new File(file);
 		MusicData musicData = null;
 		try {
-			musicData = new MusicData(position, musicFile, ip, played, rating, skip);
+			musicData = new MusicData(position, musicFile, ip, played, rating, skip, date);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 		return musicData;
@@ -307,6 +312,7 @@ public class LanData extends Observable {
 		form.append(setValue(PLAYED_TAG, "" + played));
 		form.append(setValue(RATING_TAG, "" + rating));
 		form.append(setValue(SKIP_TAG, "" + skip));
+		form.append(setValue(DATE_TAG, "" + SimpleDate.formattedDate(new Date())));
 		return form.toString();
 	}
 	
@@ -367,17 +373,20 @@ public class LanData extends Observable {
 	}
 	
 	/**
-	 * Loads the currently played position from properties file into this class.
-	 * @return Integer of the position loaded. Is null if the loading was not successful.
+	 * @return Integer of the position currently played.
 	 */
 	public Integer getCurrentlyPlayed() {
-		boolean success = loadCurrentlyPlayed();
-		if(success) {
+		//boolean success = loadCurrentlyPlayed();
+		//if(success) {
 			return currentlyPlayed;
-		}
-		return null;
+		//}
+		//return null;
 	}
 	
+	/**
+	 * Loads the currently played position from properties file into this class.
+	 * @return boolean success.
+	 */
 	private boolean loadCurrentlyPlayed() {
 		if(data == null) return false;
 		String currentlyPlayedStr = data.getProperty(CURRENTLY_PLAYED_TAG);
@@ -404,18 +413,22 @@ public class LanData extends Observable {
 		return true;
 	}
 	
+
+	/**
+	 * 	@return Integer of the last position. Is null if the loading was not successful.
+	 */
+	public Integer getLastPosition() {
+		//boolean success = loadLastPosition();
+		//if(success) {
+			return lastPosition;
+		//}
+		//return null;
+	}
+	
 	/**
 	 * Loads the number of files from properties file into this class.
 	 * @return Integer of the last position. Is null if the loading was not successful.
 	 */
-	public Integer getLastPosition() {
-		boolean success = loadLastPosition();
-		if(success) {
-			return lastPosition;
-		}
-		return null;
-	}
-	
 	private boolean loadLastPosition() {
 		if(data == null) return false;
 		String lastPosStr = data.getProperty(LAST_POSITION_TAG);
@@ -448,17 +461,20 @@ public class LanData extends Observable {
 	}
 	
 	/**
+	 * @return Integer number of participants.
+	 */
+	public Integer getParticipants() {
+		//boolean success = loadParticipants();
+		//if(success) {
+			return lastPosition;
+		//}
+		//return null;
+	}
+	
+	/**
 	 * Loads the number participants needed from properties file into this class.
 	 * @return Integer of the max skip needed. Is null if the loading was not successful.
 	 */
-	public Integer getParticipants() {
-		boolean success = loadParticipants();
-		if(success) {
-			return lastPosition;
-		}
-		return null;
-	}
-	
 	private boolean loadParticipants() {
 		if(data == null) return false;
 		String partiStr = data.getProperty(PARTICIPANTS_TAG);

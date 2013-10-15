@@ -2,19 +2,19 @@ package lanplayer;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.Date;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import utilities.SimpleDate;
 
 public class MusicData {
 	
 	private MusicInfo musicInfo;
 	private File musicFile;
-	private String title = "";
-	private String album = "";
-	private String artist = "";
-	private String trackNumber = "";
-	private String duration = "";
+
 	private String ip = "";
+	private Date date;
 	private int rating = 0;
 	private int skip = 0;
 	private int played = 0;
@@ -60,11 +60,15 @@ public class MusicData {
 		return musicInfo == null ? "" : musicInfo.getDuration();
 	}
 	
+	public SimpleDate getSimpleDate() {
+		return new SimpleDate(this.date);
+	}
+	
 	public String getTrackNumber() {
 		return musicInfo == null ? "" : musicInfo.getTrackNumber();
 	}
 	
-	public MusicData(int position, File musicFile, String ip, int played, int rating, int skip) throws MalformedURLException, UnsupportedAudioFileException {
+	public MusicData(int position, File musicFile, String ip, int played, int rating, int skip, Date date) throws MalformedURLException, UnsupportedAudioFileException {
 		String extension = musicFile.getName().substring(musicFile.getName().lastIndexOf("."), musicFile.getName().length());
 		if(extension.equals(".mp3")) {
 			musicInfo = new MP3Info(musicFile);
@@ -77,7 +81,8 @@ public class MusicData {
 		this.ip = ip;
 		this.rating = rating;
 		this.skip = skip;
-		this.played = played;		
+		this.played = played;
+		this.date = date;
 	}
 	
 	public String toString() {

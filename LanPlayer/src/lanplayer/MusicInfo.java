@@ -13,6 +13,8 @@ import de.quippy.javamod.system.Helpers;
 abstract class MusicInfo {
 	
 	private File musicFile;
+	private String title = "";
+	private String duration = "";
 		
 	public MultimediaContainer getMultimediaContainer() {
 		try {
@@ -23,13 +25,11 @@ abstract class MusicInfo {
 	}
 	
 	public String getTitle() {
-		return getMultimediaContainer() == null ? "" : getMultimediaContainer().getSongName();
+		return title;
 	}
 	
 	public String getDuration() {
-		if(getMultimediaContainer() == null) return "";
-		Object[] infos = getMultimediaContainer().getSongInfosFor(getMultimediaContainer().getFileURL());
-		return Helpers.getTimeStringFromMilliseconds((long) infos[1]);
+		return duration;
 	}
 	
 	public abstract String getArtist();
@@ -40,6 +40,12 @@ abstract class MusicInfo {
 	
 	public MusicInfo(File musicFile) {
 		this.musicFile = musicFile;
+		if(getMultimediaContainer() != null) {
+			this.title = getMultimediaContainer().getSongName();
+			Object[] infos = getMultimediaContainer().getSongInfosFor(getMultimediaContainer().getFileURL());
+			this.duration =  Helpers.getTimeStringFromMilliseconds((long) infos[1]);
+		}	
+		
 	}
 	
 }

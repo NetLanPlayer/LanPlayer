@@ -1,14 +1,21 @@
 package utilities;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MD5Hash {
 
+	/**
+	 * Generates a MD5 checksum. !Note that lines in a file that start with '#' are skipped!
+	 * @param file The file to generate checksum from.
+	 * @return String checksum.
+	 */
 	public static String getChecksum(File file) {
 		
 		try {
@@ -19,8 +26,12 @@ public class MD5Hash {
 
 			byte[] b = new byte[(int) file.length()];
 			try {
-				FileInputStream fileInputStream = new FileInputStream(file);
-				fileInputStream.read(b);
+				FileInputStream fis = new FileInputStream(file);
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+				String line = br.readLine();
+				while(!line.startsWith("#")) {
+					fis.read(b);	
+				}
 			} catch (FileNotFoundException e) {
 				return null;
 			} catch (IOException e1) {

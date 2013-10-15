@@ -20,12 +20,12 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		return playList;
 	}
 	
-	private JTable table;
+	private PlaylistPanel playlistPanel;
 	private LanData lanData;
 	private String[] columnNames;
 	
-	public PlaylistTableModel(JTable table, LanData lanData, String[] columnNames) {
-		this.table = table;
+	public PlaylistTableModel(PlaylistPanel playlistPanel, LanData lanData, String[] columnNames) {
+		this.playlistPanel = playlistPanel;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		this.lanData.addObserver(this);
@@ -40,21 +40,25 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	
 	private void reloadList() {
 		playList.clear();
-		try {
-			this.lanData.loadData();
-		} catch (IOException e) {
-		}
+//		try {
+//			this.lanData.loadData();
+//		} catch (IOException e) {
+//		}
 		for(int i = 0; i < lanData.getLastPosition(); i++) {
-			playList.add(lanData.getMusicData(i + 1));
+			MusicData md = lanData.getMusicData(i + 1);
+			if(md != null) {
+				playList.add(md);
+			}
 		}
 	}
-	private boolean columnSortable = false;
+	
+	private boolean columnSortable = true;
 	public void setColumnSortable(boolean sortable) {
 		columnSortable = sortable;
 	}
 	
 	boolean[] columnEditables = new boolean[] {
-		false, false, false, false, false, false, false, false, false, false, false
+		false, false, false, false, false, false, false, false, false, false, false, false
 	};
 	
 	public boolean isCellEditable(int row, int column) {
@@ -112,8 +116,9 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			case 6: retObj = musicData.getPlayed(); break;
 			case 7: retObj = musicData.getRating(); break;
 			case 8: retObj = musicData.getSkip(); break;
-			case 9: retObj = musicData.getIp(); break;
-			//case 10: retObj = musicData; break; // invisible column contains musicData itself for convenient data access
+			case 9: retObj = musicData.getSimpleDate(); break;
+			case 10: retObj = musicData.getIp(); break;
+			//case 11: retObj = musicData; break; // invisible column contains musicData itself for convenient data access
 			default: retObj = null; break;
 			}
 		}
@@ -124,20 +129,27 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	public void update(Observable observable, Object obj) {
 		if(obj.equals(LanData.FILE_TAG)) {			
 			int selectedRow = -1;
-			if(table != null) {
-				selectedRow = table.getSelectedRow();
+			JTable thisTable = playlistPanel.getPlaylistTable();
+			if(thisTable != null) {
+				selectedRow = thisTable.getSelectedRow();
 			}
-			int modelRowIndex = table.convertRowIndexToModel(selectedRow);
+			int modelRowIndex = thisTable.convertRowIndexToModel(selectedRow);
 			reloadList();
 			fireTableDataChanged();
 			
-			if(table != null && modelRowIndex > 0 && modelRowIndex < table.getRowCount()) {
-				table.getSelectionModel().setSelectionInterval(0, modelRowIndex);
+			if(thisTable != null && modelRowIndex > 0 && modelRowIndex < thisTable.getRowCount()) {
+				thisTable.getSelectionModel().setSelectionInterval(0, modelRowIndex);
+			}
+			
+			PlayerPanel player = this.playlistPanel.getPlayerPanel();
+			if(player != null) {
+				player.reloadPlaylist();
 			}
 			
 		}
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG)) {
-			
+			//reloadList();
+			fireTableDataChanged();
 		}
 	}
 

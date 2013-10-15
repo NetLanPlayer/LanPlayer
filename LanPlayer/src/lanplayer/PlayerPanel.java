@@ -39,6 +39,7 @@ import de.quippy.javamod.main.gui.components.SAMeterPanel;
 import de.quippy.javamod.main.gui.components.SeekBarPanel;
 import de.quippy.javamod.main.gui.components.SeekBarPanelListener;
 import de.quippy.javamod.main.gui.components.VUMeterPanel;
+import de.quippy.javamod.main.gui.playlist.PlaylistGUIChangeListener;
 import de.quippy.javamod.main.playlist.PlayList;
 import de.quippy.javamod.main.playlist.PlayListEntry;
 import de.quippy.javamod.mixer.Mixer;
@@ -128,6 +129,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	public PlayerPanel(PlaylistPanel playlistPanel) {
 		
 		this.playlistPanel = playlistPanel;
+		this.playlistPanel.setPlayerPanel(this);
 		
 	    audioProcessor = new AudioProcessor(2048, 70);
 	    audioProcessor.addListener(this);
@@ -143,10 +145,11 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		props.setProperty(ModContainer.PROPERTY_PLAYER_FREQUENCY, "48000");
 		MultimediaContainerManager.configureContainer(props);
 		MultimediaContainerManager.addMultimediaContainerEventListener(this);
-		initPlaylist();
+		
+		reloadPlaylist();
 	}
 
-	private void initPlaylist() {
+	public void reloadPlaylist() {
 		List<MusicData> filesToPlay = playlistPanel.getPlaylist();
 		if(filesToPlay.isEmpty()) {
 			File[] files = { playlistPanel.getLanPlayerInit() };
@@ -837,12 +840,23 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		}
 	}
 
-	private boolean doNextPlayListEntry() {
+	private void cascadeOtherEntryPlaying() {
+		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+		if(currentPlayIndex >= 0 && currentPlayIndex < playlistPanel.getPlaylist().size()) {
+			MusicData musicData = playlistPanel.getPlaylist().get(currentPlayIndex);
+			int position = musicData.getPosition();
+			playlistPanel.getLanData().setAndStoreCurPlayed(position);
+		}
+	}
+	
+	private boolean doNextPlayListEntry() {		
 		boolean ok = false;
 		while (currentPlayList != null && currentPlayList.hasNext() && !ok) {
 			currentPlayList.next();
-			ok = loadMultimediaFile(currentPlayList.getCurrentEntry());
+			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
+		cascadeOtherEntryPlaying();
+		
 		return ok;
 	}
 
@@ -850,8 +864,10 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		boolean ok = false;
 		while (currentPlayList != null && currentPlayList.hasPrevious() && !ok) {
 			currentPlayList.previous();
-			ok = loadMultimediaFile(currentPlayList.getCurrentEntry());
+			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
+		cascadeOtherEntryPlaying();
+		
 		return ok;
 	}
 
@@ -878,8 +894,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		// addFileToLastLoaded(mediaPLSFileURL);
 		currentPlayList = null;
 		try {
-			currentPlayList = PlayList.createFromFile(mediaPLSFileURL, false,
-					false);
+			currentPlayList = PlayList.createFromFile(mediaPLSFileURL, false, true); // repeating
 			if (currentPlayList != null) {
 				// getPlaylistGUI().setNewPlaylist(currentPlayList);
 				return doNextPlayListEntry();
@@ -898,17 +913,16 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	 * @param modFileName
 	 * @return boolean if loading succeeded
 	 */
-	private boolean loadMultimediaFile(PlayListEntry playListEntry) {
+	private boolean loadMultimediaFile(PlayListEntry playListEntry, boolean startPlaying) {
+		if(playListEntry == null) return false;
 		final URL mediaFileURL = playListEntry.getFile();
-		final boolean reuseMixer = (currentContainer != null
-				&& Helpers.isEqualURL(currentContainer.getFileURL(),
+		final boolean reuseMixer = (currentContainer != null && Helpers.isEqualURL(currentContainer.getFileURL(),
 						mediaFileURL) && playerThread != null && playerThread
 				.isRunning());
 		if (!reuseMixer) {
 			try {
 				if (mediaFileURL != null) {
-					MultimediaContainer newContainer = MultimediaContainerManager
-							.getMultimediaContainer(mediaFileURL);
+					MultimediaContainer newContainer = MultimediaContainerManager.getMultimediaContainer(mediaFileURL);
 					if (newContainer != null) {
 						currentContainer = newContainer;
 						getLEDScrollPanel().setScrollTextTo(
@@ -918,8 +932,6 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 					}
 				}
 			} catch (Throwable ex) {
-				Log.error("[MainForm::loadMultimediaFile] Loading of "
-						+ mediaFileURL + " failed!", ex);
 				return false;
 			}
 			// changeInfoPane();
@@ -928,7 +940,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		}
 		setPlayListIcons();
 		// if we are currently playing, start the current piece:
-		if (playerThread != null)
+		if (playerThread != null && startPlaying)
 			doStartPlaying(reuseMixer, playListEntry.getTimeIndex());
 		return true;
 	}
@@ -967,22 +979,25 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		}
 	}
 
+	private void loadCurrentEntry(boolean startPlaying) {
+		boolean ok = false;
+		while (currentPlayList != null && !ok) {
+			final PlayListEntry entry = currentPlayList.getCurrentEntry();
+			ok = loadMultimediaFile(entry, startPlaying);
+			if (!ok)
+				currentPlayList.next();
+			else if (playerThread == null && startPlaying)
+				doStartPlaying(true, entry.getTimeIndex());
+		}
+	}
+	
 	/**
 	 * 
 	 * @see de.quippy.javamod.main.gui.playlist.PlaylistGUIChangeListener#userSelectedPlaylistEntry()
 	 * @since 13.02.2012
 	 */
 	public void userSelectedPlaylistEntry() {
-		boolean ok = false;
-		while (currentPlayList != null && !ok) {
-			final PlayListEntry entry = currentPlayList.getCurrentEntry();
-			ok = loadMultimediaFile(entry);
-			if (!ok)
-				currentPlayList.next();
-			else if (playerThread == null)
-				doStartPlaying(true, entry.getTimeIndex());
-
-		}
+		loadCurrentEntry(true);
 	}
 
 	private void setPlayListIcons() {
@@ -1010,13 +1025,37 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		//if (addToLastLoaded != null)
 			// addFileToLastLoaded(addToLastLoaded);
 			if (dropResult != null) {
-				doStopPlaying();
-				currentPlayList = dropResult;
+				//doStopPlaying();
+				
+				int position = playlistPanel.getLanData().getCurrentlyPlayed();
+				
+//				int currentElement = 0;
+//				if(currentPlayList != null) {
+//					PlayListEntry currentPLE = currentPlayList.getCurrentEntry();
+//					if(currentPLE != null) {
+//						currentElement = currentPLE.getIndexInPlaylist();
+//					}
+//				}
+	
+				currentPlayList = dropResult;			
+				currentPlayList.setCurrentElement(position - 1);
+				
+//				System.out.println("\n");
+//				
+//				for(PlayListEntry ple : currentPlayList.getAllEntries()) {
+//					boolean playing = ple.getIndexInPlaylist() == currentPlayList.getCurrentEntry().getIndexInPlaylist();
+//					System.out.println((playing ? ">>>>>>>>>>" : "") + ple.getFormattedName());
+//				}
+				
+				loadCurrentEntry(false);
+				
+				//loadMultimediaFile(currentPlayList.getCurrentEntry());
+				
 				// getPlaylistGUI().setNewPlaylist(currentPlayList);
-				boolean ok = doNextPlayListEntry();
-				if (playerThread == null && ok) {
-					//doStartPlaying();
-				}
+				// boolean ok = doNextPlayListEntry();
+				// if (playerThread == null && ok) {
+			  	//  doStartPlaying();
+				// }
 			}
 	}
 

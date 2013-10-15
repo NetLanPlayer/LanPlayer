@@ -10,6 +10,8 @@ import java.awt.GridBagConstraints;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import java.awt.Insets;
 import java.io.File;
@@ -31,15 +33,30 @@ import javax.swing.SwingUtilities;
 import utilities.MyIp;
 
 public class PlaylistPanel extends JPanel {
+		
+	private static int INIT_PARTICIPANTS = 10;
+	private static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
+	private static File MUSIC_DIR = new File("./LanMusic");
+	public final String LAN_DATA_FILE = "./LanMusicData.property";
+
+	private PlayerPanel playerPanel;
 	
-	private File lanPlayerInit = new File("./src/antipasta.xm");
+	public void setPlayerPanel(PlayerPanel playerPanel) {
+		this.playerPanel = playerPanel;
+	}
 	
-	private File musicDirctory = new File("./LanMusic");
+	public PlayerPanel getPlayerPanel() {
+		return this.playerPanel;
+	}
 	
 	private JTable playlistTable;
+	
+	public JTable getPlaylistTable() {
+		return this.playlistTable;
+	}
+	
 	private PlaylistTableModel playlistTableModel;
 	
-	public final String LAN_DATA_FILE = "./LanMusicData.property";
 	
 	private LanData lanData = null;
 	
@@ -64,13 +81,13 @@ public class PlaylistPanel extends JPanel {
 			} catch (Exception e) {
 			}
 		}
-		if(!musicDirctory.exists()) {
-			musicDirctory.mkdir();
+		if(!MUSIC_DIR.exists()) {
+			MUSIC_DIR.mkdir();
 		}
-		lanData = new LanData(musicDirctory, dataFile, 1);
+		lanData = new LanData(MUSIC_DIR, dataFile, INIT_PARTICIPANTS);
 			
 		if(!lanData.hasEntries()) {
-			lanData.addNewFile(lanPlayerInit, MyIp.getMyIP());
+			lanData.addNewFile(LAN_PLAYER_INIT, MyIp.getMyIP());
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
@@ -107,9 +124,9 @@ public class PlaylistPanel extends JPanel {
 		gbc_scrollPane.gridy = 0;
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 		
-		String[] playlistColumnNames = {"Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "IP" };
+		String[] playlistColumnNames = {"Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "Date", "Uploader" };
 		playlistTable = new JTable();
-		playlistTableModel = new PlaylistTableModel(playlistTable, lanData , playlistColumnNames);
+		playlistTableModel = new PlaylistTableModel(this, lanData , playlistColumnNames);
 		playlistTable.setModel(playlistTableModel);
 		playlistTable.getTableHeader().setReorderingAllowed(false);
 		playlistTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -117,19 +134,36 @@ public class PlaylistPanel extends JPanel {
 		scrollPane.setViewportView(playlistTable);
 		
 		playlistTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-			 	@Override
-			    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-			    {
-			        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			        if(!isSelected && playlistTableModel.isCurrentlyPlayed(row)) {
-			        	c.setBackground(Color.GREEN);
-			        }
-			        else if(!isSelected) {
-			        	c.setBackground(Color.WHITE);
-			        }
-			        return c;
-			    }
+	
+			private static final long serialVersionUID = 5645578888040470423L;
+
+			@Override
+		    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+		    {
+		        final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		        int modelIndex = table.convertRowIndexToModel(row);
+		        if(!isSelected && playlistTableModel.isCurrentlyPlayed(modelIndex)) {
+		        	c.setBackground(Color.GREEN);
+		        }
+		        else if(!isSelected) {
+		        	c.setBackground(Color.WHITE);
+		        }
+		        return c;
+		    }
 		});
+		
+		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(playlistTable.getModel()) {			
+			public boolean isSortable(int column) {
+				PlaylistTableModel ptm = (PlaylistTableModel) playlistTable.getModel();
+				if(ptm.isColumnSortable()) {
+					return super.isSortable(column);
+				}
+				else {
+					return false;
+				}
+			}
+		};
+		playlistTable.setRowSorter(playlistSorter);			
 		
 	}
 	
@@ -162,11 +196,14 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getColumnModel().getColumn(8).setMinWidth(38);
 		
 		playlistTable.getColumnModel().getColumn(9).setPreferredWidth(140);
-		playlistTable.getColumnModel().getColumn(9).setMinWidth(26);
+		playlistTable.getColumnModel().getColumn(9).setMinWidth(38);
+		
+		playlistTable.getColumnModel().getColumn(10).setPreferredWidth(100);
+		playlistTable.getColumnModel().getColumn(10).setMinWidth(65);
 	}
 	
 	public File getLanPlayerInit() {
-		return lanPlayerInit;
+		return LAN_PLAYER_INIT;
 	}
 		
 }
