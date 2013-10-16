@@ -4,8 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
@@ -73,7 +75,6 @@ public class TrackSender {
 			public void run() {
 				byte[] buffer = new byte[1024];
 				synchronized (serverOutput) {
-
 					try {
 						int count = 0;
 						BufferedOutputStream out = new BufferedOutputStream(
@@ -92,7 +93,7 @@ public class TrackSender {
 	}
 
 	private void receiveMessage() {
-		pool.submit(new Runnable() {
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (true) {
@@ -111,7 +112,7 @@ public class TrackSender {
 					}
 				}
 			}
-		});
+		}).start();
 
 	}
 
@@ -158,7 +159,7 @@ public class TrackSender {
 		}
 		return ret.toString();
 	}
-
+	
 	/**
 	 * Proper close of ClientApplication. Shutdown threadpool and close socket.
 	 * 

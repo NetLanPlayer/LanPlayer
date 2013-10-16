@@ -9,27 +9,19 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JTextField;
-
 import java.awt.GridBagConstraints;
-
 import javax.swing.JButton;
-
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
 import javax.swing.JSeparator;
-
 import java.awt.Color;
 import java.io.IOException;
 import java.net.UnknownHostException;
-
 import javax.swing.JSlider;
 import javax.swing.JLabel;
 
