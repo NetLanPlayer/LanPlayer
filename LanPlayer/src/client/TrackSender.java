@@ -167,14 +167,17 @@ public class TrackSender {
 			public void run() {
 				try {
 					Socket server = new Socket(serverAddress, 57000);
+					System.out.println("waiting for file");
 					while (true) {
 						byte[] buffer = new byte[1024];
 
 						File file = new File("./src/temp");
+						file.createNewFile();
 						BufferedInputStream in = new BufferedInputStream(
 								server.getInputStream(), 1024);
 						FileOutputStream out = new FileOutputStream(file);
 						while (in.read(buffer) != -1) {
+							System.out.println("re cl");
 							out.write(buffer);
 							out.flush();
 						}
@@ -189,7 +192,7 @@ public class TrackSender {
 				}
 
 			}
-		});
+		}).start();
 
 	}
 

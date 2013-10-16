@@ -125,12 +125,13 @@ public class FileReceiver {
 
 			@Override
 			public void run() {
-				try (final ServerSocket propertySendServer = new ServerSocket(
-						57000)) {
+				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
 					while (true) {
+						System.out.println("waiting");
 						final Socket client = propertySendServer.accept();
 						client.setKeepAlive(true);
 						propertySendClients.add(client);
+						System.out.println("done");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -184,14 +185,17 @@ public class FileReceiver {
 				@Override
 				public void run() {
 					try {
+						System.out.println("start sending from server");
 						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
 						byte[] buffer = new byte[1024];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
+							System.out.println("sending");
 							out.write(buffer);
 							out.flush();
 						}
 						in.close();
+						out.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
