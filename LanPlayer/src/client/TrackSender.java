@@ -170,24 +170,30 @@ public class TrackSender {
 				try {
 					Socket server = new Socket(serverAddress, 57000);
 					System.out.println("waiting for file");
-					while (true) {
-						byte[] buffer = new byte[1];
+					BufferedInputStream in = new BufferedInputStream(
+							server.getInputStream());
+					int count = 0;
 
-						File file = new File("./src/temp");
-						file.createNewFile();
-						BufferedInputStream in = new BufferedInputStream(
-								server.getInputStream());
-						FileOutputStream out = new FileOutputStream(file);
-						while (in.read(buffer) != -1) {
-							out.write(buffer);
-							out.flush();
-						}
-						Properties prop = new Properties();
-						prop.load(new FileInputStream(file));
-						System.out.println(prop.get("key"));
-						//TODO handle file shit
-						System.out.println("file is here");
-						out.close();
+						synchronized (in) {
+							
+							byte[] buffer = new byte[1];
+
+							File file = new File("./src/temp" + count++);
+							FileOutputStream out = new FileOutputStream(file);
+							while (in.read(buffer) != -1) {
+								out.write(buffer);
+								out.flush();
+							}
+							Properties prop = new Properties();
+							prop.load(new FileInputStream(file));
+							System.out.println(prop.get("key"));
+							// TODO handle file shit
+							System.out.println("file is here");
+							out.close();
+							in.close();
+							server.close();
+						receiveFile();
+
 					}
 				} catch (UnknownHostException e) {
 					e.printStackTrace();

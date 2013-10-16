@@ -43,6 +43,12 @@ public class TestFileSend {
 		}
 		
 		re.sendFile(file);
+		re.sendFile(file);
+		re.sendFile(file);
+		re.sendFile(file);
+		re.sendFile(file);
+		re.sendFile(file);
+		re.sendFile(file);
 
 	}
 

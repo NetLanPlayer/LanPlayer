@@ -126,11 +126,9 @@ public class FileReceiver {
 			public void run() {
 				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
 					while (true) {
-						System.out.println("waiting");
 						final Socket client = propertySendServer.accept();
 						client.setKeepAlive(true);
 						propertySendClients.add(client);
-						System.out.println("done");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -194,6 +192,7 @@ public class FileReceiver {
 							out.flush();
 						}
 						in.close();
+						out.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -201,7 +200,9 @@ public class FileReceiver {
 				}
 
 			});
+			propertySendClients.remove(propertySendClients.indexOf(client));
 		}
+		
 	}
 
 	public void closeServer() {
