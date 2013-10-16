@@ -186,7 +186,7 @@ public class FileReceiver {
 					try {
 						System.out.println("start sending from server");
 						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
-						byte[] buffer = new byte[1024];
+						byte[] buffer = new byte[1];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
 							System.out.println("sending");

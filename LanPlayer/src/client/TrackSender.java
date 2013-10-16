@@ -171,12 +171,12 @@ public class TrackSender {
 					Socket server = new Socket(serverAddress, 57000);
 					System.out.println("waiting for file");
 					while (true) {
-						byte[] buffer = new byte[1024];
+						byte[] buffer = new byte[1];
 
 						File file = new File("./src/temp");
 						file.createNewFile();
 						BufferedInputStream in = new BufferedInputStream(
-								server.getInputStream(), 1024);
+								server.getInputStream());
 						FileOutputStream out = new FileOutputStream(file);
 						while (in.read(buffer) != -1) {
 							out.write(buffer);
