@@ -3,10 +3,12 @@ package server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +20,6 @@ public class FileReceiver {
 
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
-
 	private ExecutorService pool;
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(0);
@@ -116,7 +117,7 @@ public class FileReceiver {
 		}).start();
 
 		/**
-		 * send propertys to client
+		 * send file to client
 		 * 
 		 * 
 		 **/
@@ -126,15 +127,16 @@ public class FileReceiver {
 			public void run() {
 				try (final ServerSocket propertySendServer = new ServerSocket(
 						57000)) {
-					final Socket client = propertySendServer.accept();
-					client.setKeepAlive(true);
-					propertySendClients.add(client);
-					final int clientIndex = communicationClients
-							.indexOf(client);
-
+					while (true) {
+						final Socket client = propertySendServer.accept();
+						client.setKeepAlive(true);
+						propertySendClients.add(client);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
+
 				}
+
 			}
 		}).start();
 	}
@@ -174,6 +176,30 @@ public class FileReceiver {
 			}).start();
 		}
 
+	}
+
+	public void sendFile(final File file) {
+		for (final Socket client : propertySendClients) {
+			pool.submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+						byte[] buffer = new byte[1024];
+						FileInputStream in = new FileInputStream(file);
+						while (in.read(buffer) != -1) {
+							out.write(buffer);
+							out.flush();
+						}
+						in.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				}
+
+			});
+		}
 	}
 
 	public void closeServer() {

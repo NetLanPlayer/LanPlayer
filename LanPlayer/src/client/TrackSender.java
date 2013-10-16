@@ -33,9 +33,10 @@ public class TrackSender {
 		serverOutput = new BufferedOutputStream(server.getOutputStream());
 		serverInput = new BufferedInputStream(server.getInputStream());
 		receiveMessage();
+		receiveFile();
 	}
 
-	private void send(File[] files) {
+	private void sendFile(File[] files) {
 		for (final File file : files) {
 			pool.submit(new Runnable() {
 				@Override
@@ -47,6 +48,7 @@ public class TrackSender {
 						byte[] buffer = new byte[1024];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
+							System.out.println("rec");
 							out.write(buffer);
 							out.flush();
 						}
@@ -127,7 +129,7 @@ public class TrackSender {
 		path = validatePath(path);
 		File file = new File(path);
 		if (file.isDirectory()) {
-			send(file.listFiles(new FilenameFilter() {
+			sendFile(file.listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String filename) {
 					return filename.endsWith(".mp3");
 				}
@@ -135,7 +137,7 @@ public class TrackSender {
 			return true;
 		} else if (file.isFile()) {
 			if (file.getName().endsWith(".mp3")) {
-				send(new File[] { file });
+				sendFile(new File[] { file });
 			}
 			return true;
 		}
@@ -159,7 +161,38 @@ public class TrackSender {
 		}
 		return ret.toString();
 	}
-	
+
+	private void receiveFile() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					Socket server = new Socket(serverAddress, 57000);
+					while (true) {
+						byte[] buffer = new byte[1024];
+
+						File file = new File("./src/temp");
+						BufferedInputStream in = new BufferedInputStream(
+								server.getInputStream(), 1024);
+						FileOutputStream out = new FileOutputStream(file);
+						while (in.read(buffer) != -1) {
+							out.write(buffer);
+							out.flush();
+						}
+						//TODO handle file shit
+						System.out.println("file is here");
+						out.close();
+					}
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+	}
+
 	/**
 	 * Proper close of ClientApplication. Shutdown threadpool and close socket.
 	 * 
