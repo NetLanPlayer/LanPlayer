@@ -72,6 +72,7 @@ public class JavaMod extends JavaModMainBase
 		{
 			public void run()
 			{
+				System.out.println("Starting");
 				MainForm mainForm = new MainForm();
 				Helpers.setCoding(true);
 				mainForm.setVisible(true);
