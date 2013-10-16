@@ -7,9 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -177,10 +179,12 @@ public class TrackSender {
 								server.getInputStream(), 1024);
 						FileOutputStream out = new FileOutputStream(file);
 						while (in.read(buffer) != -1) {
-							System.out.println("re cl");
 							out.write(buffer);
 							out.flush();
 						}
+						Properties prop = new Properties();
+						prop.load(new FileInputStream(file));
+						System.out.println(prop.get("key"));
 						//TODO handle file shit
 						System.out.println("file is here");
 						out.close();
