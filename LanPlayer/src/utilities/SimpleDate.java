@@ -6,14 +6,14 @@ import java.util.Date;
 
 public class SimpleDate implements Comparable<SimpleDate> {
 
-	private Date date;
+	private Date dat;
 	
 	public Date getDate() {
-		return date;
+		return dat;
 	}
 	
 	public SimpleDate(Date date) {
-		this.date = date;
+		this.dat = date;
 		if(date == null) {
 			date = new Date();
 		}
@@ -34,12 +34,12 @@ public class SimpleDate implements Comparable<SimpleDate> {
 	}
 	
 	public String toString() {
-		return formattedDate(this.date);
+		return formattedDate(this.dat);
 	}
 
 	@Override
 	public int compareTo(SimpleDate o) {
-		return this.date.compareTo(o.getDate());
+		return this.dat.compareTo(o.getDate());
 	}
 	
 }
