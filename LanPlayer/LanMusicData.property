@@ -1,20 +1,17 @@
 #LAN DATA
-#Tue Oct 15 23:15:33 CEST 2013
-[pos]1[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/src/antipasta.xm[/file][ip]192.168.0.106[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]8[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/4. Himmel und H\u00F6lle.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]11[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/5. Gaukler.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:50[/date]
-[pos]7[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/3. Lebemann.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]10[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/13. Bunter Vogel.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:50[/date]
-[currentlyPlayed]=5
-[pos]3[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/10. Alles Schon Gesehen.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]2[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/1. Der Die Sonne Schlafen Schickt.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]13[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/8. Du und Ich.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:50[/date]
-[pos]9[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/9. Doof.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]12[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/7. Feuertaufe.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:50[/date]
-[participants]=15
-[lastPos]=15
-[pos]6[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/2. Wege Ohne Namen.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]5[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/14. Meie Din.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]4[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/12. Die Beute.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:42[/date]
-[pos]15[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/11. Bella Donna.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:53[/date]
-[pos]14[/pos]=[file]C\:/Users/Simon/git/GitRepo/LanPlayer/LanMusic/Kunstraub/6. Kunstraub.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]15.10.2013 22\:51[/date]
+#Wed Oct 16 12:05:19 CEST 2013
+[pos]1[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/src/antipasta.xm[/file][ip]192.168.0.102[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:56[/date]
+[currentlyPlayed]=6
+[pos]11[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/8.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]3[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/10.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]5[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/2.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]7[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/4.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]9[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/6.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]10[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/7.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]6[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/3.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]2[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/1.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[participants]=12
+[pos]12[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/9.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]8[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/5.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[pos]4[/pos]=[file]C\:/Users/Niggi/git/LanP/LanPlayer/LanMusic/11.mp3[/file][ip]Polling[/ip][played]0[/played][rating]0[/rating][skip]0[/skip][date]16.10.2013 11\:58[/date]
+[lastPos]=12
