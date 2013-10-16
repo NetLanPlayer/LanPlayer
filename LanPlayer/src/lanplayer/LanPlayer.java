@@ -24,7 +24,7 @@ public class LanPlayer extends JFrame {
 			e.printStackTrace();
 		}
 		
-		setMinimumSize(new Dimension(1400, 800));
+		setMinimumSize(new Dimension(1000, 480));
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 100, 100, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0 };
