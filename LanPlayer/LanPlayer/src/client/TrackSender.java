@@ -164,6 +164,8 @@ public class TrackSender {
 		return ret.toString();
 	}
 
+	AtomicInteger counter = new AtomicInteger(1);
+
 	private void receiveFile() {
 		new Thread(new Runnable() {
 			public void run() {
@@ -172,29 +174,24 @@ public class TrackSender {
 					System.out.println("waiting for file");
 					BufferedInputStream in = new BufferedInputStream(
 							server.getInputStream());
-					int count = 0;
-
-						synchronized (in) {
-							
-							byte[] buffer = new byte[1];
-
-							File file = new File("./src/temp" + count++);
-							FileOutputStream out = new FileOutputStream(file);
-							while (in.read(buffer) != -1) {
-								out.write(buffer);
-								out.flush();
-							}
-							Properties prop = new Properties();
-							prop.load(new FileInputStream(file));
-							System.out.println(prop.get("key"));
-							// TODO handle file shit
-							System.out.println("file is here");
-							out.close();
-							in.close();
-							server.close();
-						receiveFile();
-
+					byte[] buffer = new byte[1024];
+					File file = new File("./src/temp"
+							+ counter.getAndIncrement());
+					FileOutputStream out = new FileOutputStream(file);
+					while (in.read(buffer) != -1) {
+						out.write(buffer);
+						out.flush();
 					}
+					Properties prop = new Properties();
+					prop.load(new FileInputStream(file));
+					System.out.println(prop.get("key"));
+					// TODO handle file shit
+					System.out.println("file is here");
+					out.close();
+					in.close();
+					server.close();
+					receiveFile();
+
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

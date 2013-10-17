@@ -30,25 +30,22 @@ public class TestFileSend {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("try to send");
 		File file = new File("./src/tempmain");
 		try {
 			prop.store(new FileOutputStream(file)," comments");
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+//		re.sendFile(file);
 		re.sendFile(file);
 		re.sendFile(file);
-		re.sendFile(file);
-		re.sendFile(file);
-		re.sendFile(file);
-		re.sendFile(file);
-		re.sendFile(file);
+//		re.sendFile(file);
+//		re.sendFile(file);
+//		re.sendFile(file);
+//		re.sendFile(file);
 
 	}
 

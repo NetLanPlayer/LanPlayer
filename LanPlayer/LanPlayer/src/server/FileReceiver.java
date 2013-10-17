@@ -177,14 +177,14 @@ public class FileReceiver {
 	}
 
 	public void sendFile(final File file) {
-		for (final Socket client : propertySendClients) {
+		for (final Socket client : new ArrayList<Socket>(propertySendClients)) {
 			pool.submit(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						System.out.println("start sending from server");
 						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
-						byte[] buffer = new byte[1];
+						byte[] buffer = new byte[1024];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
 							System.out.println("sending");
@@ -192,7 +192,8 @@ public class FileReceiver {
 							out.flush();
 						}
 						in.close();
-						out.close();
+						propertySendClients.remove(client);
+						client.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -200,7 +201,6 @@ public class FileReceiver {
 				}
 
 			});
-			propertySendClients.remove(propertySendClients.indexOf(client));
 		}
 		
 	}
