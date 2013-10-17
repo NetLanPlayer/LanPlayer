@@ -8,6 +8,8 @@ import java.util.Observer;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import de.quippy.javamod.main.playlist.PlayList;
+
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
 
 	private static final long serialVersionUID = 8800273125331888962L;
@@ -37,18 +39,16 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	
 	private void reloadList() {
 		playList.clear();
-//		try {
-//			this.lanData.loadData();
-//		} catch (IOException e) {
-//		}
-		System.out.println("LanData lastPosition: " + lanData.getLastPosition());
+		try {
+			this.lanData.loadData();
+		} catch (IOException e) {
+		}
 		for(int i = 1; i <= lanData.getLastPosition(); i++) {
 			MusicData md = lanData.getMusicData(i);
 			if(md != null) {
 				playList.add(md);
 			}
 		}
-		System.out.println("PlayList size: " + playList.size());
 	}
 	
 	private boolean columnSortable = true;
@@ -106,7 +106,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		Object retObj = null;
 		if(musicData != null) {
 			switch(columnIndex) {
-			case 0: retObj = musicData.getPosition(); break;
+			case 0: retObj = musicData; break;
 			case 1: retObj = musicData.getTitle(); break;
 			case 2: retObj = musicData.getArtist(); break;
 			case 3: retObj = musicData.getAlbum(); break;
@@ -137,7 +137,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			
 		}
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
-			//reloadList();
+			reloadList();
 			fireTableDataChanged();
 			playlistPanel.restoreSelection();
 			playlistPanel.setDeleteBtnState();

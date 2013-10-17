@@ -28,7 +28,7 @@ public class SimpleDate implements Comparable<SimpleDate> {
 	public static Date parseDate(String dateStr) {
 		try {
 			return dateStr == null || dateStr.isEmpty() ? null : sdf.parse(dateStr);
-		} catch (ParseException e) {
+		} catch (ParseException | NumberFormatException e) {
 			return null;
 		}
 	}

@@ -238,10 +238,11 @@ public class LanData extends Observable {
 	 * @param ip Ip of uploader.
 	 * @return True if successful, false if problem occurred while storing.
 	 */
-	public boolean addNewFile(File file, String ip) {
+	public boolean addNewFile(File file, String ip, boolean notify) {
 		String path = "";
 		try {
 			path = file.getCanonicalPath();
+			path = path.replaceAll("\\\\", "/");
 		} catch (IOException e) {
 			return false;
 		}
@@ -258,8 +259,10 @@ public class LanData extends Observable {
 			return false;
 		}
 		
-		setChanged();
-		notifyObservers(FILE_TAG);
+		if(notify) {
+			setChanged();
+			notifyObservers(FILE_TAG);
+		}
 		resetLoadedFiles();	
 		
 		return true;
@@ -505,10 +508,10 @@ public class LanData extends Observable {
 		String originalChecksum = MD5Hash.getChecksum(propertyFile);
 		
 		data.clear();
-		
-		setAndStoreCurPlayed(currentlyPlayed);
-		setAndStoreLastPos(validFiles.size());
-		setAndStoreParticipants(participants);
+			
+		data.setProperty(CURRENTLY_PLAYED_TAG, currentlyPlayed + "");
+		data.setProperty(LAST_POSITION_TAG, validFiles.size() + "");
+		data.setProperty(PARTICIPANTS_TAG, participants + "");
 				
 		for(int x = 0; x < validFiles.size(); x++) {
 			data.setProperty(setValue(POS_TAG, "" + (x + 1)), validFiles.get(x));
@@ -559,7 +562,7 @@ public class LanData extends Observable {
 						continue;
 					}
 					if(!loadedFiles.contains(path)) {
-						addNewFile(f, "Polling");
+						addNewFile(f, "Polling", false);
 					}
 				}
 				clearNonExistingFiles();

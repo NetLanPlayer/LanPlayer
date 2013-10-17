@@ -117,6 +117,10 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private PlayThread playerThread;
 	private PlayList currentPlayList;
 
+	public PlayList getCurrentPlayList() {
+		return currentPlayList;
+	}
+
 	private AudioProcessor audioProcessor;
 	private transient SoundOutputStream soundOutputStream;
 

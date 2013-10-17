@@ -8,7 +8,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import utilities.SimpleDate;
 
-public class MusicData {
+public class MusicData implements Comparable<MusicData> {
 	
 	private MusicInfo musicInfo;
 	private File musicFile;
@@ -87,6 +87,12 @@ public class MusicData {
 	
 	public String toString() {
 		return position + "";
+	}
+
+	@Override
+	public int compareTo(MusicData other) {
+		if(other == null) return 1;
+		return new Integer(this.getPosition()).compareTo(new Integer(other.getPosition()));
 	}
 
 	

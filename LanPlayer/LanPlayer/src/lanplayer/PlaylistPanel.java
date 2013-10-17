@@ -10,6 +10,8 @@ import java.awt.GridBagConstraints;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +74,7 @@ public class PlaylistPanel extends JPanel {
 	
 	private LanData lanData = null;
 	
-	public List<MusicData> getPlaylist() {
+	public ArrayList<MusicData> getPlaylist() {
 		return playlistTableModel.getPlayList();
 	}
 	
@@ -99,7 +102,7 @@ public class PlaylistPanel extends JPanel {
 		lanData = new LanData(MUSIC_DIR, dataFile, INIT_PARTICIPANTS);
 			
 		if(!lanData.hasEntries()) {
-			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER");
+			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
@@ -199,6 +202,14 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.setRowSorter(playlistSorter);
 		playlistSorter.toggleSortOrder(0);
 		playlistSorter.setSortsOnUpdates(true);
+//		playlistSorter.addRowSorterListener(new RowSorterListener() {
+//
+//			@Override
+//			public void sorterChanged(RowSorterEvent arg0) {
+//				playerPanel.reloadPlaylist();				
+//			}
+//			
+//		});
 		
 	}
 	
@@ -211,7 +222,7 @@ public class PlaylistPanel extends JPanel {
 	public void setDeleteBtnState() {
 		try {
 			int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
-			if(modelIndex != lanData.getCurrentlyPlayed() - 1) {
+			if(modelIndex != lanData.getCurrentlyPlayed() - 1 && modelIndex != 0) {
 	        	controlPanel.getBtnDeleteTrack().setEnabled(true);
 	        }
 	        else {
