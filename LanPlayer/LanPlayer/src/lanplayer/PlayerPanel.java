@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
@@ -116,6 +117,12 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private MultimediaContainer currentContainer;
 	private PlayThread playerThread;
 	private PlayList currentPlayList;
+	
+	private boolean shuffle = false;
+	
+	public void doShuffle(boolean shuffle) {
+		this.shuffle = shuffle;
+	}
 
 	public PlayList getCurrentPlayList() {
 		return currentPlayList;
@@ -154,7 +161,6 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	public void reloadPlaylist() {
 		List<MusicData> filesToPlay = playlistPanel.getPlaylist();
-		//System.out.println("PlayList Player size: " + playlistPanel.getPlaylist().size());
 		if(filesToPlay.isEmpty()) {
 			File[] files = { PlaylistPanel.LAN_PLAYER_INIT };
 			doOpenFile(files);
@@ -845,7 +851,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	}
 
 	private void cascadeOtherEntryPlaying() {
-		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();	
 		if(currentPlayIndex >= 0 && currentPlayIndex < playlistPanel.getPlaylist().size()) {
 			MusicData musicData = playlistPanel.getPlaylist().get(currentPlayIndex);
 			int position = musicData.getPosition();
@@ -855,6 +861,11 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	
 	private boolean doNextPlayListEntry() {		
 		boolean ok = false;
+		if(shuffle) {
+			Random random = new Random();
+			int newCurrent = random.nextInt(currentPlayList.size());
+			currentPlayList.setCurrentElement(newCurrent);
+		}
 		while (currentPlayList != null && currentPlayList.hasNext() && !ok) {
 			currentPlayList.next();
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
@@ -866,6 +877,11 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	private boolean doPrevPlayListEntry() {
 		boolean ok = false;
+		if(shuffle) {
+			Random random = new Random();
+			int newCurrent = random.nextInt(currentPlayList.size());
+			currentPlayList.setCurrentElement(newCurrent);
+		}
 		while (currentPlayList != null && currentPlayList.hasPrevious() && !ok) {
 			currentPlayList.previous();
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
@@ -898,7 +914,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		// addFileToLastLoaded(mediaPLSFileURL);
 		currentPlayList = null;
 		try {
-			currentPlayList = PlayList.createFromFile(mediaPLSFileURL, false, true); // repeating
+			currentPlayList = PlayList.createFromFile(mediaPLSFileURL, false, true); // shuffle, repeating
 			if (currentPlayList != null) {
 				// getPlaylistGUI().setNewPlaylist(currentPlayList);
 				return doNextPlayListEntry();
@@ -987,10 +1003,12 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		while (currentPlayList != null && !ok) {
 			final PlayListEntry entry = currentPlayList.getCurrentEntry();
 			ok = loadMultimediaFile(entry, startPlaying);
-			if (!ok)
+			if (!ok) {
 				currentPlayList.next();
-			else if (playerThread == null && startPlaying)
+			}
+			else if (playerThread == null && startPlaying) {
 				doStartPlaying(true, entry.getTimeIndex());
+			}
 		}
 	}
 	

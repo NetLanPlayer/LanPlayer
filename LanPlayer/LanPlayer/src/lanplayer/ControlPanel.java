@@ -11,12 +11,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class ControlPanel extends JPanel {
 
 	private JTextField skipField;
 	private JButton btnSetSkip;
 	private JCheckBox chckbxShuffle;
+	public JCheckBox getChckbxShuffle() {
+		return chckbxShuffle;
+	}
+	
 	private JButton btnDeleteTrack;
 	public JButton getBtnDeleteTrack() {
 		return btnDeleteTrack;

@@ -21,6 +21,8 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -210,6 +212,12 @@ public class PlaylistPanel extends JPanel {
 //			}
 //			
 //		});
+		
+		controlPanel.getChckbxShuffle().addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				playerPanel.doShuffle(controlPanel.getChckbxShuffle().isSelected());				
+			}
+		});
 		
 	}
 	
