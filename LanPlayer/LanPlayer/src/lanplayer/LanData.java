@@ -565,6 +565,8 @@ public class LanData extends Observable {
 						addNewFile(f, "Polling", false);
 					}
 				}
+				setChanged();
+				notifyObservers(FILE_TAG);
 				clearNonExistingFiles();
 			}
 		}

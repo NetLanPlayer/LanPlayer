@@ -65,6 +65,10 @@ public class PlaylistPanel extends JPanel {
 		return this.playerPanel;
 	}
 	
+	public ControlPanel getControlPanel() {
+		return controlPanel;
+	}
+	
 	private JTable playlistTable;
 	
 	public JTable getPlaylistTable() {

@@ -142,6 +142,9 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			playlistPanel.restoreSelection();
 			playlistPanel.setDeleteBtnState();
 		}
+		else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
+			
+		}
 	}
 
 }
