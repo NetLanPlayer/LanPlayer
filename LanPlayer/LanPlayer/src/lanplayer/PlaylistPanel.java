@@ -44,6 +44,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import server.Server;
 import utilities.MyIp;
 import utilities.SimpleDate;
 
@@ -51,11 +52,13 @@ public class PlaylistPanel extends JPanel {
 		
 	private final static int INIT_PARTICIPANTS = 10;
 	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
-	private final static File MUSIC_DIR = new File("./ServerData");
+	public final static String MUSIC_DIR_PATH = "./ServerData/";
+	private final static File MUSIC_DIR = new File(MUSIC_DIR_PATH);
 	public final static File LAN_DATA_FILE = new File("./ServerData/LanMusicData.property");
 	
 	private PlayerPanel playerPanel;
 	private ControlPanel controlPanel;
+	private Server server;
 	
 	public void setPlayerPanel(PlayerPanel playerPanel) {
 		this.playerPanel = playerPanel;
@@ -88,8 +91,9 @@ public class PlaylistPanel extends JPanel {
 		return lanData;
 	}
 		
-	public PlaylistPanel(ControlPanel controlPanel) {
+	public PlaylistPanel(Server server, ControlPanel controlPanel) {
 		this.controlPanel = controlPanel;
+		this.server = server;
 		initLanData();
 		initialize();
 	}
@@ -104,7 +108,7 @@ public class PlaylistPanel extends JPanel {
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS);
+		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, true);
 			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);
@@ -146,7 +150,7 @@ public class PlaylistPanel extends JPanel {
 		
 		String[] playlistColumnNames = {"Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "Date", "Uploader" };
 		playlistTable = new JTable();
-		playlistTableModel = new PlaylistTableModel(this, lanData , playlistColumnNames);
+		playlistTableModel = new PlaylistTableModel(server, this, lanData , playlistColumnNames);
 		playlistTable.setModel(playlistTableModel);
 		playlistTable.getTableHeader().setReorderingAllowed(false);
 		playlistTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

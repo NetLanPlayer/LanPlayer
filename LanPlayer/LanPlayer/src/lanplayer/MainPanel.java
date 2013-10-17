@@ -5,6 +5,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import java.awt.GridBagLayout;
+
 import javax.swing.JPanel;
 
 import de.quippy.javamod.system.Helpers;
@@ -13,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -20,9 +22,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
+import server.Server;
+
 public class MainPanel extends JFrame {
 
-	public MainPanel() {
+	public MainPanel(Server server) {
 		setTitle("Lan Player");
 		
 		try {
@@ -47,7 +51,7 @@ public class MainPanel extends JFrame {
 		gbc_controlPanel.gridy = 0;
 		getContentPane().add(controlPanel, gbc_controlPanel);
 		
-		PlaylistPanel playlistPanel = new PlaylistPanel(controlPanel);
+		PlaylistPanel playlistPanel = new PlaylistPanel(server, controlPanel);
 		GridBagConstraints gbc_playlistPanel = new GridBagConstraints();
 		gbc_playlistPanel.fill = GridBagConstraints.BOTH;
 		gbc_playlistPanel.gridx = 1;

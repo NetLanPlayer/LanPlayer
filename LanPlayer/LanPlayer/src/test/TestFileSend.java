@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.BindException;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
@@ -13,7 +14,9 @@ import client.Client;
 
 public class TestFileSend {
 	public static void main(String[] args) throws InterruptedException{
+	
 		Server re = new Server("C:/test/");
+
 		Properties prop = new Properties();
 		prop.put("key", "hello");
 		

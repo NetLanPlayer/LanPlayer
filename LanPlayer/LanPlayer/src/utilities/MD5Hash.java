@@ -29,7 +29,7 @@ public class MD5Hash {
 				FileInputStream fis = new FileInputStream(file);
 				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 				String line = br.readLine();
-				while(!line.startsWith("#")) {
+				while(line != null && !line.startsWith("#")) {
 					fis.read(b);	
 				}
 			} catch (FileNotFoundException e) {

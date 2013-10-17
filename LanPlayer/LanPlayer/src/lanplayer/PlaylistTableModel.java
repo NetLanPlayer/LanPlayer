@@ -8,6 +8,7 @@ import java.util.Observer;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import server.Server;
 import de.quippy.javamod.main.playlist.PlayList;
 
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
@@ -20,11 +21,13 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 	}
 	
 	private PlaylistPanel playlistPanel;
+	private Server server;
 	private LanData lanData;
 	private String[] columnNames;
 	
-	public PlaylistTableModel(PlaylistPanel playlistPanel, LanData lanData, String[] columnNames) {
+	public PlaylistTableModel(Server server, PlaylistPanel playlistPanel, LanData lanData, String[] columnNames) {
 		this.playlistPanel = playlistPanel;
+		this.server = server;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		this.lanData.addObserver(this);
@@ -134,6 +137,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			if(player != null) {
 				player.reloadPlaylist();
 			}
+			server.sendFile(lanData.getFile());
 			
 		}
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {

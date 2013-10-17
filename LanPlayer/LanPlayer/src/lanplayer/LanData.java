@@ -36,14 +36,25 @@ public class LanData extends Observable {
 	public final static String SKIP_TAG = "[skip]" + PLACEHOLDER + "[/skip]";
 	public final static String IP_TAG = "[ip]" + PLACEHOLDER + "[/ip]";
 	public final static String FILE_TAG = "[file]" + PLACEHOLDER + "[/file]";
+	public final static String TITLE_TAG = "[title]" + PLACEHOLDER + "[/title]";
+	public final static String ARTIST_TAG = "[artist]" + PLACEHOLDER + "[/artist]";
+	public final static String ALBUM_TAG = "[album]" + PLACEHOLDER + "[/album]";
+	public final static String TRACKNO_TAG = "[trackno]" + PLACEHOLDER + "[/trackno]";
+	public final static String DURATION_TAG = "[duration]" + PLACEHOLDER + "[/duration]";
 	public final static String DATE_TAG = "[date]" + PLACEHOLDER + "[/date]";
 	
 	private File propertyFile = null;
+	
+	public File getFile() {
+		return propertyFile;
+	}
+
 	private File musicDirectory = null;
 	private HashSet<String> loadedFiles = new HashSet<String>();
 	private Properties data = null;
 	
-	public LanData(File musicDirectory, File propertyFile, int participants) throws IllegalArgumentException {
+	
+	public LanData(File musicDirectory, File propertyFile, int participants, boolean server) throws IllegalArgumentException {
 		
 		if(!musicDirectory.exists() && !musicDirectory.isDirectory()) {
 			throw new IllegalArgumentException("Need musicDirectory to exist and be a directory.");
@@ -81,7 +92,10 @@ public class LanData extends Observable {
 		}
 		
 		resetLoadedFiles();
-		new Thread(new MusicDirectoryPolling(musicDirectory)).start();
+		if(server) {
+			new Thread(new MusicDirectoryPolling(musicDirectory)).start();
+		}
+		
 	}
 	
 	private void loadClassValues() {
@@ -317,6 +331,9 @@ public class LanData extends Observable {
 			temp.load(fis);
 		}
 		data = temp;
+		loadCurrentlyPlayed();
+		loadLastPosition();
+		loadParticipants();
 	}
 	
 	/**

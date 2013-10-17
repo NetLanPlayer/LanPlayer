@@ -11,12 +11,15 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Observable;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Client {
+import main.ClientGui;
+
+public class Client extends Observable {
 
 	private final ExecutorService pool;
 	private final String serverAddress;
@@ -100,7 +103,8 @@ public class Client {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (true) {
+				boolean stop = false;
+				while (!stop) {
 					byte[] buffer = new byte[1024];
 					synchronized (serverInput) {
 						try {
@@ -111,7 +115,7 @@ public class Client {
 							System.out.println(c.getAndIncrement() + message);
 							// TODO handleMessage(message);
 						} catch (IOException e) {
-							e.printStackTrace();
+							stop = true;
 						}
 					}
 				}
@@ -164,29 +168,31 @@ public class Client {
 		return ret.toString();
 	}
 
-	AtomicInteger counter = new AtomicInteger(1);
+	//AtomicInteger counter = new AtomicInteger(1);
 
 	private void receiveFile() {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
 					Socket server = new Socket(serverAddress, 57000);
-					System.out.println("waiting for file");
-					BufferedInputStream in = new BufferedInputStream(
-							server.getInputStream());
+					System.out.println("Client: waiting for file");
+					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
 					byte[] buffer = new byte[1024];
-					File file = new File("./src/temp"
-							+ counter.getAndIncrement());
-					FileOutputStream out = new FileOutputStream(file);
+					//File file = new File("./src/temp" + counter.getAndIncrement());
+					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
 					while (in.read(buffer) != -1) {
 						out.write(buffer);
 						out.flush();
 					}
+					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
 					Properties prop = new Properties();
-					prop.load(new FileInputStream(file));
-					System.out.println(prop.get("key"));
-					// TODO handle file shit
-					System.out.println("file is here");
+					prop.load(fis);
+					//System.out.println(prop.get("key"));
+					
+					setChanged();
+					notifyObservers(prop);
+					
+					System.out.println("Client: file is here");
 					out.close();
 					in.close();
 					server.close();

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
 
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
@@ -33,7 +34,7 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		//this.lanData.addObserver(this);
-		//reloadList();
+		reloadList();
 	}
 	
 	public boolean isCurrentlyPlayed(int row) {
@@ -131,25 +132,30 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public void update(Observable observable, Object obj) {
-		if(obj.equals(LanData.FILE_TAG)) {			
+		if(obj instanceof Properties) {
 			reloadList();
 			fireTableDataChanged();
-//			clientGui.restoreSelection();
-//			PlayerPanel player = this.clientGui.getPlayerPanel();
-//			if(player != null) {
-//				player.reloadPlaylist();
-//			}
-			
 		}
-		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
-			reloadList();
-			fireTableDataChanged();
-//			clientGui.restoreSelection();
-//			clientGui.setDeleteBtnState();
-		}
-		else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
-			
-		}
+		
+//		if(obj.equals(LanData.FILE_TAG)) {			
+//			reloadList();
+//			fireTableDataChanged();
+////			clientGui.restoreSelection();
+////			PlayerPanel player = this.clientGui.getPlayerPanel();
+////			if(player != null) {
+////				player.reloadPlaylist();
+////			}
+//			
+//		}
+//		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
+//			reloadList();
+//			fireTableDataChanged();
+////			clientGui.restoreSelection();
+////			clientGui.setDeleteBtnState();
+//		}
+//		else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
+//			
+//		}
 	}
 
 }

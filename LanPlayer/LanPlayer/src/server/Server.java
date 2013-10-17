@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class Server {
 				.synchronizedList(new LinkedList<Socket>());
 		pool = Executors.newCachedThreadPool();
 		initServer();
-		System.out.println("server started");
+		System.out.println("Server started");
 	}
 
 	private void initServer() {
@@ -124,7 +125,6 @@ public class Server {
 		/**
 		 * send file to client
 		 * 
-		 * 
 		 **/
 		new Thread(new Runnable() {
 
@@ -138,7 +138,6 @@ public class Server {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-
 				}
 
 			}

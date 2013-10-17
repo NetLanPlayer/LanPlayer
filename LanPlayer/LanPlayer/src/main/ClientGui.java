@@ -51,7 +51,7 @@ import lanplayer.PlaylistTableModel;
 public class ClientGui extends JFrame {
 
 	private final static int INIT_PARTICIPANTS = 10;
-	public final static File MUSIC_DIR = new File("./ClientData");
+	public final static File MUSIC_DIR = new File("./ClientData/");
 	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
 	
 	private LanData lanData = null;
@@ -66,7 +66,7 @@ public class ClientGui extends JFrame {
 	private JTextField txtEnterIpAddress;
 	private JTextField txtEnterPath;
 
-	private Client sender;
+	private Client client;
 	private IPAddressValidator ipVal = new IPAddressValidator();
 
 	private JButton btnUpload;
@@ -102,8 +102,8 @@ public class ClientGui extends JFrame {
 	}
 
 	public ClientGui() {
-		initialize();
 		initLanData();
+		initialize();
 	}
 
 	private void initialize() {
@@ -149,8 +149,7 @@ public class ClientGui extends JFrame {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				txtEnterIpAddress.select(0, txtEnterIpAddress.getText()
-						.length());
+				txtEnterIpAddress.select(0, txtEnterIpAddress.getText().length());
 			}
 		});
 		txtEnterIpAddress.setText("Enter ServerIP");
@@ -167,7 +166,7 @@ public class ClientGui extends JFrame {
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!txtEnterIpAddress.isEditable()) {
-					sender = null;
+					client = null;
 					txtEnterIpAddress.setEditable(true);
 					txtEnterIpAddress.setText("");
 					btnConnect.setText("Connect");
@@ -175,10 +174,12 @@ public class ClientGui extends JFrame {
 					txtEnterPath.setEditable(false);
 				} else if (ipVal.validate(txtEnterIpAddress.getText())) {
 					try {
-						sender = new Client(txtEnterIpAddress.getText());
+						client = new Client(txtEnterIpAddress.getText());
+						
+						client.addObserver(clientTableModel); // adding observer here
+						
 					} catch (UnknownHostException e) {
-						txtEnterIpAddress
-								.setText("Connection failed, try again...");
+						txtEnterIpAddress.setText("Connection failed, try again...");
 						txtEnterIpAddress.setEditable(true);
 						return;
 					} catch (java.net.ConnectException e) {
@@ -249,7 +250,7 @@ public class ClientGui extends JFrame {
 		uploadPanel.add(btnUpload, gbc_btnUpload);
 		btnUpload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (sender.checkPathAndSend(txtEnterPath.getText()))
+				if (client.checkPathAndSend(txtEnterPath.getText()))
 					txtEnterPath.setText("");
 				else
 					txtEnterPath.setText("Path was wrong");
@@ -290,6 +291,7 @@ public class ClientGui extends JFrame {
 		clientTable = new JTable();
 		clientTableModel = new ClientTableModel(this, this.lanData , playlistColumnNames);
 		clientTable.setModel(clientTableModel);
+				
 		setClientTableColumnSizes();
 		
 		scrollPane.setViewportView(clientTable);
@@ -335,7 +337,7 @@ public class ClientGui extends JFrame {
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS);
+		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
 	}
 
 	private void setClientTableColumnSizes() {
