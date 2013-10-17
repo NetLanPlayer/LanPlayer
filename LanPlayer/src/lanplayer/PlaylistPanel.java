@@ -50,6 +50,7 @@ public class PlaylistPanel extends JPanel {
 	public final static String LAN_DATA_FILE = "./LanMusicData.property";
 	
 	private PlayerPanel playerPanel;
+	private ControlPanel controlPanel;
 	
 	public void setPlayerPanel(PlayerPanel playerPanel) {
 		this.playerPanel = playerPanel;
@@ -78,7 +79,8 @@ public class PlaylistPanel extends JPanel {
 		return lanData;
 	}
 		
-	public PlaylistPanel() {
+	public PlaylistPanel(ControlPanel controlPanel) {
+		this.controlPanel = controlPanel;
 		initLanData();
 		initialize();
 	}
@@ -161,6 +163,10 @@ public class PlaylistPanel extends JPanel {
 		    @Override
 		    public void valueChanged(ListSelectionEvent e) {
 		        selectedRow = e.getFirstIndex();
+		        if(playlistTable.getSelectionModel().isSelectionEmpty()) {
+		        	return;
+		        }
+		        setDeleteBtnState();
 		    }
 		});
 			
@@ -202,6 +208,21 @@ public class PlaylistPanel extends JPanel {
         }
 	}
 	
+	public void setDeleteBtnState() {
+		try {
+			int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
+			if(modelIndex != lanData.getCurrentlyPlayed() - 1) {
+	        	controlPanel.getBtnDeleteTrack().setEnabled(true);
+	        }
+	        else {
+	        	controlPanel.getBtnDeleteTrack().setEnabled(false);
+	        }
+		}
+		catch(Exception e) {
+			controlPanel.getBtnDeleteTrack().setEnabled(false);
+		}
+	}
+	
 	private void setPlaylistTableColumnSizes() {
 		playlistTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 		playlistTable.getColumnModel().getColumn(0).setMinWidth(34);
@@ -209,10 +230,10 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getColumnModel().getColumn(1).setPreferredWidth(250);
 		playlistTable.getColumnModel().getColumn(1).setMinWidth(38);
 		
-		playlistTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+		playlistTable.getColumnModel().getColumn(2).setPreferredWidth(170);
 		playlistTable.getColumnModel().getColumn(2).setMinWidth(45);
 		
-		playlistTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+		playlistTable.getColumnModel().getColumn(3).setPreferredWidth(120);
 		playlistTable.getColumnModel().getColumn(3).setMinWidth(50);
 		
 		playlistTable.getColumnModel().getColumn(4).setPreferredWidth(47);
@@ -239,6 +260,11 @@ public class PlaylistPanel extends JPanel {
 		
 	class PlaylistTableCellRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8149911584155489952L;
+
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 	        JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 	        
@@ -254,15 +280,30 @@ public class PlaylistPanel extends JPanel {
 	            label.setToolTipText((String) value);
 	            label.setIconTextGap(5);
 	            label.setHorizontalAlignment(SwingConstants.LEADING);
+	            label.setText(" " + (String) value);
 	        }
 	        else if(value instanceof Number) {
-	            String valueStr = value.toString();
-	            int countDigits = valueStr.length();
+	            int countDigits = value.toString().length();
 	            label.setHorizontalAlignment(SwingConstants.TRAILING);
 	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
+	            label.setText(value.toString() + " ");
 	        }
 	        else if(value instanceof SimpleDate) {
-	        	//label.setHorizontalAlignment(SwingConstants.CENTER);
+	        	 label.setToolTipText(value.toString());
+		         label.setIconTextGap(5);
+		         label.setHorizontalAlignment(SwingConstants.LEADING);
+		         //label.setHorizontalAlignment(SwingConstants.CENTER);
+		         label.setText(" " + value.toString());
+	        	
+	        }
+	        else {
+	        	if(value != null) {
+	        		label.setToolTipText(value.toString());
+	        		label.setText(" " + value.toString());
+	        	} 
+	            label.setIconTextGap(5);
+	            label.setHorizontalAlignment(SwingConstants.LEADING);
+	            
 	        }
 	        return label;
 	    }

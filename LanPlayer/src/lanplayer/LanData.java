@@ -181,30 +181,7 @@ public class LanData extends Observable {
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storePlayed(int position, int played) {
-		if(position < 0 || position > lastPosition) return false;
-		String formValue = data.getProperty(setValue(POS_TAG, "" + position));
-		if(formValue == null || formValue.isEmpty()) return false;
-		
-		String tagBegin = PLAYED_TAG.substring(0, PLAYED_TAG.indexOf("]") + 1);
-		String tagEnd = PLAYED_TAG.substring(PLAYED_TAG.lastIndexOf("["), PLAYED_TAG.length());
-		
-		int indexBegin = formValue.indexOf(tagBegin);
-		int indexEnd = formValue.indexOf(tagEnd);
-		if(indexBegin == -1 || indexEnd == -1) return false;
-		
-		String pre = formValue.substring(0, indexBegin);
-		String post = formValue.substring(indexEnd + tagEnd.length(), formValue.length());
-		
-		data.setProperty(setValue(POS_TAG, "" + lastPosition), pre + played + post);
-		try {
-			storeData();
-		} catch (IOException e) {
-			data.setProperty(setValue(POS_TAG, "" + lastPosition), formValue);
-			return false;
-		}
-		setChanged();
-		notifyObservers(PLAYED_TAG);
-		return true;
+		return storeNumber(PLAYED_TAG, position, played);
 	}
 	
 	/**
@@ -214,30 +191,7 @@ public class LanData extends Observable {
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storeSkip(int position, int skip) {
-		if(position < 0 || position > lastPosition) return false;
-		String formValue = data.getProperty(setValue(POS_TAG, "" + position));
-		if(formValue == null || formValue.isEmpty()) return false;
-		
-		String tagBegin = SKIP_TAG.substring(0, SKIP_TAG.indexOf("]") + 1);
-		String tagEnd = SKIP_TAG.substring(SKIP_TAG.lastIndexOf("["), SKIP_TAG.length());
-		
-		int indexBegin = formValue.indexOf(tagBegin);
-		int indexEnd = formValue.indexOf(tagEnd);
-		if(indexBegin == -1 || indexEnd == -1) return false;
-		
-		String pre = formValue.substring(0, indexBegin);
-		String post = formValue.substring(indexEnd + tagEnd.length(), formValue.length());
-		
-		data.setProperty(setValue(POS_TAG, "" + lastPosition), pre + skip + post);
-		try {
-			storeData();
-		} catch (IOException e) {
-			data.setProperty(setValue(POS_TAG, "" + lastPosition), formValue);
-			return false;
-		}
-		setChanged();
-		notifyObservers(SKIP_TAG);
-		return true;
+		return storeNumber(SKIP_TAG, position, skip);
 	}
 	
 	/**
@@ -247,12 +201,17 @@ public class LanData extends Observable {
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storeRating(int position, int rating) {
+		return storeNumber(RATING_TAG, position, rating);
+	}
+	
+	private boolean storeNumber(String tag, int position, int value) {
+		if(tag == null || tag.isEmpty() || position < 1 || position > lastPosition) return false;
 		if(position < 0 || position > lastPosition) return false;
 		String formValue = data.getProperty(setValue(POS_TAG, "" + position));
 		if(formValue == null || formValue.isEmpty()) return false;
 		
-		String tagBegin = RATING_TAG.substring(0, RATING_TAG.indexOf("]") + 1);
-		String tagEnd = RATING_TAG.substring(RATING_TAG.lastIndexOf("["), RATING_TAG.length());
+		String tagBegin = tag.substring(0, tag.indexOf("]") + 1);
+		String tagEnd = tag.substring(tag.lastIndexOf("["), tag.length());
 		
 		int indexBegin = formValue.indexOf(tagBegin);
 		int indexEnd = formValue.indexOf(tagEnd);
@@ -261,15 +220,15 @@ public class LanData extends Observable {
 		String pre = formValue.substring(0, indexBegin);
 		String post = formValue.substring(indexEnd + tagEnd.length(), formValue.length());
 		
-		data.setProperty(setValue(POS_TAG, "" + lastPosition), pre + rating + post);
+		data.setProperty(setValue(POS_TAG, "" + position), pre + tagBegin + value + tagEnd + post);
 		try {
 			storeData();
 		} catch (IOException e) {
-			data.setProperty(setValue(POS_TAG, "" + lastPosition), formValue);
+			data.setProperty(setValue(POS_TAG, "" + position), formValue);
 			return false;
 		}
 		setChanged();
-		notifyObservers(RATING_TAG);
+		notifyObservers(tag);
 		return true;
 	}
 		
@@ -318,6 +277,18 @@ public class LanData extends Observable {
 	
 	private String setValue(String tag, String value) {
 		return tag.replaceAll(PLACEHOLDER, value);
+	}
+	
+	/**
+	 * Acquire value from file at 'position' for 'tag'.
+	 * @param tag String tag.
+	 * @param position int position of file.
+	 * @return String value or null if not found.
+	 */
+	public String getValue(String tag, int position) {
+		if(tag == null || tag.isEmpty() || position < 1 || position > lastPosition) return null;
+		String formValue = data.getProperty(setValue(POS_TAG, "" + position));
+		return getValue(tag, formValue);
 	}
 	
 	private String getValue(String tag, String formValue) {

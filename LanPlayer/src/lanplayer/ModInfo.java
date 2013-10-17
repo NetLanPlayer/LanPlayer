@@ -33,8 +33,8 @@ public class ModInfo extends MusicInfo {
 	}
 
 	@Override
-	public String getTrackNumber() {
-		return "";
+	public TrackNumber getTrackNumber() {
+		return new TrackNumber(0, null);
 	}
 
 }

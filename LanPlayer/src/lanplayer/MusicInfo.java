@@ -36,7 +36,7 @@ abstract class MusicInfo {
 	
 	public abstract String getAlbum();
 	
-	public abstract String getTrackNumber();
+	public abstract TrackNumber getTrackNumber();
 	
 	public MusicInfo(File musicFile) {
 		this.musicFile = musicFile;

@@ -64,8 +64,8 @@ public class MusicData {
 		return new SimpleDate(this.date);
 	}
 	
-	public String getTrackNumber() {
-		return musicInfo == null ? "" : musicInfo.getTrackNumber();
+	public TrackNumber getTrackNumber() {
+		return musicInfo == null ? new TrackNumber(0,null) : musicInfo.getTrackNumber();
 	}
 	
 	public MusicData(int position, File musicFile, String ip, int played, int rating, int skip, Date date) throws MalformedURLException, UnsupportedAudioFileException {

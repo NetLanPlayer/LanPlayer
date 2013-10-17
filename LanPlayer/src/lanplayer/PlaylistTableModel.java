@@ -41,12 +41,14 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 //			this.lanData.loadData();
 //		} catch (IOException e) {
 //		}
-		for(int i = 0; i < lanData.getLastPosition(); i++) {
-			MusicData md = lanData.getMusicData(i + 1);
+		System.out.println("LanData lastPosition: " + lanData.getLastPosition());
+		for(int i = 1; i <= lanData.getLastPosition(); i++) {
+			MusicData md = lanData.getMusicData(i);
 			if(md != null) {
 				playList.add(md);
 			}
 		}
+		System.out.println("PlayList size: " + playList.size());
 	}
 	
 	private boolean columnSortable = true;
@@ -134,10 +136,11 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			}
 			
 		}
-		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG)) {
-			//reloadList();
+		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
+			reloadList();
 			fireTableDataChanged();
 			playlistPanel.restoreSelection();
+			playlistPanel.setDeleteBtnState();
 		}
 	}
 

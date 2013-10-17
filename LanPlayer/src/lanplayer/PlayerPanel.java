@@ -33,7 +33,6 @@ import de.quippy.javamod.io.GaplessSoundOutputStreamImpl;
 import de.quippy.javamod.io.SoundOutputStream;
 import de.quippy.javamod.main.gui.PlayThread;
 import de.quippy.javamod.main.gui.PlayThreadEventListener;
-import de.quippy.javamod.main.gui.components.LEDScrollPanel;
 import de.quippy.javamod.main.gui.components.RoundSlider;
 import de.quippy.javamod.main.gui.components.SAMeterPanel;
 import de.quippy.javamod.main.gui.components.SeekBarPanel;
@@ -151,6 +150,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	public void reloadPlaylist() {
 		List<MusicData> filesToPlay = playlistPanel.getPlaylist();
+		//System.out.println("PlayList Player size: " + playlistPanel.getPlaylist().size());
 		if(filesToPlay.isEmpty()) {
 			File[] files = { PlaylistPanel.LAN_PLAYER_INIT };
 			doOpenFile(files);
@@ -183,9 +183,9 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		gbc_namePanel.gridx = 0;
 		gbc_namePanel.gridy = 0;
 		add(namePanel, gbc_namePanel);
-		namePanel.add(getLEDScrollPanel(), Helpers.getGridBagConstraint(0, 0,
-				1, 0, java.awt.GridBagConstraints.NONE,
-				java.awt.GridBagConstraints.CENTER, 0.0, 0.0));
+		
+		//namePanel.add(getLEDScrollPanel(), Helpers.getGridBagConstraint(0, 0, 1, 0, java.awt.GridBagConstraints.NONE, java.awt.GridBagConstraints.CENTER, 0.0, 0.0));
+		namePanel.add(getLEDScrollPanel(), gbc_namePanel);
 		GridBagLayout gbl_namePanel = new GridBagLayout();
 		gbl_namePanel.columnWidths = new int[]{0};
 		gbl_namePanel.rowHeights = new int[]{0};
@@ -351,7 +351,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 			ledScrollPanel = new LEDScrollPanel(30, "Lan Player"
 					+ "                  ", chars, Color.GREEN, Color.BLACK);
 			Dimension d = new Dimension((chars * brick * 6) + 11,
-					(brick * 8) + 4);
+					(brick * 8) + 11);
 			ledScrollPanel.setSize(d);
 			ledScrollPanel.setMaximumSize(d);
 			ledScrollPanel.setMinimumSize(d);
@@ -1071,6 +1071,27 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		{
 			getButton_Play().setIcon(buttonPlay_normal);
 			if (thread.getHasFinishedNormaly()) {
+				
+				int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+				if(currentPlayIndex >= 0 && currentPlayIndex < playlistPanel.getPlaylist().size()) {
+					MusicData musicData = playlistPanel.getPlaylist().get(currentPlayIndex);
+					int position = musicData.getPosition();
+					String playedStr = playlistPanel.getLanData().getValue(LanData.PLAYED_TAG, position);
+					int played = 0;
+					try {
+						played = Integer.parseInt(playedStr);
+						played++;
+					}
+					catch(Exception e) {
+					}
+					
+					if(played > 0) {
+						playlistPanel.getLanData().storePlayed(position, played);
+					}
+					
+					playlistPanel.getLanData().setAndStoreCurPlayed(position);
+				}
+				
 				boolean ok = doNextPlayListEntry();
 				if (!ok)
 					doStopPlaying();

@@ -51,14 +51,25 @@ public class MP3Info extends MusicInfo {
 	}
 
 	@Override
-	public String getTrackNumber() {
+	public TrackNumber getTrackNumber() {
+		int trackNo = 0;
 		if (mp3FileIDTags.id3v1Exists()) {
-			return mp3FileIDTags.getTrack(MP3FileID3Controller.ID3V1);
+			String trackNoStr = mp3FileIDTags.getTrack(MP3FileID3Controller.ID3V1);
+			try {
+				trackNo = Integer.parseInt(trackNoStr);
+			}
+			catch(NumberFormatException nfe) {
+			}
 		}
 		else if(mp3FileIDTags.id3v2Exists()) {
-			return mp3FileIDTags.getTrack(MP3FileID3Controller.ID3V2);
+			String trackNoStr = mp3FileIDTags.getTrack(MP3FileID3Controller.ID3V2);
+			try {
+				trackNo = Integer.parseInt(trackNoStr);
+			}
+			catch(NumberFormatException nfe) {
+			}
 		}
-		return "";
+		return new TrackNumber(trackNo, getAlbum());
 	}
 
 }
