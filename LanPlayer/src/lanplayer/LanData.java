@@ -236,9 +236,10 @@ public class LanData extends Observable {
 	 * Adds a new file to LanData properties.
 	 * @param file File to add.
 	 * @param ip Ip of uploader.
+	 * @param store boolean flag, set to true if property should be stored and observers notified.
 	 * @return True if successful, false if problem occurred while storing.
 	 */
-	public boolean addNewFile(File file, String ip) {
+	public boolean addNewFile(File file, String ip, boolean store) {
 		String path = "";
 		try {
 			path = file.getCanonicalPath();
@@ -251,15 +252,24 @@ public class LanData extends Observable {
 		}
 		String value = formValueString(path, ip, 0, 0, 0);
 		data.setProperty(setValue(POS_TAG, "" + lastPosition), value);
-		try {
-			storeData();
-		} catch (IOException e) {
-			setAndStoreLastPos(lastPosition - 1);
-			return false;
+		if(store) {
+			try {
+				storeData();
+			} catch (IOException e) {
+				setAndStoreLastPos(lastPosition - 1);
+				return false;
+			}
+			
+			setChanged();
+			notifyObservers(FILE_TAG);
+			resetLoadedFiles();
 		}
-		resetLoadedFiles();
-		setChanged();
-		notifyObservers(FILE_TAG);
+		else {
+			loadedFiles.add(path);
+		}
+		
+		
+		
 		return true;
 	}
 		
@@ -557,7 +567,7 @@ public class LanData extends Observable {
 						continue;
 					}
 					if(!loadedFiles.contains(path)) {
-						addNewFile(f, "Polling");
+						addNewFile(f, "Polling", false);
 					}
 				}
 				clearNonExistingFiles();

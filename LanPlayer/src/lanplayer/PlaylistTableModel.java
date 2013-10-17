@@ -137,7 +137,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			
 		}
 		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
-			reloadList();
+			//reloadList();
 			fireTableDataChanged();
 			playlistPanel.restoreSelection();
 			playlistPanel.setDeleteBtnState();
