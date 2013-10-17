@@ -3,6 +3,7 @@ package server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -17,12 +18,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FileReceiver {
 
 	private List<Socket> communicationClients;
+	private List<Socket> propertySendClients;
 	private ExecutorService pool;
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(0);
 
 	public FileReceiver(String mp3Location) {
 		fileLocation = mp3Location;
+		propertySendClients = Collections
+				.synchronizedList(new ArrayList<Socket>());
 		communicationClients = Collections
 				.synchronizedList(new ArrayList<Socket>());
 		pool = Executors.newCachedThreadPool();
@@ -70,9 +74,9 @@ public class FileReceiver {
 			}
 		}).start();
 
-		/*
+		/**
 		 * Receives Messages from Client
-		 */
+		 **/
 		new Thread(new Runnable() {
 
 			@Override
@@ -110,6 +114,29 @@ public class FileReceiver {
 				}
 			}
 		}).start();
+
+		/**
+		 * send file to client
+		 * 
+		 * 
+		 **/
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
+					while (true) {
+						final Socket client = propertySendServer.accept();
+						client.setKeepAlive(true);
+						propertySendClients.add(client);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+
+				}
+
+			}
+		}).start();
 	}
 
 	/**
@@ -120,7 +147,7 @@ public class FileReceiver {
 	 */
 	public void sendMessage(final String message) {
 		if (!communicationClients.isEmpty()) {
-			pool.submit(new Runnable() {
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					for (int i = 0; i < communicationClients.size(); i++) {
@@ -144,12 +171,42 @@ public class FileReceiver {
 
 				}
 
-			});
+			}).start();
 		}
 
 	}
 
+	public void sendFile(final File file) {
+		for (final Socket client : propertySendClients) {
+			pool.submit(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("start sending from server");
+						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+						byte[] buffer = new byte[1];
+						FileInputStream in = new FileInputStream(file);
+						while (in.read(buffer) != -1) {
+							System.out.println("sending");
+							out.write(buffer);
+							out.flush();
+						}
+						in.close();
+						out.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				}
+
+			});
+			propertySendClients.remove(propertySendClients.indexOf(client));
+		}
+		
+	}
+
 	public void closeServer() {
+		// TODO shutdown anything
 		for (Socket s : communicationClients) {
 			try {
 				s.close();
