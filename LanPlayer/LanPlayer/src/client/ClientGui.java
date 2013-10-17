@@ -62,7 +62,7 @@ public class ClientGui extends JFrame {
 	
 	private JScrollPane scrollPane;
 	private JButton btnSkip;
-	private JComboBox comboBox;
+	private JComboBox<Integer> comboBox;
 	private JButton btnRate;
 
 	public static void main(String[] args) {
@@ -271,6 +271,7 @@ public class ClientGui extends JFrame {
 		clientTable = new JTable();
 		clientTableModel = new ClientTableModel(null, null , playlistColumnNames);
 		clientTable.setModel(clientTableModel);
+		setClientTableColumnSizes();
 		
 		scrollPane.setViewportView(clientTable);
 
@@ -285,7 +286,7 @@ public class ClientGui extends JFrame {
 		gbc_btnSkip.gridy = 0;
 		playlistPanel.add(btnSkip, gbc_btnSkip);
 
-		comboBox = new JComboBox();
+		comboBox = new JComboBox<Integer>();
 		comboBox.setEnabled(false);
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.insets = new Insets(7, 5, 5, 5);
@@ -305,4 +306,40 @@ public class ClientGui extends JFrame {
 		playlistPanel.add(btnRate, gbc_btnRate);
 	}
 
+
+	private void setClientTableColumnSizes() {
+		clientTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+		clientTable.getColumnModel().getColumn(0).setMinWidth(34);
+		
+		clientTable.getColumnModel().getColumn(1).setPreferredWidth(250);
+		clientTable.getColumnModel().getColumn(1).setMinWidth(38);
+		
+		clientTable.getColumnModel().getColumn(2).setPreferredWidth(170);
+		clientTable.getColumnModel().getColumn(2).setMinWidth(45);
+		
+		clientTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+		clientTable.getColumnModel().getColumn(3).setMinWidth(50);
+		
+		clientTable.getColumnModel().getColumn(4).setPreferredWidth(47);
+		clientTable.getColumnModel().getColumn(4).setMinWidth(47);
+		
+		clientTable.getColumnModel().getColumn(5).setPreferredWidth(60);
+		clientTable.getColumnModel().getColumn(5).setMinWidth(60);
+		
+		clientTable.getColumnModel().getColumn(6).setPreferredWidth(50);
+		clientTable.getColumnModel().getColumn(6).setMinWidth(50);
+		
+		clientTable.getColumnModel().getColumn(7).setPreferredWidth(49);
+		clientTable.getColumnModel().getColumn(7).setMinWidth(49);
+		
+		clientTable.getColumnModel().getColumn(8).setPreferredWidth(40);
+		clientTable.getColumnModel().getColumn(8).setMinWidth(38);
+		
+		clientTable.getColumnModel().getColumn(9).setPreferredWidth(140);
+		clientTable.getColumnModel().getColumn(9).setMinWidth(38);
+		
+		clientTable.getColumnModel().getColumn(10).setPreferredWidth(100);
+		clientTable.getColumnModel().getColumn(10).setMinWidth(65);
+	}
+	
 }
