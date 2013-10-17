@@ -553,6 +553,7 @@ public class LanData extends Observable {
 				}
 				List<File> gatherList = new ArrayList<File>();
 				gatherMusicFiles(gatherList, musicDirectory);
+				boolean notify = false;
 				for(File f : gatherList) {
 					String path;
 					try {
@@ -563,10 +564,13 @@ public class LanData extends Observable {
 					}
 					if(!loadedFiles.contains(path)) {
 						addNewFile(f, "Polling", false);
+						notify = true;
 					}
 				}
-				setChanged();
-				notifyObservers(FILE_TAG);
+				if(notify) {
+					setChanged();
+					notifyObservers(FILE_TAG);
+				}
 				clearNonExistingFiles();
 			}
 		}

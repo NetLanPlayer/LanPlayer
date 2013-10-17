@@ -1,4 +1,4 @@
-package server;
+package test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,17 +8,18 @@ import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-import client.TrackSender;
+import server.Server;
+import client.Client;
 
 public class TestFileSend {
 	public static void main(String[] args) throws InterruptedException{
-		FileReceiver re = new FileReceiver("C:/test/");
+		Server re = new Server("C:/test/");
 		Properties prop = new Properties();
 		prop.put("key", "hello");
 		
 		
 		try {
-			TrackSender se = new TrackSender("localhost");
+			Client se = new Client("localhost");
 			
 			
 			Thread.currentThread().sleep(1000);

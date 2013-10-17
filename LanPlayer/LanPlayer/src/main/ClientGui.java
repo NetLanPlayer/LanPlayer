@@ -1,4 +1,4 @@
-package client;
+package main;
 
 import utilities.IPAddressValidator;
 
@@ -29,8 +29,10 @@ import java.awt.event.MouseListener;
 import javax.swing.JSeparator;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import javax.swing.JSlider;
 import javax.swing.JLabel;
@@ -39,17 +41,32 @@ import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 
+import client.Client;
+import client.ClientTableModel;
+import lanplayer.LanData;
+import lanplayer.MusicData;
+import lanplayer.PlaylistPanel;
 import lanplayer.PlaylistTableModel;
 
 public class ClientGui extends JFrame {
 
+	private final static int INIT_PARTICIPANTS = 10;
+	public final static File MUSIC_DIR = new File("./ClientData");
+	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
+	
+	private LanData lanData = null;
+		
+	public LanData getLanData() {
+		return lanData;
+	}
+	
 	private static final long serialVersionUID = 3886409992076543386L;
 	private JPanel contentPane;
 
 	private JTextField txtEnterIpAddress;
 	private JTextField txtEnterPath;
 
-	private TrackSender sender;
+	private Client sender;
 	private IPAddressValidator ipVal = new IPAddressValidator();
 
 	private JButton btnUpload;
@@ -84,10 +101,12 @@ public class ClientGui extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public ClientGui() {
+		initialize();
+		initLanData();
+	}
+
+	private void initialize() {
 		setMinimumSize(new Dimension(1200, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 490, 163);
@@ -156,7 +175,7 @@ public class ClientGui extends JFrame {
 					txtEnterPath.setEditable(false);
 				} else if (ipVal.validate(txtEnterIpAddress.getText())) {
 					try {
-						sender = new TrackSender(txtEnterIpAddress.getText());
+						sender = new Client(txtEnterIpAddress.getText());
 					} catch (UnknownHostException e) {
 						txtEnterIpAddress
 								.setText("Connection failed, try again...");
@@ -269,7 +288,7 @@ public class ClientGui extends JFrame {
 				"Track", "Duration", "Played", "Rating", "Skip", "Date",
 				"Uploader" };
 		clientTable = new JTable();
-		clientTableModel = new ClientTableModel(null, null , playlistColumnNames);
+		clientTableModel = new ClientTableModel(this, this.lanData , playlistColumnNames);
 		clientTable.setModel(clientTableModel);
 		setClientTableColumnSizes();
 		
@@ -305,7 +324,19 @@ public class ClientGui extends JFrame {
 		gbc_btnRate.gridy = 1;
 		playlistPanel.add(btnRate, gbc_btnRate);
 	}
-
+	
+	private void initLanData() {
+		if(!MUSIC_DIR.exists()) {
+			MUSIC_DIR.mkdir();
+		}
+		if(!LAN_DATA_FILE.exists()) {
+			try {
+				LAN_DATA_FILE.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS);
+	}
 
 	private void setClientTableColumnSizes() {
 		clientTable.getColumnModel().getColumn(0).setPreferredWidth(40);

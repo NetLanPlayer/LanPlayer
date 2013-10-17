@@ -51,8 +51,8 @@ public class PlaylistPanel extends JPanel {
 		
 	private final static int INIT_PARTICIPANTS = 10;
 	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
-	private final static File MUSIC_DIR = new File("./LanMusic");
-	public final static String LAN_DATA_FILE = "./LanMusicData.property";
+	private final static File MUSIC_DIR = new File("./ServerData");
+	public final static File LAN_DATA_FILE = new File("./ServerData/LanMusicData.property");
 	
 	private PlayerPanel playerPanel;
 	private ControlPanel controlPanel;
@@ -95,17 +95,16 @@ public class PlaylistPanel extends JPanel {
 	}
 		
 	private void initLanData() {
-		File dataFile = new File(LAN_DATA_FILE);
-		if(!dataFile.exists()) {
-			try {
-				dataFile.createNewFile();
-			} catch (Exception e) {
-			}
-		}
 		if(!MUSIC_DIR.exists()) {
 			MUSIC_DIR.mkdir();
 		}
-		lanData = new LanData(MUSIC_DIR, dataFile, INIT_PARTICIPANTS);
+		if(!LAN_DATA_FILE.exists()) {
+			try {
+				LAN_DATA_FILE.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS);
 			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);

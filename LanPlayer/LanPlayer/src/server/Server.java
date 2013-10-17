@@ -10,12 +10,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FileReceiver {
+public class Server {
 
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
@@ -23,14 +24,15 @@ public class FileReceiver {
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(0);
 
-	public FileReceiver(String mp3Location) {
+	public Server(String mp3Location) {
 		fileLocation = mp3Location;
 		propertySendClients = Collections
-				.synchronizedList(new ArrayList<Socket>());
+				.synchronizedList(new LinkedList<Socket>());
 		communicationClients = Collections
-				.synchronizedList(new ArrayList<Socket>());
+				.synchronizedList(new LinkedList<Socket>());
 		pool = Executors.newCachedThreadPool();
 		initServer();
+		System.out.println("server started");
 	}
 
 	private void initServer() {
@@ -86,24 +88,28 @@ public class FileReceiver {
 						final Socket client = communication.accept();
 						client.setKeepAlive(true);
 						communicationClients.add(client);
-						final int clientIndex = communicationClients
-								.indexOf(client);
+						final int clientIndex = communicationClients.indexOf(client);
 						pool.submit(new Runnable() {
 							@Override
 							public void run() {
-								while (true) {
-									byte[] buffer = new byte[1024];
-									try {
-										BufferedInputStream in = new BufferedInputStream(
-												communicationClients.get(
-														clientIndex)
-														.getInputStream());
-										in.read(buffer);
-										String message = new String(buffer);
-										System.out.println(message);
-										// TODO handleString(message);
-									} catch (IOException e) {
-										e.printStackTrace();
+								boolean stop = false;
+								while (!stop) {
+									if(!communicationClients.get(clientIndex).isClosed()) {
+										byte[] buffer = new byte[1024];
+										try {
+											BufferedInputStream in = new BufferedInputStream(communicationClients.get(clientIndex).getInputStream());
+											in.read(buffer);
+											String message = new String(buffer);
+											System.out.println(message);
+											// TODO handleString(message);
+										} catch (IOException e) {
+											communicationClients.remove(clientIndex);
+											stop = true;
+										}
+									}
+									else {
+										communicationClients.remove(clientIndex);
+										stop = true;
 									}
 								}
 							}

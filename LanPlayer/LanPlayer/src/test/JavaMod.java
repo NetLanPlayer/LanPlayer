@@ -20,7 +20,7 @@
  *----------------------------------------------------------------------
  */
 
-package lanplayer;
+package test;
 
 import java.io.File;
 

@@ -12,6 +12,7 @@ import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlayerPanel;
 import lanplayer.PlaylistPanel;
+import main.ClientGui;
 import de.quippy.javamod.main.playlist.PlayList;
 
 public class ClientTableModel extends AbstractTableModel implements Observer {

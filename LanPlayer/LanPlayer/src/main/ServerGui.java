@@ -1,13 +1,14 @@
-package lanplayer;
+package main;
 
 import java.awt.EventQueue;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import lanplayer.MainPanel;
 import de.quippy.javamod.system.Helpers;
 
-public class LanPlayer {
+public class ServerGui {
 	/**
 	 * Launch the application.
 	 */

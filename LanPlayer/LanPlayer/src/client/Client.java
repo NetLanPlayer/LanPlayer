@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TrackSender {
+public class Client {
 
 	private final ExecutorService pool;
 	private final String serverAddress;
@@ -25,7 +25,7 @@ public class TrackSender {
 	private BufferedInputStream serverInput;
 	AtomicInteger c = new AtomicInteger(1);
 
-	public TrackSender(String serverAddress) throws UnknownHostException,
+	public Client(String serverAddress) throws UnknownHostException,
 			IOException {
 		this.serverAddress = serverAddress;
 		pool = Executors.newCachedThreadPool();
