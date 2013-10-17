@@ -99,7 +99,7 @@ public class PlaylistPanel extends JPanel {
 		lanData = new LanData(MUSIC_DIR, dataFile, INIT_PARTICIPANTS);
 			
 		if(!lanData.hasEntries()) {
-			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);
+			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER");
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
