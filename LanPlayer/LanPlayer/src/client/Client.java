@@ -27,6 +27,8 @@ public class Client extends Observable {
 	private BufferedOutputStream serverOutput;
 	private BufferedInputStream serverInput;
 	AtomicInteger c = new AtomicInteger(1);
+	
+	public final static String MSG_REQ_PROPERTY = "Client request property file.";
 
 	public Client(String serverAddress) throws UnknownHostException,
 			IOException {

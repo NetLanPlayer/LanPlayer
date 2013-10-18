@@ -22,13 +22,14 @@ public class SimpleDate implements Comparable<SimpleDate> {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 	
 	public static String formattedDate(Date date) {
+		if(date == null) return "";
 		return sdf.format(date);
 	}
 	
 	public static Date parseDate(String dateStr) {
 		try {
 			return dateStr == null || dateStr.isEmpty() ? null : sdf.parse(dateStr);
-		} catch (ParseException | NumberFormatException e) {
+		} catch (ArrayIndexOutOfBoundsException | ParseException | NumberFormatException e) {
 			return null;
 		}
 	}

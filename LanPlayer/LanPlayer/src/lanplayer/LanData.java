@@ -24,7 +24,7 @@ public class LanData extends Observable {
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
 	
-	private final static int SEARCH_TIMER_MS = 5000;
+	private final static int SEARCH_TIMER_MS = 180000;
 	
 	public final static String PARTICIPANTS_TAG = "[participants]";
 	public final static String LAST_POSITION_TAG = "[lastPos]";
@@ -165,8 +165,13 @@ public class LanData extends Observable {
 		String ratingStr = getValue(RATING_TAG, formValue);
 		String skipStr = getValue(SKIP_TAG, formValue);
 		String dateStr = getValue(DATE_TAG, formValue);
-		
 		Date date = SimpleDate.parseDate(dateStr);
+
+		String titleStr = getValue(TITLE_TAG, formValue);
+		String artistStr = getValue(ARTIST_TAG, formValue);
+		String albumStr = getValue(ALBUM_TAG, formValue);
+		String tracknoStr = getValue(TRACKNO_TAG, formValue);
+		String durationStr = getValue(DURATION_TAG, formValue);
 		
 		int played = 0; int skip = 0; int rating = 0;
 		try {
@@ -181,7 +186,7 @@ public class LanData extends Observable {
 		File musicFile = new File(file);
 		MusicData musicData = null;
 		try {
-			musicData = new MusicData(position, musicFile, ip, played, rating, skip, date);
+			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, rating, skip, date, ip);
 		} catch (Exception e) {
 			return null;
 		}
@@ -264,7 +269,14 @@ public class LanData extends Observable {
 		if(!posOk) {
 			return false;
 		}
-		String value = formValueString(path, ip, 0, 0, 0);
+		
+		MusicData temp = new MusicData();
+		try {
+			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, 0, 0, new Date(), ip);
+		} catch (MalformedURLException | UnsupportedAudioFileException e1) {
+		}
+		
+		String value = formBaiscValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, 0, ip);
 		data.setProperty(setValue(POS_TAG, "" + lastPosition), value);
 		try {
 			storeData();
@@ -272,7 +284,7 @@ public class LanData extends Observable {
 			setAndStoreLastPos(lastPosition - 1);
 			return false;
 		}
-		
+			
 		if(notify) {
 			setChanged();
 			notifyObservers(FILE_TAG);
@@ -282,15 +294,22 @@ public class LanData extends Observable {
 		return true;
 	}
 		
-	private String formValueString(String filePath, String ip, int played, int rating, int skip) {
+	private String formBaiscValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, int skip, String ip) {
 		StringBuilder form = new StringBuilder();
 		String modPath = filePath.replaceAll("\\\\", "/");
 		form.append(setValue(FILE_TAG, modPath));
-		form.append(setValue(IP_TAG, ip));
+
+		form.append(setValue(TITLE_TAG, title));
+		form.append(setValue(ARTIST_TAG, artist));
+		form.append(setValue(ALBUM_TAG, album));
+		form.append(setValue(TRACKNO_TAG, trackno));
+		form.append(setValue(DURATION_TAG, duration));
+		
 		form.append(setValue(PLAYED_TAG, "" + played));
 		form.append(setValue(RATING_TAG, "" + rating));
 		form.append(setValue(SKIP_TAG, "" + skip));
 		form.append(setValue(DATE_TAG, "" + SimpleDate.formattedDate(new Date())));
+		form.append(setValue(IP_TAG, ip));
 		return form.toString();
 	}
 	

@@ -51,7 +51,7 @@ import lanplayer.PlaylistTableModel;
 public class ClientGui extends JFrame {
 
 	private final static int INIT_PARTICIPANTS = 10;
-	public final static File MUSIC_DIR = new File("./ClientData/");
+	public final static File DATA_DIR = new File("./ClientData/");
 	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
 	
 	private LanData lanData = null;
@@ -172,11 +172,19 @@ public class ClientGui extends JFrame {
 					btnConnect.setText("Connect");
 					btnUpload.setEnabled(false);
 					txtEnterPath.setEditable(false);
+					btnRate.setEnabled(false);
+					btnSkip.setEnabled(false);
+					clientTable.setEnabled(false);
+					comboBox.setEnabled(false);
+					clientTableModel.setRowCount(0);
+					initLanData();
 				} else if (ipVal.validate(txtEnterIpAddress.getText())) {
 					try {
 						client = new Client(txtEnterIpAddress.getText());
 						
 						client.addObserver(clientTableModel); // adding observer here
+						
+						client.sendMessage(Client.MSG_REQ_PROPERTY);
 						
 					} catch (UnknownHostException e) {
 						txtEnterIpAddress.setText("Connection failed, try again...");
@@ -196,6 +204,8 @@ public class ClientGui extends JFrame {
 					}
 					txtEnterIpAddress.setEditable(false);
 					btnConnect.setText("Disconnect");
+					clientTable.setEnabled(true);
+					comboBox.setEnabled(true);
 					btnUpload.setEnabled(true);
 					txtEnterPath.setEditable(true);
 					btnRate.setEnabled(true);
@@ -328,8 +338,14 @@ public class ClientGui extends JFrame {
 	}
 	
 	private void initLanData() {
-		if(!MUSIC_DIR.exists()) {
-			MUSIC_DIR.mkdir();
+		if(!DATA_DIR.exists()) {
+			DATA_DIR.mkdir();
+		}
+		else {
+			File[] files = DATA_DIR.listFiles();
+			for(File f : files) {
+				f.delete();
+			}
 		}
 		if(!LAN_DATA_FILE.exists()) {
 			try {
@@ -337,7 +353,7 @@ public class ClientGui extends JFrame {
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
+		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
 	}
 
 	private void setClientTableColumnSizes() {

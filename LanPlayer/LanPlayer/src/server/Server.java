@@ -13,18 +13,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Server {
+import client.Client;
+import lanplayer.PlaylistPanel;
 
+public class Server extends Observable {
+	
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
 	private ExecutorService pool;
 	private String fileLocation;
-	private AtomicInteger nameCounter = new AtomicInteger(0);
-
+	private AtomicInteger nameCounter = new AtomicInteger(1);
+	
 	public Server(String mp3Location) {
 		fileLocation = mp3Location;
 		propertySendClients = Collections
@@ -51,9 +55,11 @@ public class Server {
 						pool.submit(new Runnable() {
 							public void run() {
 								byte[] buffer = new byte[1024];
-								File file = new File(fileLocation
-										+ nameCounter.getAndIncrement()
-										+ ".mp3");
+								File file = new File(fileLocation + nameCounter.getAndIncrement() + ".mp3");
+								
+								setChanged();
+								notifyObservers(new ReceivedFile(file, client.getInetAddress().getHostAddress()));
+								
 								try (BufferedInputStream in = new BufferedInputStream(
 										client.getInputStream(), 1024)) {
 									FileOutputStream out = new FileOutputStream(
@@ -95,23 +101,22 @@ public class Server {
 							public void run() {
 								boolean stop = false;
 								while (!stop) {
-									if(!communicationClients.get(clientIndex).isClosed()) {
+									//if(!communicationClients.get(clientIndex).isClosed()) {
 										byte[] buffer = new byte[1024];
 										try {
 											BufferedInputStream in = new BufferedInputStream(communicationClients.get(clientIndex).getInputStream());
 											in.read(buffer);
 											String message = new String(buffer);
-											System.out.println(message);
-											// TODO handleString(message);
+											handleClientMessages(message);
 										} catch (IOException e) {
 											communicationClients.remove(clientIndex);
 											stop = true;
 										}
-									}
-									else {
-										communicationClients.remove(clientIndex);
-										stop = true;
-									}
+									//}
+									//else {
+									//	communicationClients.remove(clientIndex);
+									//	stop = true;
+									//}
 								}
 							}
 						});
@@ -187,12 +192,12 @@ public class Server {
 				@Override
 				public void run() {
 					try {
-						System.out.println("start sending from server");
+						System.out.println("Server: Starting to send from server");
 						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
 						byte[] buffer = new byte[1024];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
-							System.out.println("sending");
+							System.out.println("Server: Sending file");
 							out.write(buffer);
 							out.flush();
 						}
@@ -208,6 +213,17 @@ public class Server {
 			});
 		}
 		
+	}
+	
+	private void handleClientMessages(String message) {
+		if(message.equals(Client.MSG_REQ_PROPERTY)) {
+			System.out.println("Server: Received Property file request");
+			handlePropertyFileReq();
+		}
+	}
+	
+	private void handlePropertyFileReq() {
+		sendFile(PlaylistPanel.LAN_DATA_FILE);
 	}
 
 	public void closeServer() {

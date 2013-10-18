@@ -29,12 +29,19 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 	private LanData lanData;
 	private String[] columnNames;
 	
+	private int rowCount = 0;
+	
 	public ClientTableModel(ClientGui clientGui, LanData lanData, String[] columnNames) {
 		this.clientGui = clientGui;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		//this.lanData.addObserver(this);
 		reloadList();
+	}
+	
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+		fireTableDataChanged();
 	}
 	
 	public boolean isCurrentlyPlayed(int row) {
@@ -55,6 +62,7 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 				playList.add(md);
 			}
 		}
+		rowCount = this.playList.size();
 	}
 	
 	private boolean columnSortable = true;
@@ -81,7 +89,7 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public int getRowCount() {
-		return this.playList.size();
+		return rowCount;
 	}
 
 	public Class<?> getColumnClass(int column) {
@@ -135,6 +143,7 @@ public class ClientTableModel extends AbstractTableModel implements Observer {
 		if(obj instanceof Properties) {
 			reloadList();
 			fireTableDataChanged();
+			System.out.println("Client: Refreshing Table Playlist");
 		}
 		
 //		if(obj.equals(LanData.FILE_TAG)) {			

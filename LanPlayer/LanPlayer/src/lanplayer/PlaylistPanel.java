@@ -53,7 +53,7 @@ public class PlaylistPanel extends JPanel {
 	private final static int INIT_PARTICIPANTS = 10;
 	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
 	public final static String MUSIC_DIR_PATH = "./ServerData/";
-	private final static File MUSIC_DIR = new File(MUSIC_DIR_PATH);
+	private final static File DATA_DIR = new File(MUSIC_DIR_PATH);
 	public final static File LAN_DATA_FILE = new File("./ServerData/LanMusicData.property");
 	
 	private PlayerPanel playerPanel;
@@ -99,8 +99,8 @@ public class PlaylistPanel extends JPanel {
 	}
 		
 	private void initLanData() {
-		if(!MUSIC_DIR.exists()) {
-			MUSIC_DIR.mkdir();
+		if(!DATA_DIR.exists()) {
+			DATA_DIR.mkdir();
 		}
 		if(!LAN_DATA_FILE.exists()) {
 			try {
@@ -108,7 +108,7 @@ public class PlaylistPanel extends JPanel {
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(MUSIC_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, true);
+		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, true);
 			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);
@@ -152,7 +152,7 @@ public class PlaylistPanel extends JPanel {
 		playlistTable = new JTable();
 		playlistTableModel = new PlaylistTableModel(server, this, lanData , playlistColumnNames);
 		playlistTable.setModel(playlistTableModel);
-		playlistTable.getTableHeader().setReorderingAllowed(false);
+		//playlistTable.getTableHeader().setReorderingAllowed(false);
 		playlistTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setPlaylistTableColumnSizes();
 		scrollPane.setViewportView(playlistTable);

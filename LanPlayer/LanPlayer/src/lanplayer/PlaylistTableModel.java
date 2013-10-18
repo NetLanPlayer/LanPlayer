@@ -1,13 +1,17 @@
 package lanplayer;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import server.ReceivedFile;
 import server.Server;
 import de.quippy.javamod.main.playlist.PlayList;
 
@@ -31,6 +35,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		this.lanData.addObserver(this);
+		this.server.addObserver(this);
 		reloadList();
 	}
 	
@@ -129,25 +134,51 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public void update(Observable observable, Object obj) {
-		if(obj.equals(LanData.FILE_TAG)) {			
-			reloadList();
-			fireTableDataChanged();
-			playlistPanel.restoreSelection();
-			PlayerPanel player = this.playlistPanel.getPlayerPanel();
-			if(player != null) {
-				player.reloadPlaylist();
+		if(observable instanceof LanData) {
+			if(obj.equals(LanData.FILE_TAG)) {			
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
+				PlayerPanel player = this.playlistPanel.getPlayerPanel();
+				if(player != null) {
+					player.reloadPlaylist();
+				}
+				server.sendFile(lanData.getFile());
+				
 			}
-			server.sendFile(lanData.getFile());
-			
+			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
+				playlistPanel.setDeleteBtnState();
+			}
+			else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
+				
+			}
 		}
-		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
-			reloadList();
-			fireTableDataChanged();
-			playlistPanel.restoreSelection();
-			playlistPanel.setDeleteBtnState();
-		}
-		else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
-			
+		else if(observable instanceof Server) {
+			if(obj instanceof ReceivedFile) {
+				ReceivedFile rf = (ReceivedFile) obj;
+				File rawFile = rf.getFile();
+				File newFile = null;
+				String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
+				try {
+					MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, 0, null, null);
+					Integer track = md.getTrackNumber().getTrack();
+					String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
+					newFile = new File(newFileName);
+					if(!newFile.exists()) {
+						rawFile.renameTo(newFile);
+					}
+				} catch (MalformedURLException | UnsupportedAudioFileException e) {
+				}
+				if(newFile != null && newFile.exists()) {
+					this.lanData.addNewFile(newFile, rf.getIp(), true);
+				}
+				else {
+					this.lanData.addNewFile(rawFile, rf.getIp(), true);
+				}
+			}
 		}
 	}
 
