@@ -22,48 +22,43 @@ import client.Client;
 import lanplayer.PlaylistPanel;
 
 public class Server extends Observable {
-	
-	private List<Socket> communicationClients;
+
 	private List<Socket> propertySendClients;
+	private List<Socket> communicationClients;
+
 	private ExecutorService pool;
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(1);
-	
+
 	public Server(String mp3Location) {
 		fileLocation = mp3Location;
-		propertySendClients = Collections
-				.synchronizedList(new LinkedList<Socket>());
-		communicationClients = Collections
-				.synchronizedList(new LinkedList<Socket>());
+		propertySendClients = Collections.synchronizedList(new LinkedList<Socket>());
+		communicationClients = Collections.synchronizedList(new LinkedList<Socket>());
+
 		pool = Executors.newCachedThreadPool();
 		initServer();
 		System.out.println("Server started");
 	}
 
 	private void initServer() {
-		/*
-		 * Receives Files from Client
-		 */
+		/**
+		 * This serversocket accepts connections for RECEIVING TRACKS FROM CLIENT,
+		 * PORT: 55000
+		 **/
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				try (final ServerSocket fileServer = new ServerSocket(55000,
-						1000)) {
+				try (final ServerSocket fileServer = new ServerSocket(55000, 100)) {
 					while (true) {
 						final Socket client = fileServer.accept();
 						pool.submit(new Runnable() {
 							public void run() {
 								byte[] buffer = new byte[1024];
-								File file = new File(fileLocation + nameCounter.getAndIncrement() + ".mp3");
-								
-								setChanged();
-								notifyObservers(new ReceivedFile(file, client.getInetAddress().getHostAddress()));
-								
-								try (BufferedInputStream in = new BufferedInputStream(
-										client.getInputStream(), 1024)) {
-									FileOutputStream out = new FileOutputStream(
-											file);
+								File file = new File("C:/test/" + nameCounter.getAndIncrement() + ".mp3");
+
+								try (BufferedInputStream in = new BufferedInputStream(client.getInputStream(), 1024)) {
+									FileOutputStream out = new FileOutputStream(file);
 									while (in.read(buffer) != -1) {
 										out.write(buffer);
 										out.flush();
@@ -71,7 +66,6 @@ public class Server extends Observable {
 									out.close();
 									client.close();
 								} catch (IOException e) {
-									e.printStackTrace();
 								}
 							}
 						});
@@ -84,39 +78,29 @@ public class Server extends Observable {
 		}).start();
 
 		/**
-		 * Receives Messages from Client
+		 * This serversocket accepts connections for RECEIVING MESSAGES FROM
+		 * CLIENT, PORT: 56000
+		 * 
 		 **/
 		new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				try (final ServerSocket communication = new ServerSocket(56000)) {
 					while (true) {
 						final Socket client = communication.accept();
-						client.setKeepAlive(true);
-						communicationClients.add(client);
-						final int clientIndex = communicationClients.indexOf(client);
 						pool.submit(new Runnable() {
 							@Override
 							public void run() {
-								boolean stop = false;
-								while (!stop) {
-									//if(!communicationClients.get(clientIndex).isClosed()) {
-										byte[] buffer = new byte[1024];
-										try {
-											BufferedInputStream in = new BufferedInputStream(communicationClients.get(clientIndex).getInputStream());
-											in.read(buffer);
-											String message = new String(buffer);
-											handleClientMessages(message);
-										} catch (IOException e) {
-											communicationClients.remove(clientIndex);
-											stop = true;
-										}
-									//}
-									//else {
-									//	communicationClients.remove(clientIndex);
-									//	stop = true;
-									//}
+								try {
+									byte[] buffer = new byte[1024];
+									BufferedInputStream in = new BufferedInputStream(client.getInputStream());
+									String message = null;
+									while (in.read(buffer) != -1) {
+										message = new String(buffer);
+									}
+									handleClientMessages(message);
+									client.close();
+								} catch (IOException e) {
 								}
 							}
 						});
@@ -126,9 +110,9 @@ public class Server extends Observable {
 				}
 			}
 		}).start();
-
 		/**
-		 * send file to client
+		 * This serversocket accepts connections for SENDS MESSAGES TO CLIENT,
+		 * PORT: 57000
 		 * 
 		 **/
 		new Thread(new Runnable() {
@@ -137,9 +121,27 @@ public class Server extends Observable {
 			public void run() {
 				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
 					while (true) {
-						final Socket client = propertySendServer.accept();
-						client.setKeepAlive(true);
-						propertySendClients.add(client);
+						communicationClients.add(propertySendServer.accept());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}).start();
+
+		/**
+		 * This serversocket accepts connections for SENDING FILES TO CLIENT,
+		 * PORT: 58000
+		 * 
+		 **/
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try (final ServerSocket propertySendServer = new ServerSocket(58000)) {
+					while (true) {
+						propertySendClients.add(propertySendServer.accept());
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -160,18 +162,18 @@ public class Server extends Observable {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					for (int i = 0; i < communicationClients.size(); i++) {
-						byte[] buffer = new byte[1024];
+					for (Socket client : new ArrayList<Socket>(communicationClients)) {
+						byte[] buffer = new byte[message.getBytes().length];
 						try {
-							BufferedOutputStream out = new BufferedOutputStream(
-									communicationClients.get(i)
-											.getOutputStream());
+							BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
 							int count = 0;
-							for (byte b : message.getBytes())
+							for (byte b : message.getBytes()) {
 								buffer[count++] = b;
-
+							}
 							out.write(buffer);
 							out.flush();
+							communicationClients.remove(client);
+							client.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 
@@ -187,54 +189,50 @@ public class Server extends Observable {
 	}
 
 	public void sendFile(final File file) {
-		for (final Socket client : new ArrayList<Socket>(propertySendClients)) {
-			pool.submit(new Runnable() {
+		if (!propertySendClients.isEmpty()) {
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						System.out.println("Server: Starting to send from server");
-						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+					for (Socket client : new ArrayList<Socket>(propertySendClients)) {
 						byte[] buffer = new byte[1024];
-						FileInputStream in = new FileInputStream(file);
-						while (in.read(buffer) != -1) {
-							System.out.println("Server: Sending file");
-							out.write(buffer);
-							out.flush();
+						try {
+							BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+							FileInputStream in = new FileInputStream(file);
+							while (in.read(buffer) != -1) {
+								out.write(buffer);
+								out.flush();
+							}
+							in.close();
+							propertySendClients.remove(client);
+							client.close();
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-						in.close();
-						propertySendClients.remove(client);
-						client.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+
 					}
-
 				}
-
-			});
+			}).start();
 		}
-		
 	}
-	
+
 	private void handleClientMessages(String message) {
-		if(message.equals(Client.MSG_REQ_PROPERTY)) {
+		if (message.equals(Client.MSG_REQ_PROPERTY)) {
 			System.out.println("Server: Received Property file request");
 			handlePropertyFileReq();
 		}
+		if (message.equals("tracklistsent")) {
+			notifyAll();
+			notifyObservers(null);
+		}
 	}
-	
+
 	private void handlePropertyFileReq() {
 		sendFile(PlaylistPanel.LAN_DATA_FILE);
 	}
 
 	public void closeServer() {
 		// TODO shutdown anything
-		for (Socket s : communicationClients) {
-			try {
-				s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+
 		pool.shutdown();
 
 	}

@@ -24,42 +24,31 @@ public class Client extends Observable {
 	private final ExecutorService pool;
 	private final String serverAddress;
 	private Socket server;
-	private BufferedOutputStream serverOutput;
-	private BufferedInputStream serverInput;
 	AtomicInteger c = new AtomicInteger(1);
-	
+
 	public final static String MSG_REQ_PROPERTY = "Client request property file.";
 
-	public Client(String serverAddress) throws UnknownHostException,
-			IOException {
+	public Client(String serverAddress) throws UnknownHostException, IOException {
 		this.serverAddress = serverAddress;
 		pool = Executors.newCachedThreadPool();
-
-		server = new Socket(serverAddress, 56000);
-		server.setKeepAlive(true);
-		serverOutput = new BufferedOutputStream(server.getOutputStream());
-		serverInput = new BufferedInputStream(server.getInputStream());
 		receiveMessage();
 		receiveFile();
 	}
 
-	private void sendFile(File[] files) {
-		for (final File file : files) {
-			pool.submit(new Runnable() {
-				@Override
-				public void run() {
+	private void sendFile(final File[] files) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (File file : files) {
 					try (Socket socket = new Socket(serverAddress, 55000)) {
-						System.out.println(file.getName());
-						BufferedOutputStream out = new BufferedOutputStream(
-								socket.getOutputStream(), 1024);
+						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), 1024);
 						byte[] buffer = new byte[1024];
 						FileInputStream in = new FileInputStream(file);
 						while (in.read(buffer) != -1) {
-							System.out.println("rec");
+//							System.o<ut.println("sen");
 							out.write(buffer);
 							out.flush();
 						}
-						System.out.println("track sent");
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {
@@ -68,8 +57,9 @@ public class Client extends Observable {
 						e.printStackTrace();
 					}
 				}
-			});
-		}
+				sendMessage("tracklistsent");
+			}
+		}).start();
 	}
 
 	/**
@@ -79,48 +69,78 @@ public class Client extends Observable {
 	 * @return void
 	 */
 	public void sendMessage(final String message) {
-		pool.submit(new Runnable() {
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				byte[] buffer = new byte[1024];
-				synchronized (serverOutput) {
-					try {
-						int count = 0;
-						BufferedOutputStream out = new BufferedOutputStream(
-								serverOutput);
-						for (byte b : message.getBytes())
-							buffer[count++] = b;
-						out.write(buffer);
-						out.flush();
-
-					} catch (IOException e) {
-						e.printStackTrace();
+				try {
+					Socket server = new Socket(serverAddress, 56000);
+					BufferedOutputStream out = new BufferedOutputStream(server.getOutputStream());
+					byte[] buffer = new byte[message.getBytes().length];
+					int count = 0;
+					for (byte b : message.getBytes()) {
+						buffer[count++] = b;
 					}
+					out.write(buffer);
+					out.flush();
+					server.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
+
 			}
-		});
+		}).start();
 	}
 
 	private void receiveMessage() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				boolean stop = false;
-				while (!stop) {
+
+				try {
+					Socket server = new Socket(serverAddress, 56000);
 					byte[] buffer = new byte[1024];
-					synchronized (serverInput) {
-						try {
-							BufferedInputStream in = new BufferedInputStream(
-									serverInput);
-							in.read(buffer);
-							String message = new String(buffer);
-							System.out.println(c.getAndIncrement() + message);
-							// TODO handleMessage(message);
-						} catch (IOException e) {
-							stop = true;
-						}
+					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
+					while (in.read(buffer) != -1) {
+						String message = new String(buffer);
 					}
+					server.close();
+					receiveMessage();
+				} catch (IOException e) {
 				}
+			}
+		}).start();
+
+	}
+
+	private void receiveFile() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					Socket server = new Socket(serverAddress, 58000);
+					System.out.println("Client: waiting for file");
+					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
+					byte[] buffer = new byte[1024];
+					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
+					while (in.read(buffer) != -1) {
+						out.write(buffer);
+						out.flush();
+					}
+					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
+					Properties prop = new Properties();
+					prop.load(fis);
+					setChanged();
+					notifyObservers(prop);
+					out.close();
+					in.close();
+					server.close();
+					receiveFile();
+
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
 		}).start();
 
@@ -170,46 +190,7 @@ public class Client extends Observable {
 		return ret.toString();
 	}
 
-	//AtomicInteger counter = new AtomicInteger(1);
-
-	private void receiveFile() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					Socket server = new Socket(serverAddress, 57000);
-					System.out.println("Client: waiting for file");
-					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
-					byte[] buffer = new byte[1024];
-					//File file = new File("./src/temp" + counter.getAndIncrement());
-					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
-					while (in.read(buffer) != -1) {
-						out.write(buffer);
-						out.flush();
-					}
-					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
-					Properties prop = new Properties();
-					prop.load(fis);
-					//System.out.println(prop.get("key"));
-					
-					setChanged();
-					notifyObservers(prop);
-					
-					System.out.println("Client: file is here");
-					out.close();
-					in.close();
-					server.close();
-					receiveFile();
-
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
-		}).start();
-
-	}
+	// AtomicInteger counter = new AtomicInteger(1);
 
 	/**
 	 * Proper close of ClientApplication. Shutdown threadpool and close socket.
