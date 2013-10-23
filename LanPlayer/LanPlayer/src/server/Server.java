@@ -26,16 +26,16 @@ import lanplayer.PlaylistPanel;
 import main.ServerGui;
 
 public class Server {
-	
+
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
 	private ExecutorService pool;
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(1);
 	private static final int BUFFER_SIZE = 4096;
-	
+
 	private ServerHandler serverHandler;
-	
+
 	public ServerHandler getServerHandler() {
 		return serverHandler;
 	}
@@ -51,9 +51,10 @@ public class Server {
 	}
 
 	private void initServer() {
-		/*
-		 * Receives Files from Client
-		 */
+		/**
+		 * This serversocket accepts connections for RECEIVING TRACKS FROM
+		 * CLIENT, PORT: 55000
+		 **/
 		new Thread(new Runnable() {
 
 			@Override
@@ -61,41 +62,42 @@ public class Server {
 				try (final ServerSocket fileServer = new ServerSocket(55000, 1000)) {
 					while (true) {
 						final Socket client = fileServer.accept();
-						pool.submit(new Runnable() {
+						new Thread(new Runnable() {
 							public void run() {
 								byte[] buffer = new byte[BUFFER_SIZE];
 								File file = new File(fileLocation + nameCounter.getAndIncrement() + ".mp3");
-																
+
 								try (BufferedInputStream in = new BufferedInputStream(client.getInputStream(), BUFFER_SIZE)) {
 									FileOutputStream out = new FileOutputStream(file);
-									while (in.read(buffer) >= 0) {
-										out.write(buffer);
-										//out.flush();
+									int count = 0;
+									while ((count = in.read(buffer)) >= 0) {
+										out.write(buffer, 0, count);
+										// out.flush();
 									}
 									out.close();
 									client.close();
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
-								
+
 								serverHandler.handleClientFile(file, client.getInetAddress().getHostAddress());
 							}
-						});
+						}).start();
 					}
 
-				}
-				catch(java.net.BindException be) {
+				} catch (java.net.BindException be) {
 					System.out.println("Application is already running. Address already in use: JVM_Bind");
 					System.exit(0);
-				} 
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
-				} 
+				}
 			}
 		}).start();
 
 		/**
-		 * Receives Messages from Client
+		 * This serversocket accepts connections for RECEIVING MESSAGES FROM
+		 * CLIENT, PORT: 56000
+		 * 
 		 **/
 		new Thread(new Runnable() {
 
@@ -104,48 +106,32 @@ public class Server {
 				try (final ServerSocket communication = new ServerSocket(56000)) {
 					while (true) {
 						final Socket client = communication.accept();
-						client.setKeepAlive(true);
-						communicationClients.add(client);
-						final int clientIndex = communicationClients.indexOf(client);
-						pool.submit(new Runnable() {
+						new Thread(new Runnable() {
 							@Override
 							public void run() {
-								boolean stop = false;
-								while (!stop) {
-									//if(!communicationClients.get(clientIndex).isClosed()) {
-										byte[] buffer = new byte[BUFFER_SIZE];
-										try {
-											BufferedInputStream in = new BufferedInputStream(communicationClients.get(clientIndex).getInputStream());
-											in.read(buffer);
-											String message = new String(buffer);
-											
-											//handle received message
-											serverHandler.handleClientMessage(message);
-										} catch (IOException e) {
-											communicationClients.remove(clientIndex);
-											stop = true;
-										}
-									//}
-									//else {
-									//	communicationClients.remove(clientIndex);
-									//	stop = true;
-									//}
+								try {
+									byte[] buffer = new byte[BUFFER_SIZE];
+									BufferedInputStream in = new BufferedInputStream(client.getInputStream());
+									String message = null;
+									while (in.read(buffer) != -1) {
+										message = new String(buffer);
+									}
+									serverHandler.handleClientMessage(message);
+									client.close();
+								} catch (IOException e) {
 								}
 							}
-						});
+						}).start();
 					}
-				}
-				catch(java.net.BindException be) {
-					System.exit(0);
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}).start();
 
 		/**
-		 * send file to client
+		 * This serversocket accepts connections for SENDS MESSAGES TO CLIENT,
+		 * PORT: 57000
 		 * 
 		 **/
 		new Thread(new Runnable() {
@@ -154,15 +140,30 @@ public class Server {
 			public void run() {
 				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
 					while (true) {
-						final Socket client = propertySendServer.accept();
-						client.setKeepAlive(true);
-						propertySendClients.add(client);
-					}
-				}
-				catch(java.net.BindException be) {
+						communicationClients.add(propertySendServer.accept());					}
+				} catch (java.net.BindException be) {
 					System.exit(0);
-				}  
-				catch (IOException e) {
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}).start();
+		
+		/**
+		 * This serversocket accepts connections for SENDING FILES TO CLIENT,
+		 * PORT: 58000
+		 * 
+		 **/
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try (final ServerSocket propertySendServer = new ServerSocket(58000)) {
+					while (true) {
+						propertySendClients.add(propertySendServer.accept());
+					}
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 
@@ -181,16 +182,18 @@ public class Server {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					for (int i = 0; i < communicationClients.size(); i++) {
-						byte[] buffer = new byte[BUFFER_SIZE];
+					for (Socket client : new ArrayList<Socket>(communicationClients)) {
+						byte[] buffer = new byte[message.getBytes().length];
 						try {
-							BufferedOutputStream out = new BufferedOutputStream(communicationClients.get(i).getOutputStream());
+							BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
 							int count = 0;
 							for (byte b : message.getBytes()) {
 								buffer[count++] = b;
 							}
 							out.write(buffer);
-							//out.flush();
+							out.flush();
+							communicationClients.remove(client);
+							client.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 
@@ -205,36 +208,33 @@ public class Server {
 
 	}
 
-	public void sendProperty(final File file) {
-		for (final Socket client : new ArrayList<Socket>(propertySendClients)) {
-			pool.submit(new Runnable() {
+	public void sendFile(final File file) {
+		if (!propertySendClients.isEmpty()) {
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						System.out.println("Server: Starting to send from server");
-						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+					for (Socket client : new ArrayList<Socket>(propertySendClients)) {
 						byte[] buffer = new byte[BUFFER_SIZE];
-						FileInputStream in = new FileInputStream(file);
-						int count = 0;
-						while ((count = in.read(buffer)) >= 0) {
-							System.out.println("Server: Sending file");
-							out.write(buffer, 0, count);
-							//out.flush();
+						try {
+							BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+							FileInputStream in = new FileInputStream(file);
+							while (in.read(buffer) != -1) {
+								out.write(buffer);
+								out.flush();
+							}
+							in.close();
+							propertySendClients.remove(client);
+							client.close();
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
-						in.close();
-						propertySendClients.remove(client);
-						client.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+
 					}
-
 				}
-
-			});
+			}).start();
 		}
-		
 	}
-	
+
 	public void closeServer() {
 		// TODO shutdown anything
 		for (Socket s : communicationClients) {

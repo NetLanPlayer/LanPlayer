@@ -11,6 +11,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import main.ServerGui;
 import server.ReceivedFile;
 import server.Server;
 import server.ServerHandler;
@@ -144,7 +145,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
-				server.sendProperty(lanData.getFile());
+				server.sendFile(lanData.getFile());
 				
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
@@ -167,7 +168,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 					MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, 0, null, null);
 					Integer track = md.getTrackNumber().getTrack();
 					String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
-					newFile = new File(newFileName);
+					newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
 					if(!newFile.exists()) {
 						rawFile.renameTo(newFile);
 					}

@@ -28,7 +28,7 @@ public class ServerHandler extends Observable  {
 	}
 	
 	public void handlePropertyFileReq() {
-		server.sendProperty(ServerGui.LAN_DATA_FILE);
+		server.sendFile(ServerGui.LAN_DATA_FILE);
 	}
 	
 }

@@ -44,8 +44,8 @@ public class TestFileSend {
 		}
 		
 //		re.sendFile(file);
-		re.sendProperty(file);
-		re.sendProperty(file);
+//		re.sendProperty(file);
+//		re.sendProperty(file);
 //		re.sendFile(file);
 //		re.sendFile(file);
 //		re.sendFile(file);
