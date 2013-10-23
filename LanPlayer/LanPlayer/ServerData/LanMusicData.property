@@ -1,8 +1,0 @@
-#LAN DATA
-#Wed Oct 23 16:16:10 CEST 2013
-[participants]=10
-[pos]1[/pos]=[file]C\:/Users/Simon/git/LanPlayer/LanPlayer/LanPlayer/src/antipasta.xm[/file][title]LAN PLAYER[/title][artist]LAN PLAYER[/artist][album][/album][trackno]0[/trackno][duration]  0\:23[/duration][played]0[/played][rating]0[/rating][skip]0[/skip][date]23.10.2013 16\:15[/date][ip]LAN PLAYER[/ip]
-[currentlyPlayed]=2
-[pos]2[/pos]=[file]C\:/Users/Simon/git/LanPlayer/LanPlayer/LanPlayer/ServerData/Music/1 - Spirit.mp3[/file][title]Spirit[/title][artist]Eluveitie[/artist][album]Spirit[/album][trackno]1[/trackno][duration]  2\:32[/duration][played]0[/played][rating]0[/rating][skip]0[/skip][date]23.10.2013 16\:15[/date][ip]Polling[/ip]
-[lastPos]=3
-[pos]3[/pos]=[file]C\:/Users/Simon/git/LanPlayer/LanPlayer/LanPlayer/ServerData/Music/2 - Uis Elveti.mp3[/file][title]Uis Elveti[/title][artist]Eluveitie[/artist][album]Spirit[/album][trackno]2[/trackno][duration]  4\:23[/duration][played]0[/played][rating]0[/rating][skip]0[/skip][date]23.10.2013 16\:15[/date][ip]Polling[/ip]
