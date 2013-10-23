@@ -145,7 +145,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
-				server.sendFile(lanData.getFile());
+				//server.sendFile(lanData.getFile());
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
 				reloadList();
@@ -174,6 +174,10 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 					newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
 					if(!newFile.exists()) {
 						rawFile.renameTo(newFile);
+					}
+					else {
+						rawFile.delete();
+						return;
 					}
 				} catch (MalformedURLException | UnsupportedAudioFileException e) {
 				}

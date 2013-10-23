@@ -289,12 +289,13 @@ public class LanData extends Observable {
 			setAndStoreLastPos(lastPosition - 1);
 			return false;
 		}
-			
+		
+		resetLoadedFiles();	
+		
 		if(notify) {
 			setChanged();
 			notifyObservers(FILE_TAG);
 		}
-		resetLoadedFiles();	
 		
 		return true;
 	}
