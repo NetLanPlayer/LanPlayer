@@ -163,7 +163,7 @@ public class ClientGui extends JFrame {
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				if (!txtEnterIpAddress.isEnabled())
+				if (txtEnterIpAddress.isEditable());
 					if (arg0.getKeyCode() == KeyEvent.VK_ENTER)
 						uploadButtonAction();
 
