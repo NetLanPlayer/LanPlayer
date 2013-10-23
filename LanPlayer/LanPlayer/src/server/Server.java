@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import client.Client;
@@ -57,8 +58,7 @@ public class Server {
 
 			@Override
 			public void run() {
-				try (final ServerSocket fileServer = new ServerSocket(55000,
-						1000)) {
+				try (final ServerSocket fileServer = new ServerSocket(55000, 1000)) {
 					while (true) {
 						final Socket client = fileServer.accept();
 						pool.submit(new Runnable() {
@@ -230,6 +230,10 @@ public class Server {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+		try {
+			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
 		}
 		pool.shutdown();
 
