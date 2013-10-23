@@ -24,7 +24,7 @@ public class LanData extends Observable {
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
 	
-	private final static int SEARCH_TIMER_MS = 180000;
+	private final static int SEARCH_TIMER_MS = 5000;
 	
 	public final static String PARTICIPANTS_TAG = "[participants]";
 	public final static String LAST_POSITION_TAG = "[lastPos]";

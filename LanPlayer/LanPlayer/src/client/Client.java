@@ -15,23 +15,32 @@ import java.util.Observable;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import main.ClientGui;
 
-public class Client extends Observable {
+public class Client {
 
 	private final ExecutorService pool;
 	private final String serverAddress;
 	private Socket server;
 	private BufferedOutputStream serverOutput;
 	private BufferedInputStream serverInput;
-	AtomicInteger c = new AtomicInteger(1);
+	//private AtomicInteger c = new AtomicInteger(1);
 	
-	public final static String MSG_REQ_PROPERTY = "Client request property file.";
+	private static final int BUFFER_SIZE = 4096;
+	
+	private ClientHandler clientHandler;
+	
+	public ClientHandler getClientHandler() {
+		return clientHandler;
+	}
 
-	public Client(String serverAddress) throws UnknownHostException,
-			IOException {
+	public Client(String serverAddress) throws UnknownHostException, IOException {
+		
+		this.clientHandler = new ClientHandler(this);
+		
 		this.serverAddress = serverAddress;
 		pool = Executors.newCachedThreadPool();
 
@@ -40,26 +49,25 @@ public class Client extends Observable {
 		serverOutput = new BufferedOutputStream(server.getOutputStream());
 		serverInput = new BufferedInputStream(server.getInputStream());
 		receiveMessage();
-		receiveFile();
+		receiveProperty();
 	}
 
-	private void sendFile(File[] files) {
-		for (final File file : files) {
-			pool.submit(new Runnable() {
-				@Override
-				public void run() {
+	private void sendFile(final File[] files) {
+		pool.submit(new Runnable() {		
+			@Override
+			public void run() {
+				for (final File file : files) {
 					try (Socket socket = new Socket(serverAddress, 55000)) {
-						System.out.println(file.getName());
-						BufferedOutputStream out = new BufferedOutputStream(
-								socket.getOutputStream(), 1024);
-						byte[] buffer = new byte[1024];
+						System.out.println("Sending file: " + file.getName());
+						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
+						byte[] buffer = new byte[BUFFER_SIZE];
 						FileInputStream in = new FileInputStream(file);
-						while (in.read(buffer) != -1) {
-							System.out.println("rec");
-							out.write(buffer);
-							out.flush();
+						int count = 0;
+						while ((count = in.read(buffer)) >= 0) {
+							
+							out.write(buffer, 0, count);
+							//out.flush();
 						}
-						System.out.println("track sent");
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {
@@ -68,8 +76,8 @@ public class Client extends Observable {
 						e.printStackTrace();
 					}
 				}
-			});
-		}
+			}
+		});
 	}
 
 	/**
@@ -82,7 +90,7 @@ public class Client extends Observable {
 		pool.submit(new Runnable() {
 			@Override
 			public void run() {
-				byte[] buffer = new byte[1024];
+				byte[] buffer = new byte[BUFFER_SIZE];
 				synchronized (serverOutput) {
 					try {
 						int count = 0;
@@ -91,7 +99,7 @@ public class Client extends Observable {
 						for (byte b : message.getBytes())
 							buffer[count++] = b;
 						out.write(buffer);
-						out.flush();
+						//out.flush();
 
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -107,15 +115,17 @@ public class Client extends Observable {
 			public void run() {
 				boolean stop = false;
 				while (!stop) {
-					byte[] buffer = new byte[1024];
+					byte[] buffer = new byte[BUFFER_SIZE];
 					synchronized (serverInput) {
 						try {
 							BufferedInputStream in = new BufferedInputStream(
 									serverInput);
 							in.read(buffer);
 							String message = new String(buffer);
-							System.out.println(c.getAndIncrement() + message);
-							// TODO handleMessage(message);
+							//System.out.println(c.getAndIncrement() + message);
+							
+							// handle server message
+							clientHandler.handleServerMessage(message);
 						} catch (IOException e) {
 							stop = true;
 						}
@@ -172,33 +182,31 @@ public class Client extends Observable {
 
 	//AtomicInteger counter = new AtomicInteger(1);
 
-	private void receiveFile() {
+	private void receiveProperty() {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
 					Socket server = new Socket(serverAddress, 57000);
 					System.out.println("Client: waiting for file");
 					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
-					byte[] buffer = new byte[1024];
+					byte[] buffer = new byte[BUFFER_SIZE];
 					//File file = new File("./src/temp" + counter.getAndIncrement());
 					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
-					while (in.read(buffer) != -1) {
-						out.write(buffer);
-						out.flush();
+					int count = 0;
+					while ((count = in.read(buffer)) >= 0) {
+						out.write(buffer, 0, count);
+						//out.flush();
 					}
 					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
 					Properties prop = new Properties();
 					prop.load(fis);
-					//System.out.println(prop.get("key"));
-					
-					setChanged();
-					notifyObservers(prop);
-					
-					System.out.println("Client: file is here");
 					out.close();
 					in.close();
 					server.close();
-					receiveFile();
+					
+					clientHandler.handleServerProperty(prop);
+					
+					receiveProperty();
 
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
@@ -221,6 +229,10 @@ public class Client extends Observable {
 			server.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		try {
+			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
 		}
 		pool.shutdown();
 	}

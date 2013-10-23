@@ -56,6 +56,8 @@ import de.quippy.javamod.system.Log;
 import javax.swing.JSlider;
 import javax.swing.JScrollBar;
 
+import main.ServerGui;
+
 public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThreadEventListener, MultimediaContainerEventListener {
 	
 	private PlaylistPanel playlistPanel;
@@ -162,7 +164,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	public void reloadPlaylist() {
 		List<MusicData> filesToPlay = playlistPanel.getPlaylist();
 		if(filesToPlay.isEmpty()) {
-			File[] files = { PlaylistPanel.LAN_PLAYER_INIT };
+			File[] files = { ServerGui.LAN_PLAYER_INIT };
 			doOpenFile(files);
 		}
 		else {
