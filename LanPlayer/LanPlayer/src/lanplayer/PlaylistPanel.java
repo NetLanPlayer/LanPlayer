@@ -21,6 +21,8 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -169,7 +171,12 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 		    @Override
 		    public void valueChanged(ListSelectionEvent e) {
-		        selectedRow = e.getFirstIndex();
+		        if(selectedRow != -1) {
+		        	selectedRow = e.getFirstIndex();
+		        }
+		        else {
+		        	controlPanel.getBtnDeleteTrack().setEnabled(false);
+		        }
 		        if(playlistTable.getSelectionModel().isSelectionEmpty()) {
 		        	return;
 		        }
@@ -221,12 +228,36 @@ public class PlaylistPanel extends JPanel {
 			}
 		});
 		
+		controlPanel.getBtnRefreshPlaylist().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				lanData.refresh();
+			}
+		});
+		
+		controlPanel.getBtnDeleteTrack().addActionListener(new ActionListener()  {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int viewRow = playlistTable.getSelectedRow();
+				int modelRow = playlistTable.convertRowIndexToModel(viewRow);
+				MusicData md = (MusicData) playlistTableModel.getValueAt(modelRow, 0);
+				File toDelete = md.getMusicFile();
+				toDelete.delete();
+				selectedRow = -1;
+				restoreSelection();
+				lanData.refresh();
+			}
+		});
+		
 	}
 	
 	public void restoreSelection() {
 		if (selectedRow >= 0 && selectedRow < playlistTable.getRowCount()) {
 			playlistTable.addRowSelectionInterval(selectedRow, selectedRow);
         }
+		else {
+			playlistTable.clearSelection();
+		}
 	}
 	
 	public void setDeleteBtnState() {

@@ -83,9 +83,14 @@ public class Server {
 						});
 					}
 
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+				catch(java.net.BindException be) {
+					System.out.println("Application is already running. Address already in use: JVM_Bind");
+					System.exit(0);
+				} 
+				catch (IOException e) {
+					e.printStackTrace();
+				} 
 			}
 		}).start();
 
@@ -129,7 +134,11 @@ public class Server {
 							}
 						});
 					}
-				} catch (IOException e) {
+				}
+				catch(java.net.BindException be) {
+					System.exit(0);
+				}
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -149,7 +158,11 @@ public class Server {
 						client.setKeepAlive(true);
 						propertySendClients.add(client);
 					}
-				} catch (IOException e) {
+				}
+				catch(java.net.BindException be) {
+					System.exit(0);
+				}  
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 

@@ -13,6 +13,8 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ControlPanel extends JPanel {
 
@@ -29,7 +31,12 @@ public class ControlPanel extends JPanel {
 	}
 
 	private JComboBox<Integer> ratingBox;
+	private JButton btnRefreshPlaylist;
 	
+	public JButton getBtnRefreshPlaylist() {
+		return btnRefreshPlaylist;
+	}
+
 	public ControlPanel() {
 		initialize();
 	}
@@ -51,9 +58,9 @@ public class ControlPanel extends JPanel {
 		gbc_plControlPanel.gridy = 0;
 		add(plControlPanel, gbc_plControlPanel);
 		GridBagLayout gbl_plControlPanel = new GridBagLayout();
-		gbl_plControlPanel.columnWidths = new int[]{60, 0, 30, 0, 50, 30, 0, 30, 0, 0};
+		gbl_plControlPanel.columnWidths = new int[]{60, 0, 30, 0, 50, 30, 0, 30, 0, 0, 0};
 		gbl_plControlPanel.rowHeights = new int[]{0, 0};
-		gbl_plControlPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_plControlPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_plControlPanel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		plControlPanel.setLayout(gbl_plControlPanel);
 		
@@ -76,12 +83,12 @@ public class ControlPanel extends JPanel {
 		
 		JLabel filler1 = new JLabel(" ");
 		GridBagConstraints gbc_filler1 = new GridBagConstraints();
-		gbc_filler1.insets = new Insets(5, 5, 5, 5);
+		gbc_filler1.insets = new Insets(5, 5, 0, 5);
 		gbc_filler1.gridx = 2;
 		gbc_filler1.gridy = 0;
 		plControlPanel.add(filler1, gbc_filler1);
 		
-		JLabel lblOnlyPlayTracks = new JLabel("Play Tracks Rated Above:");
+		JLabel lblOnlyPlayTracks = new JLabel("Play Rated Above:");
 		GridBagConstraints gbc_lblOnlyPlayTracks = new GridBagConstraints();
 		gbc_lblOnlyPlayTracks.insets = new Insets(5, 5, 5, 5);
 		gbc_lblOnlyPlayTracks.anchor = GridBagConstraints.EAST;
@@ -101,30 +108,38 @@ public class ControlPanel extends JPanel {
 		
 		JLabel filler2 = new JLabel(" ");
 		GridBagConstraints gbc_filler2 = new GridBagConstraints();
-		gbc_filler2.insets = new Insets(5, 5, 5, 5);
+		gbc_filler2.insets = new Insets(5, 5, 0, 5);
 		gbc_filler2.gridx = 5;
 		gbc_filler2.gridy = 0;
 		plControlPanel.add(filler2, gbc_filler2);
 		
 		chckbxShuffle = new JCheckBox("Shuffle");
 		GridBagConstraints gbc_chckbxShuffle = new GridBagConstraints();
-		gbc_chckbxShuffle.insets = new Insets(5, 5, 0, 5);
+		gbc_chckbxShuffle.insets = new Insets(5, 5, 5, 5);
 		gbc_chckbxShuffle.gridx = 6;
 		gbc_chckbxShuffle.gridy = 0;
 		plControlPanel.add(chckbxShuffle, gbc_chckbxShuffle);
 		
 		JLabel filler3 = new JLabel(" ");
 		GridBagConstraints gbc_filler3 = new GridBagConstraints();
-		gbc_filler3.insets = new Insets(5, 5, 5, 5);
+		gbc_filler3.insets = new Insets(5, 5, 0, 5);
 		gbc_filler3.gridx = 7;
 		gbc_filler3.gridy = 0;
 		plControlPanel.add(filler3, gbc_filler3);
 		
+		btnRefreshPlaylist = new JButton("Refresh Playlist");
+
+		GridBagConstraints gbc_btnRefreshPlaylist = new GridBagConstraints();
+		gbc_btnRefreshPlaylist.insets = new Insets(5, 5, 5, 5);
+		gbc_btnRefreshPlaylist.gridx = 8;
+		gbc_btnRefreshPlaylist.gridy = 0;
+		plControlPanel.add(btnRefreshPlaylist, gbc_btnRefreshPlaylist);
+		
 		btnDeleteTrack = new JButton("Delete Track");
 		btnDeleteTrack.setEnabled(false);
 		GridBagConstraints gbc_btnDeleteTrack = new GridBagConstraints();
-		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 5);
-		gbc_btnDeleteTrack.gridx = 8;
+		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 0);
+		gbc_btnDeleteTrack.gridx = 9;
 		gbc_btnDeleteTrack.gridy = 0;
 		plControlPanel.add(btnDeleteTrack, gbc_btnDeleteTrack);
 	}
