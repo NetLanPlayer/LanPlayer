@@ -27,38 +27,32 @@ public class Client {
 	private Socket server;
 	private BufferedOutputStream serverOutput;
 	private BufferedInputStream serverInput;
-	//private AtomicInteger c = new AtomicInteger(1);
-	
+	// private AtomicInteger c = new AtomicInteger(1);
+
 	private static final int BUFFER_SIZE = 4096;
-	
+
 	private ClientHandler clientHandler;
-	
+
 	public ClientHandler getClientHandler() {
 		return clientHandler;
 	}
 
 	public Client(String serverAddress) throws UnknownHostException, IOException {
-		
+
 		this.clientHandler = new ClientHandler(this);
-		
+
 		this.serverAddress = serverAddress;
 		pool = Executors.newCachedThreadPool();
-
-		server = new Socket(serverAddress, 56000);
-		server.setKeepAlive(true);
-		serverOutput = new BufferedOutputStream(server.getOutputStream());
-		serverInput = new BufferedInputStream(server.getInputStream());
 		receiveMessage();
-		receiveProperty();
+		receiveFile();
 	}
 
 	private void sendFile(final File[] files) {
-		pool.submit(new Runnable() {		
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				for (final File file : files) {
 					try (Socket socket = new Socket(serverAddress, 55000)) {
-						System.out.println(file.getName());
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
 						FileInputStream in = new FileInputStream(file);
@@ -66,7 +60,6 @@ public class Client {
 						while ((count = in.read(buffer)) >= 0) {
 							System.out.println("Client: sending file: " + file.getName());
 							out.write(buffer, 0, count);
-							//out.flush();
 						}
 						System.out.println("Client: File " + file.getName() + " sent.");
 						in.close();
@@ -78,7 +71,7 @@ public class Client {
 					}
 				}
 			}
-		});
+		}).start();
 	}
 
 	/**
@@ -88,53 +81,81 @@ public class Client {
 	 * @return void
 	 */
 	public void sendMessage(final String message) {
-		pool.submit(new Runnable() {
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				byte[] buffer = new byte[BUFFER_SIZE];
-				synchronized (serverOutput) {
-					try {
-						int count = 0;
-						BufferedOutputStream out = new BufferedOutputStream(
-								serverOutput);
-						for (byte b : message.getBytes())
-							buffer[count++] = b;
-						out.write(buffer);
-						//out.flush();
-
-					} catch (IOException e) {
-						e.printStackTrace();
+				try {
+					Socket server = new Socket(serverAddress, 56000);
+					BufferedOutputStream out = new BufferedOutputStream(server.getOutputStream());
+					byte[] buffer = new byte[message.getBytes().length];
+					int count = 0;
+					for (byte b : message.getBytes()) {
+						buffer[count++] = b;
 					}
+					out.write(buffer);
+					out.flush();
+					server.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
+
 			}
-		});
+		}).start();
 	}
 
 	private void receiveMessage() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				boolean stop = false;
-				while (!stop) {
+
+				try {
+					Socket server = new Socket(serverAddress, 56000);
 					byte[] buffer = new byte[BUFFER_SIZE];
-					synchronized (serverInput) {
-						try {
-							BufferedInputStream in = new BufferedInputStream(
-									serverInput);
-							in.read(buffer);
-							String message = new String(buffer);
-							//System.out.println(c.getAndIncrement() + message);
-							
-							// handle server message
-							clientHandler.handleServerMessage(message);
-						} catch (IOException e) {
-							stop = true;
-						}
+					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
+					String message = null;
+
+					while (in.read(buffer) != -1) {
+						message = new String(buffer);
 					}
+					clientHandler.handleServerMessage(message);
+					server.close();
+					receiveMessage();
+				} catch (IOException e) {
 				}
 			}
 		}).start();
 
+	}
+	private void receiveFile() {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					Socket server = new Socket(serverAddress, 58000);
+					System.out.println("Client: waiting for file");
+					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
+					byte[] buffer = new byte[1024];
+					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
+					while (in.read(buffer) != -1) {
+						out.write(buffer);
+						out.flush();
+					}
+					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
+					Properties prop = new Properties();
+					prop.load(fis);
+					//TODO UPDATE OBSERVER
+					out.close();
+					in.close();
+					server.close();
+					receiveFile();
+
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}).start();
 	}
 
 	/**
@@ -181,44 +202,7 @@ public class Client {
 		return ret.toString();
 	}
 
-	//AtomicInteger counter = new AtomicInteger(1);
-
-	private void receiveProperty() {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					Socket server = new Socket(serverAddress, 57000);
-					System.out.println("Client: waiting for file");
-					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
-					byte[] buffer = new byte[BUFFER_SIZE];
-					//File file = new File("./src/temp" + counter.getAndIncrement());
-					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
-					int count = 0;
-					while ((count = in.read(buffer)) >= 0) {
-						out.write(buffer, 0, count);
-						//out.flush();
-					}
-					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
-					Properties prop = new Properties();
-					prop.load(fis);
-					out.close();
-					in.close();
-					server.close();
-					
-					clientHandler.handleServerProperty(prop);
-					
-					receiveProperty();
-
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-			}
-		}).start();
-
-	}
+	
 
 	/**
 	 * Proper close of ClientApplication. Shutdown threadpool and close socket.
