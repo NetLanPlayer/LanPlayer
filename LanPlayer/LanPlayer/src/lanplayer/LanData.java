@@ -15,12 +15,13 @@ import java.util.Properties;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import main.ServerGui;
 import utilities.MD5Hash;
 import utilities.SimpleDate;
 
 public class LanData extends Observable {
 	
-	private int participants = 1;
+	private int participants = ServerGui.INIT_PARTICIPANTS;
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
 	
@@ -343,7 +344,14 @@ public class LanData extends Observable {
 		if(indexBegin == -1 || indexEnd == -1) return null;		
 		return formValue.substring(indexBegin + tagBegin.length(), indexEnd);
 	}
-		
+	
+	/**
+	 * Clears the property data. Note that it is not stored.
+	 */
+	public void clear() {
+		data.clear();
+	}
+	
 	/**
 	 * Loads the LanData properties file into this class, should be called when the properties file has changed.
 	 * @throws IOException Is thrown when the file couldn't be loaded.
@@ -482,7 +490,7 @@ public class LanData extends Observable {
 	public Integer getParticipants() {
 		//boolean success = loadParticipants();
 		//if(success) {
-			return lastPosition;
+			return participants;
 		//}
 		//return null;
 	}

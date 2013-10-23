@@ -19,7 +19,17 @@ import java.awt.event.ActionEvent;
 public class ControlPanel extends JPanel {
 
 	private JTextField skipField;
+	
+	public JTextField getSkipField() {
+		return skipField;
+	}
+	
 	private JButton btnSetSkip;
+
+	public JButton getBtnSetSkip() {
+		return btnSetSkip;
+	}
+
 	private JCheckBox chckbxShuffle;
 	public JCheckBox getChckbxShuffle() {
 		return chckbxShuffle;
@@ -143,7 +153,7 @@ public class ControlPanel extends JPanel {
 		gbc_btnDeleteTrack.gridy = 0;
 		plControlPanel.add(btnDeleteTrack, gbc_btnDeleteTrack);
 	}
-	
+
 	private void fillRatingBox() {
 		for(int i = 0; i <= 5; i++) {
 			ratingBox.addItem(i);
