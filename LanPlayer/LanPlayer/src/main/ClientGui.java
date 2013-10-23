@@ -51,7 +51,7 @@ import lanplayer.PlaylistTableModel;
 
 public class ClientGui extends JFrame {
 
-	private final static int INIT_PARTICIPANTS = 10;
+	private final static int INIT_PARTICIPANTS = 1;
 	public final static File DATA_DIR = new File("./ClientData/");
 	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
 	

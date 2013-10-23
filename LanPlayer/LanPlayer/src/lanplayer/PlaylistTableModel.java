@@ -146,7 +146,6 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 					player.reloadPlaylist();
 				}
 				server.sendFile(lanData.getFile());
-				
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
 				reloadList();
@@ -155,7 +154,11 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				playlistPanel.setDeleteBtnState();
 			}
 			else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
-				
+				try {
+					this.lanData.loadData();
+				} catch (IOException e) {
+				}
+				playlistPanel.getControlPanel().getSkipField().setText("" + lanData.getParticipants());
 			}
 		}
 		else if(observable instanceof ServerHandler) {

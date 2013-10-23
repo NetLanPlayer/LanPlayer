@@ -25,6 +25,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -109,6 +112,11 @@ public class PlaylistPanel extends JPanel {
 			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
+		}
+		else {
+			lanData.clear();
+			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
+			lanData.refresh();
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
@@ -221,6 +229,56 @@ public class PlaylistPanel extends JPanel {
 //			}
 //			
 //		});
+		
+		controlPanel.getSkipField().setText(this.lanData.getParticipants() + "");
+		controlPanel.getSkipField().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				int prevPartValue = lanData.getParticipants();
+				String cont = controlPanel.getSkipField().getText();
+				if(!cont.matches("[0-9]")) {
+					cont = cont.replaceAll("[^0-9]", "");
+				}
+				
+				int newPartValue = prevPartValue;
+				try {
+					newPartValue = Integer.parseInt(cont);
+				}
+				catch(NumberFormatException nfe) {
+					controlPanel.getBtnSetSkip().setEnabled(false);
+					return;
+				}
+				
+				if(newPartValue < 1) {
+					newPartValue = 1;
+				}
+				
+				if(newPartValue != prevPartValue) {
+					controlPanel.getBtnSetSkip().setEnabled(true);
+				}
+				else {
+					controlPanel.getBtnSetSkip().setEnabled(false);
+				}
+				
+				controlPanel.getSkipField().setText(newPartValue + "");
+			}
+		});
+		
+		controlPanel.getBtnSetSkip().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int newPartValue = lanData.getParticipants();
+				try {
+					newPartValue = Integer.parseInt(controlPanel.getSkipField().getText());
+				}
+				catch(NumberFormatException nfe) {
+					controlPanel.getBtnSetSkip().setEnabled(false);
+					return;
+				}
+				lanData.setAndStoreParticipants(newPartValue);
+				controlPanel.getBtnSetSkip().setEnabled(false);
+			}
+		});
 		
 		controlPanel.getChckbxShuffle().addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
