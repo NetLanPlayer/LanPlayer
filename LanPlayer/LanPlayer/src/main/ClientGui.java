@@ -22,6 +22,8 @@ import javax.swing.JButton;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -54,13 +56,13 @@ public class ClientGui extends JFrame {
 	private final static int INIT_PARTICIPANTS = 1;
 	public final static File DATA_DIR = new File("./ClientData/");
 	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
-	
+
 	private LanData lanData = null;
-		
+
 	public LanData getLanData() {
 		return lanData;
 	}
-	
+
 	private static final long serialVersionUID = 3886409992076543386L;
 	private JPanel contentPane;
 
@@ -74,20 +76,20 @@ public class ClientGui extends JFrame {
 	private JPanel connectPanel;
 	private JPanel uploadPanel;
 	private JPanel playlistPanel;
-	
+
 	private JTable clientTable;
 	private ClientTableModel clientTableModel;
-	
+
 	private JScrollPane scrollPane;
 	private JButton btnSkip;
 	private JComboBox<Integer> comboBox;
 	private JButton btnRate;
+	final private JButton btnConnect;
 
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e1) {
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
 			e1.printStackTrace();
 		}
 		EventQueue.invokeLater(new Runnable() {
@@ -103,6 +105,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public ClientGui() {
+		btnConnect = new JButton("Connect");
 		initLanData();
 		initialize();
 	}
@@ -118,13 +121,11 @@ public class ClientGui extends JFrame {
 		gbl_contentPane.columnWidths = new int[] { 480, 0 };
 		gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0 };
 		gbl_contentPane.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 1.0,
-				Double.MIN_VALUE };
+		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
 
 		connectPanel = new JPanel();
-		connectPanel.setBorder(new TitledBorder(null, "Connection",
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		connectPanel.setBorder(new TitledBorder(null, "Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_connectPanel = new GridBagConstraints();
 		gbc_connectPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_connectPanel.fill = GridBagConstraints.BOTH;
@@ -134,8 +135,7 @@ public class ClientGui extends JFrame {
 		GridBagLayout gbl_connectPanel = new GridBagLayout();
 		gbl_connectPanel.columnWidths = new int[] { 0, 165, 0 };
 		gbl_connectPanel.rowHeights = new int[] { 0, 0 };
-		gbl_connectPanel.columnWeights = new double[] { 1.0, 0.0,
-				Double.MIN_VALUE };
+		gbl_connectPanel.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		gbl_connectPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		connectPanel.setLayout(gbl_connectPanel);
 
@@ -153,11 +153,32 @@ public class ClientGui extends JFrame {
 				txtEnterIpAddress.select(0, txtEnterIpAddress.getText().length());
 			}
 		});
+		txtEnterIpAddress.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (!txtEnterIpAddress.isEnabled())
+					if (arg0.getKeyCode() == KeyEvent.VK_ENTER)
+						uploadButtonAction();
+
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+		});
 		txtEnterIpAddress.setText("Enter ServerIP");
 		txtEnterIpAddress.setSelectionStart(0);
 		txtEnterIpAddress.setColumns(10);
-
-		final JButton btnConnect = new JButton("Connect");
 		GridBagConstraints gbc_btnConnect = new GridBagConstraints();
 		gbc_btnConnect.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnConnect.insets = new Insets(5, 5, 5, 5);
@@ -166,61 +187,12 @@ public class ClientGui extends JFrame {
 		connectPanel.add(btnConnect, gbc_btnConnect);
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (!txtEnterIpAddress.isEditable()) {
-					client = null;
-					txtEnterIpAddress.setEditable(true);
-					txtEnterIpAddress.setText("");
-					btnConnect.setText("Connect");
-					btnUpload.setEnabled(false);
-					txtEnterPath.setEditable(false);
-					btnRate.setEnabled(false);
-					btnSkip.setEnabled(false);
-					clientTable.setEnabled(false);
-					comboBox.setEnabled(false);
-					clientTableModel.setRowCount(0);
-					initLanData();
-				} else if (ipVal.validate(txtEnterIpAddress.getText())) {
-					try {
-						client = new Client(txtEnterIpAddress.getText());
-						
-						client.getClientHandler().addObserver(clientTableModel); // adding observer here
-						
-						client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
-						
-					} catch (UnknownHostException e) {
-						txtEnterIpAddress.setText("Connection failed, try again...");
-						txtEnterIpAddress.setEditable(true);
-						return;
-					} catch (java.net.ConnectException e) {
-						txtEnterIpAddress
-								.setText("Connection failed, try again...");
-						txtEnterIpAddress.setEditable(true);
-						return;
-
-					} catch (IOException e) {
-						txtEnterIpAddress
-								.setText("Connection failed, try again...");
-						txtEnterIpAddress.setEditable(true);
-						return;
-					}
-					txtEnterIpAddress.setEditable(false);
-					btnConnect.setText("Disconnect");
-					clientTable.setEnabled(true);
-					comboBox.setEnabled(true);
-					btnUpload.setEnabled(true);
-					txtEnterPath.setEditable(true);
-					btnRate.setEnabled(true);
-					btnSkip.setEnabled(true);
-				} else {
-					txtEnterIpAddress.setText("");
-				}
-
+				uploadButtonAction();
 			}
 		});
 
 		uploadPanel = new JPanel();
-		uploadPanel.setBorder(new TitledBorder(null, "Music File Upload",
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		uploadPanel.setBorder(new TitledBorder(null, "Music File Upload", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_uploadPanel = new GridBagConstraints();
 		gbc_uploadPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_uploadPanel.fill = GridBagConstraints.BOTH;
@@ -230,8 +202,7 @@ public class ClientGui extends JFrame {
 		GridBagLayout gbl_uploadPanel = new GridBagLayout();
 		gbl_uploadPanel.columnWidths = new int[] { 0, 165, 0 };
 		gbl_uploadPanel.rowHeights = new int[] { 0, 0 };
-		gbl_uploadPanel.columnWeights = new double[] { 1.0, 0.0,
-				Double.MIN_VALUE };
+		gbl_uploadPanel.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
 		gbl_uploadPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		uploadPanel.setLayout(gbl_uploadPanel);
 
@@ -270,8 +241,7 @@ public class ClientGui extends JFrame {
 		btnUpload.setEnabled(false);
 
 		playlistPanel = new JPanel();
-		playlistPanel.setBorder(new TitledBorder(null, "Playlist",
-				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		playlistPanel.setBorder(new TitledBorder(null, "Playlist", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_playlistPanel = new GridBagConstraints();
 		gbc_playlistPanel.fill = GridBagConstraints.BOTH;
 		gbc_playlistPanel.gridx = 0;
@@ -280,10 +250,8 @@ public class ClientGui extends JFrame {
 		GridBagLayout gbl_playlistPanel = new GridBagLayout();
 		gbl_playlistPanel.columnWidths = new int[] { 0, 60, 90, 0 };
 		gbl_playlistPanel.rowHeights = new int[] { 0, 0, 0 };
-		gbl_playlistPanel.columnWeights = new double[] { 1.0, 0.0, 0.0,
-				Double.MIN_VALUE };
-		gbl_playlistPanel.rowWeights = new double[] { 0.0, 1.0,
-				Double.MIN_VALUE };
+		gbl_playlistPanel.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
+		gbl_playlistPanel.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		playlistPanel.setLayout(gbl_playlistPanel);
 
 		scrollPane = new JScrollPane();
@@ -296,15 +264,13 @@ public class ClientGui extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 
-		String[] playlistColumnNames = { "Pos", "Title", "Artist", "Album",
-				"Track", "Duration", "Played", "Rating", "Skip", "Date",
-				"Uploader" };
+		String[] playlistColumnNames = { "Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "Date", "Uploader" };
 		clientTable = new JTable();
-		clientTableModel = new ClientTableModel(this, this.lanData , playlistColumnNames);
+		clientTableModel = new ClientTableModel(this, this.lanData, playlistColumnNames);
 		clientTable.setModel(clientTableModel);
-				
+
 		setClientTableColumnSizes();
-		
+
 		scrollPane.setViewportView(clientTable);
 
 		btnSkip = new JButton("Skip Request");
@@ -337,18 +303,68 @@ public class ClientGui extends JFrame {
 		gbc_btnRate.gridy = 1;
 		playlistPanel.add(btnRate, gbc_btnRate);
 	}
-	
-	private void initLanData() {
-		if(!DATA_DIR.exists()) {
-			DATA_DIR.mkdir();
+
+	protected void uploadButtonAction() {
+		if (!txtEnterIpAddress.isEditable()) {
+			client = null;
+			txtEnterIpAddress.setEditable(true);
+			txtEnterIpAddress.setText("");
+			btnConnect.setText("Connect");
+			btnUpload.setEnabled(false);
+			txtEnterPath.setEditable(false);
+			btnRate.setEnabled(false);
+			btnSkip.setEnabled(false);
+			clientTable.setEnabled(false);
+			comboBox.setEnabled(false);
+			clientTableModel.setRowCount(0);
+			initLanData();
+		} else if (ipVal.validate(txtEnterIpAddress.getText())) {
+			try {
+				client = new Client(txtEnterIpAddress.getText());
+
+				client.getClientHandler().addObserver(clientTableModel); // adding
+																			// observer
+																			// here
+
+				client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
+
+			} catch (UnknownHostException e) {
+				txtEnterIpAddress.setText("Connection failed, try again...");
+				txtEnterIpAddress.setEditable(true);
+				return;
+			} catch (java.net.ConnectException e) {
+				txtEnterIpAddress.setText("Connection failed, try again...");
+				txtEnterIpAddress.setEditable(true);
+				return;
+
+			} catch (IOException e) {
+				txtEnterIpAddress.setText("Connection failed, try again...");
+				txtEnterIpAddress.setEditable(true);
+				return;
+			}
+			txtEnterIpAddress.setEditable(false);
+			btnConnect.setText("Disconnect");
+			clientTable.setEnabled(true);
+			comboBox.setEnabled(true);
+			btnUpload.setEnabled(true);
+			txtEnterPath.setEditable(true);
+			btnRate.setEnabled(true);
+			btnSkip.setEnabled(true);
+		} else {
+			txtEnterIpAddress.setText("");
 		}
-		else {
+	}
+
+	private void initLanData() {
+		if (!DATA_DIR.exists()) {
+			DATA_DIR.mkdir();
+		} else {
 			File[] files = DATA_DIR.listFiles();
-			for(File f : files) {
+			for (File f : files) {
 				f.delete();
 			}
 		}
-		if(!LAN_DATA_FILE.exists()) {
+		if (!LAN_DATA_FILE.exists()) {
 			try {
 				LAN_DATA_FILE.createNewFile();
 			} catch (Exception e) {
@@ -360,36 +376,36 @@ public class ClientGui extends JFrame {
 	private void setClientTableColumnSizes() {
 		clientTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 		clientTable.getColumnModel().getColumn(0).setMinWidth(34);
-		
+
 		clientTable.getColumnModel().getColumn(1).setPreferredWidth(250);
 		clientTable.getColumnModel().getColumn(1).setMinWidth(38);
-		
+
 		clientTable.getColumnModel().getColumn(2).setPreferredWidth(170);
 		clientTable.getColumnModel().getColumn(2).setMinWidth(45);
-		
+
 		clientTable.getColumnModel().getColumn(3).setPreferredWidth(120);
 		clientTable.getColumnModel().getColumn(3).setMinWidth(50);
-		
+
 		clientTable.getColumnModel().getColumn(4).setPreferredWidth(47);
 		clientTable.getColumnModel().getColumn(4).setMinWidth(47);
-		
+
 		clientTable.getColumnModel().getColumn(5).setPreferredWidth(60);
 		clientTable.getColumnModel().getColumn(5).setMinWidth(60);
-		
+
 		clientTable.getColumnModel().getColumn(6).setPreferredWidth(50);
 		clientTable.getColumnModel().getColumn(6).setMinWidth(50);
-		
+
 		clientTable.getColumnModel().getColumn(7).setPreferredWidth(49);
 		clientTable.getColumnModel().getColumn(7).setMinWidth(49);
-		
+
 		clientTable.getColumnModel().getColumn(8).setPreferredWidth(40);
 		clientTable.getColumnModel().getColumn(8).setMinWidth(38);
-		
+
 		clientTable.getColumnModel().getColumn(9).setPreferredWidth(140);
 		clientTable.getColumnModel().getColumn(9).setMinWidth(38);
-		
+
 		clientTable.getColumnModel().getColumn(10).setPreferredWidth(100);
 		clientTable.getColumnModel().getColumn(10).setMinWidth(65);
 	}
-	
+
 }
