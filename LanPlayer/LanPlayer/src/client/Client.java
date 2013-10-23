@@ -58,16 +58,17 @@ public class Client {
 			public void run() {
 				for (final File file : files) {
 					try (Socket socket = new Socket(serverAddress, 55000)) {
-						System.out.println("Sending file: " + file.getName());
+						System.out.println(file.getName());
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
 						FileInputStream in = new FileInputStream(file);
 						int count = 0;
 						while ((count = in.read(buffer)) >= 0) {
-							
+							System.out.println("Client: sending file: " + file.getName());
 							out.write(buffer, 0, count);
 							//out.flush();
 						}
+						System.out.println("Client: File " + file.getName() + " sent.");
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {

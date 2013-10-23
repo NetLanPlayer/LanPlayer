@@ -208,9 +208,7 @@ public class Server {
 							out.write(buffer, 0, count);
 							//out.flush();
 						}
-						out.flush();
 						in.close();
-						out.close();
 						propertySendClients.remove(client);
 						client.close();
 					} catch (IOException e) {
