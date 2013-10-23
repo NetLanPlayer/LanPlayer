@@ -319,6 +319,7 @@ public class LanData extends Observable {
 	}
 	
 	private String setValue(String tag, String value) {
+		if(value == null) value = "";
 		return tag.replaceAll(PLACEHOLDER, value);
 	}
 	
