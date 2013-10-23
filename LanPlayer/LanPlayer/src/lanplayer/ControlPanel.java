@@ -138,7 +138,7 @@ public class ControlPanel extends JPanel {
 		btnDeleteTrack = new JButton("Delete Track");
 		btnDeleteTrack.setEnabled(false);
 		GridBagConstraints gbc_btnDeleteTrack = new GridBagConstraints();
-		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 0);
+		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 5);
 		gbc_btnDeleteTrack.gridx = 9;
 		gbc_btnDeleteTrack.gridy = 0;
 		plControlPanel.add(btnDeleteTrack, gbc_btnDeleteTrack);
