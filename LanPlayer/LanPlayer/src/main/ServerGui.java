@@ -3,14 +3,10 @@ package main;
 import java.awt.EventQueue;
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.BindException;
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import server.Server;
 import lanplayer.MainPanel;
-import lanplayer.PlaylistPanel;
 import de.quippy.javamod.system.Helpers;
 
 public class ServerGui {
