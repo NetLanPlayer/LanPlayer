@@ -24,7 +24,7 @@ public class LanData extends Observable {
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
 	
-	private final static int SEARCH_TIMER_MS = 180000;
+	private final static int SEARCH_TIMER_MS = 5000;
 	
 	public final static String PARTICIPANTS_TAG = "[participants]";
 	public final static String LAST_POSITION_TAG = "[lastPos]";
@@ -92,9 +92,13 @@ public class LanData extends Observable {
 		}
 		
 		resetLoadedFiles();
-		if(server) {
-			new Thread(new MusicDirectoryPolling(musicDirectory)).start();
-		}
+		
+		refresh();
+		
+		// polling disabled for now.
+//		if(server) {
+//			new Thread(new MusicDirectoryPolling(musicDirectory)).start();
+//		}
 		
 	}
 	
@@ -568,65 +572,108 @@ public class LanData extends Observable {
 
 	}
 	
-	class MusicDirectoryPolling implements Runnable {
+	public void refresh() {
+		HashSet<String> allowedExt = new HashSet<String>();
+		allowedExt.add(".mp3");
+		allowedExt.add(".xm");
 		
-		private File musicDirectory;
-		
-		private HashSet<String> allowedExt = new HashSet<String>();
-		
-		public MusicDirectoryPolling(File musicDirectory) {
-			this.musicDirectory = musicDirectory;
-			allowedExt.add(".mp3");
-			allowedExt.add(".xm");
-		}
-		
-		@Override
-		public void run() {
-			while(true) {
-				try {
-					Thread.sleep(SEARCH_TIMER_MS);
-				} catch (InterruptedException e) {
-				}
-				List<File> gatherList = new ArrayList<File>();
-				gatherMusicFiles(gatherList, musicDirectory);
-				boolean notify = false;
-				for(File f : gatherList) {
-					String path;
-					try {
-						path = f.getCanonicalPath();
-						path = path.replaceAll("\\\\", "/");
-					} catch(IOException e) {
-						continue;
-					}
-					if(!loadedFiles.contains(path)) {
-						addNewFile(f, "Polling", false);
-						notify = true;
-					}
-				}
-				if(notify) {
-					setChanged();
-					notifyObservers(FILE_TAG);
-				}
-				clearNonExistingFiles();
+		List<File> gatherList = new ArrayList<File>();
+		gatherMusicFiles(allowedExt, gatherList, musicDirectory);
+		boolean notify = false;
+		for(File f : gatherList) {
+			String path;
+			try {
+				path = f.getCanonicalPath();
+				path = path.replaceAll("\\\\", "/");
+			} catch(IOException e) {
+				continue;
+			}
+			if(!loadedFiles.contains(path)) {
+				addNewFile(f, "Polling", false);
+				notify = true;
 			}
 		}
-		
-		private void gatherMusicFiles(List<File> gatherList, File directory) {
-			File[] files = directory.listFiles();
-			for(File f : files) {
-				if(f.isDirectory()) {
-					gatherMusicFiles(gatherList, f);
-				}
-				else {
-					String extension = f.getName().substring(f.getName().lastIndexOf("."), f.getName().length());
-					if(allowedExt.contains(extension)) {
-						gatherList.add(f);
-					}
-				}
-			}
+		if(notify) {
+			setChanged();
+			notifyObservers(FILE_TAG);
 		}
-		
-		
+		clearNonExistingFiles();
 	}
+	
+	private void gatherMusicFiles(HashSet<String> allowedExt, List<File> gatherList, File directory) {
+		File[] files = directory.listFiles();
+		for(File f : files) {
+			if(f.isDirectory()) {
+				gatherMusicFiles(allowedExt, gatherList, f);
+			}
+			else {
+				String extension = f.getName().substring(f.getName().lastIndexOf("."), f.getName().length());
+				if(allowedExt.contains(extension)) {
+					gatherList.add(f);
+				}
+			}
+		}
+	}
+	
+//	class MusicDirectoryPolling implements Runnable {
+//		
+//		private File musicDirectory;
+//		
+//		private HashSet<String> allowedExt = new HashSet<String>();
+//		
+//		public MusicDirectoryPolling(File musicDirectory) {
+//			this.musicDirectory = musicDirectory;
+//			allowedExt.add(".mp3");
+//			allowedExt.add(".xm");
+//		}
+//		
+//		@Override
+//		public void run() {
+//			while(true) {
+//				try {
+//					Thread.sleep(SEARCH_TIMER_MS);
+//				} catch (InterruptedException e) {
+//				}
+//				List<File> gatherList = new ArrayList<File>();
+//				gatherMusicFiles(gatherList, musicDirectory);
+//				boolean notify = false;
+//				for(File f : gatherList) {
+//					String path;
+//					try {
+//						path = f.getCanonicalPath();
+//						path = path.replaceAll("\\\\", "/");
+//					} catch(IOException e) {
+//						continue;
+//					}
+//					if(!loadedFiles.contains(path)) {
+//						addNewFile(f, "Polling", false);
+//						notify = true;
+//					}
+//				}
+//				if(notify) {
+//					setChanged();
+//					notifyObservers(FILE_TAG);
+//				}
+//				clearNonExistingFiles();
+//			}
+//		}
+//		
+//		private void gatherMusicFiles(List<File> gatherList, File directory) {
+//			File[] files = directory.listFiles();
+//			for(File f : files) {
+//				if(f.isDirectory()) {
+//					gatherMusicFiles(gatherList, f);
+//				}
+//				else {
+//					String extension = f.getName().substring(f.getName().lastIndexOf("."), f.getName().length());
+//					if(allowedExt.contains(extension)) {
+//						gatherList.add(f);
+//					}
+//				}
+//			}
+//		}
+//		
+//		
+//	}
 
 }

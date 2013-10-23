@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
 
 import client.Client;
+import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
@@ -182,9 +183,9 @@ public class ClientGui extends JFrame {
 					try {
 						client = new Client(txtEnterIpAddress.getText());
 						
-						client.addObserver(clientTableModel); // adding observer here
+						client.getClientHandler().addObserver(clientTableModel); // adding observer here
 						
-						client.sendMessage(Client.MSG_REQ_PROPERTY);
+						client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 						
 					} catch (UnknownHostException e) {
 						txtEnterIpAddress.setText("Connection failed, try again...");

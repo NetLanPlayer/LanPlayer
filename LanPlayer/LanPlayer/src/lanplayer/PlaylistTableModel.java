@@ -13,6 +13,7 @@ import javax.swing.table.AbstractTableModel;
 
 import server.ReceivedFile;
 import server.Server;
+import server.ServerHandler;
 import de.quippy.javamod.main.playlist.PlayList;
 
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
@@ -35,7 +36,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		this.lanData.addObserver(this);
-		this.server.addObserver(this);
+		this.server.getServerHandler().addObserver(this);
 		reloadList();
 	}
 	
@@ -143,7 +144,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
-				server.sendFile(lanData.getFile());
+				server.sendProperty(lanData.getFile());
 				
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
@@ -156,7 +157,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				
 			}
 		}
-		else if(observable instanceof Server) {
+		else if(observable instanceof ServerHandler) {
 			if(obj instanceof ReceivedFile) {
 				ReceivedFile rf = (ReceivedFile) obj;
 				File rawFile = rf.getFile();

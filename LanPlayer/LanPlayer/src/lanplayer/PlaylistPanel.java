@@ -21,6 +21,8 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -44,18 +46,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import main.ServerGui;
 import server.Server;
 import utilities.MyIp;
 import utilities.SimpleDate;
 
 public class PlaylistPanel extends JPanel {
 		
-	private final static int INIT_PARTICIPANTS = 10;
-	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
-	public final static String MUSIC_DIR_PATH = "./ServerData/";
-	private final static File DATA_DIR = new File(MUSIC_DIR_PATH);
-	public final static File LAN_DATA_FILE = new File("./ServerData/LanMusicData.property");
-	
 	private PlayerPanel playerPanel;
 	private ControlPanel controlPanel;
 	private Server server;
@@ -99,19 +96,19 @@ public class PlaylistPanel extends JPanel {
 	}
 		
 	private void initLanData() {
-		if(!DATA_DIR.exists()) {
-			DATA_DIR.mkdir();
+		if(!ServerGui.DATA_DIR.exists()) {
+			ServerGui.DATA_DIR.mkdir();
 		}
-		if(!LAN_DATA_FILE.exists()) {
+		if(!ServerGui.LAN_DATA_FILE.exists()) {
 			try {
-				LAN_DATA_FILE.createNewFile();
+				ServerGui.LAN_DATA_FILE.createNewFile();
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, true);
+		lanData = new LanData(ServerGui.DATA_DIR, ServerGui.LAN_DATA_FILE, ServerGui.INIT_PARTICIPANTS, true);
 			
 		if(!lanData.hasEntries()) {
-			lanData.addNewFile(LAN_PLAYER_INIT, "LAN PLAYER", true);
+			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
@@ -174,7 +171,12 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 		    @Override
 		    public void valueChanged(ListSelectionEvent e) {
-		        selectedRow = e.getFirstIndex();
+		        if(selectedRow != -1) {
+		        	selectedRow = e.getFirstIndex();
+		        }
+		        else {
+		        	controlPanel.getBtnDeleteTrack().setEnabled(false);
+		        }
 		        if(playlistTable.getSelectionModel().isSelectionEmpty()) {
 		        	return;
 		        }
@@ -226,12 +228,36 @@ public class PlaylistPanel extends JPanel {
 			}
 		});
 		
+		controlPanel.getBtnRefreshPlaylist().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				lanData.refresh();
+			}
+		});
+		
+		controlPanel.getBtnDeleteTrack().addActionListener(new ActionListener()  {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int viewRow = playlistTable.getSelectedRow();
+				int modelRow = playlistTable.convertRowIndexToModel(viewRow);
+				MusicData md = (MusicData) playlistTableModel.getValueAt(modelRow, 0);
+				File toDelete = md.getMusicFile();
+				toDelete.delete();
+				selectedRow = -1;
+				restoreSelection();
+				lanData.refresh();
+			}
+		});
+		
 	}
 	
 	public void restoreSelection() {
 		if (selectedRow >= 0 && selectedRow < playlistTable.getRowCount()) {
 			playlistTable.addRowSelectionInterval(selectedRow, selectedRow);
         }
+		else {
+			playlistTable.clearSelection();
+		}
 	}
 	
 	public void setDeleteBtnState() {
