@@ -3,6 +3,7 @@ package server;
 import java.io.File;
 import java.util.Observable;
 
+import lanplayer.LanData;
 import main.ServerGui;
 import client.Client;
 import client.ClientHandler;
@@ -21,13 +22,22 @@ public class ServerHandler extends Observable  {
 	}
 
 	public void handleClientMessage(String message) {
-		if(message.equals(ClientHandler.MSG_REQ_PROPERTY)) {
-			System.out.println("Server: Received Property file request");
+		message = message.trim();
+		System.out.println("Server: Received message: " + message);
+		if(ClientHandler.MSG_REQ_PROPERTY.equals(message)) {
 			//handlePropertyFileReq();
+		}
+		else if(ClientHandler.MSG_UPLOAD_FINISHED.equals(message)) {
+			handleUploadFinished();
 		}
 	}
 	
-	public void handlePropertyFileReq() {
+	private void handleUploadFinished() {
+		setChanged();
+		notifyObservers(ClientHandler.MSG_UPLOAD_FINISHED);
+	}
+	
+	private void handlePropertyFileReq() {
 		server.sendFile(ServerGui.LAN_DATA_FILE);
 	}
 	

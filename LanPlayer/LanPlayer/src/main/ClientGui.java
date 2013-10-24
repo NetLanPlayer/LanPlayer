@@ -209,10 +209,12 @@ public class ClientGui extends JFrame {
 		uploadPanel.add(btnUpload, gbc_btnUpload);
 		btnUpload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (client.checkPathAndSend(txtEnterPath.getText()))
+				if (client.checkPathAndSend(txtEnterPath.getText())) {
 					txtEnterPath.setText("");
-				else
+				}
+				else {
 					txtEnterPath.setText("Path was wrong");
+				}
 			}
 		});
 		btnUpload.setEnabled(false);
@@ -299,10 +301,7 @@ public class ClientGui extends JFrame {
 			try {
 				client = new Client(txtEnterIpAddress.getText());
 
-				client.getClientHandler().addObserver(clientTableModel); // adding
-																			// observer
-																			// here
-
+				client.getClientHandler().addObserver(clientTableModel); // adding observer here
 				client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 
 			} catch (UnknownHostException e) {

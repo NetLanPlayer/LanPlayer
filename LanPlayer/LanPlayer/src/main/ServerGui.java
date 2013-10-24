@@ -43,8 +43,7 @@ public class ServerGui {
 			public void run() {
 				try {
 					MainPanel window = new MainPanel(server);
-					window.setLocationRelativeTo(null); // appear in middle of
-														// screen
+					window.setLocationRelativeTo(null); // appear in middle of screen
 					window.setVisible(true);
 					Helpers.setCoding(true);
 				} catch (Exception e) {

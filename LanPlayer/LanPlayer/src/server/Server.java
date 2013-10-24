@@ -108,7 +108,6 @@ public class Server {
 									while (in.read(buffer) != -1) {
 										message = new String(buffer);
 									}
-									System.out.println(message);
 									serverHandler.handleClientMessage(message);
 									client.close();
 								} catch (IOException e) {

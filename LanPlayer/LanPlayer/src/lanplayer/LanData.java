@@ -270,6 +270,7 @@ public class LanData extends Observable {
 		} catch (IOException e) {
 			return false;
 		}
+		loadLastPosition();
 		boolean posOk = setAndStoreLastPos(lastPosition + 1);
 		if(!posOk) {
 			return false;
@@ -603,10 +604,10 @@ public class LanData extends Observable {
 				notify = true;
 			}
 		}
-		if(notify) {
+		//if(notify) {
 			setChanged();
 			notifyObservers(FILE_TAG);
-		}
+		//}
 		clearNonExistingFiles();
 	}
 	

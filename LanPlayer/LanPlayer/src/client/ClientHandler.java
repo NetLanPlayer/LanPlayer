@@ -5,7 +5,8 @@ import java.util.Properties;
 
 public class ClientHandler extends Observable {
 
-	public final static String MSG_REQ_PROPERTY = "Client request property file.";
+	public final static String MSG_REQ_PROPERTY = "MSG_REQ_PROPERTY";
+	public final static String MSG_UPLOAD_FINISHED = "MSG_UPLOAD_FINISHED";
 
 	private Client client;
 	

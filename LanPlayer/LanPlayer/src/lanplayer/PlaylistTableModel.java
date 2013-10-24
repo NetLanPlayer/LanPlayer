@@ -6,8 +6,11 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.table.AbstractTableModel;
+
+import client.ClientHandler;
 import main.ServerGui;
 import server.ReceivedFile;
 import server.Server;
@@ -141,7 +144,6 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
-				//server.sendFile(lanData.getFile());
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
 				reloadList();
@@ -178,11 +180,21 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				} catch (MalformedURLException | UnsupportedAudioFileException e) {
 				}
 				if(newFile != null && newFile.exists()) {
-					this.lanData.addNewFile(newFile, rf.getIp(), true);
+					this.lanData.addNewFile(newFile, rf.getIp(), false);
 				}
 				else {
-					this.lanData.addNewFile(rawFile, rf.getIp(), true);
+					this.lanData.addNewFile(rawFile, rf.getIp(), false);
 				}
+			}
+			else if(obj.equals(ClientHandler.MSG_UPLOAD_FINISHED)) {
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
+				PlayerPanel player = this.playlistPanel.getPlayerPanel();
+				if(player != null) {
+					player.reloadPlaylist();
+				}
+				//server.sendFile(lanData.getFile());
 			}
 		}
 	}

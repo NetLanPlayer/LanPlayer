@@ -43,7 +43,6 @@ public class Client {
 			@Override
 			public void run() {
 				for (final File file : files) {
-					sendMessage("hello");
 					try (Socket socket = new Socket(serverAddress, 55000)) {
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
@@ -61,6 +60,7 @@ public class Client {
 						e.printStackTrace();
 					}
 				}
+				sendMessage(ClientHandler.MSG_UPLOAD_FINISHED);
 			}
 		}).start();
 	}
