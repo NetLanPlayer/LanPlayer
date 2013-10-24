@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import server.Server;
 import main.ClientGui;
 
 public class Client {
@@ -43,7 +44,7 @@ public class Client {
 			@Override
 			public void run() {
 				for (final File file : files) {
-					try (Socket socket = new Socket(serverAddress, 55000)) {
+					try (Socket socket = new Socket(serverAddress, Server.REC_FILE_PORT)) {
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
 						FileInputStream in = new FileInputStream(file);
@@ -76,7 +77,7 @@ public class Client {
 			@Override
 			public void run() {
 				try {
-					Socket server = new Socket(serverAddress, 56000);
+					Socket server = new Socket(serverAddress, Server.REC_MESSAGE_PORT);
 					BufferedOutputStream out = new BufferedOutputStream(server.getOutputStream());
 					byte[] buffer = new byte[message.getBytes().length];
 					int count = 0;
@@ -100,7 +101,7 @@ public class Client {
 			public void run() {
 
 				try {
-					Socket server = new Socket(serverAddress, 56000);
+					Socket server = new Socket(serverAddress, Server.SEND_MESSAGE_PORT);
 					byte[] buffer = new byte[BUFFER_SIZE];
 					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
 					String message = null;
@@ -121,7 +122,7 @@ public class Client {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Socket server = new Socket(serverAddress, 58000);
+					Socket server = new Socket(serverAddress, Server.SEND_FILE_PORT);
 					System.out.println("Client: waiting for file");
 					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
 					byte[] buffer = new byte[1024];

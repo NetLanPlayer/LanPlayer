@@ -18,7 +18,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
-
+	
+	public static final int REC_FILE_PORT = 55000;
+	public static final int SEND_FILE_PORT = 58000;
+	public static final int REC_MESSAGE_PORT = 56000;
+	public static final int SEND_MESSAGE_PORT = 57000;
+	
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
 	private ExecutorService pool;
@@ -51,7 +56,7 @@ public class Server {
 
 			@Override
 			public void run() {
-				try (final ServerSocket fileServer = new ServerSocket(55000, 1000)) {
+				try (final ServerSocket fileServer = new ServerSocket(REC_FILE_PORT, 1000)) {
 					while (true) {
 						final Socket client = fileServer.accept();
 						new Thread(new Runnable() {
@@ -94,7 +99,7 @@ public class Server {
 
 			@Override
 			public void run() {
-				try (final ServerSocket communication = new ServerSocket(56000)) {
+				try (final ServerSocket communication = new ServerSocket(REC_MESSAGE_PORT)) {
 					while (true) {
 						final Socket client = communication.accept();
 						new Thread(new Runnable() {
@@ -129,7 +134,7 @@ public class Server {
 
 			@Override
 			public void run() {
-				try (final ServerSocket propertySendServer = new ServerSocket(57000)) {
+				try (final ServerSocket propertySendServer = new ServerSocket(SEND_MESSAGE_PORT)) {
 					while (true) {
 						communicationClients.add(propertySendServer.accept());					}
 				} catch (java.net.BindException be) {
@@ -150,7 +155,7 @@ public class Server {
 
 			@Override
 			public void run() {
-				try (final ServerSocket propertySendServer = new ServerSocket(58000)) {
+				try (final ServerSocket propertySendServer = new ServerSocket(SEND_FILE_PORT)) {
 					while (true) {
 						propertySendClients.add(propertySendServer.accept());
 					}
