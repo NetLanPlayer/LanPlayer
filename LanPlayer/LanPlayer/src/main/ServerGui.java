@@ -14,7 +14,7 @@ public class ServerGui {
 	public final static int INIT_PARTICIPANTS = 1;
 	public final static File  LAN_PLAYER_INIT = new File("./src/antipasta.xm");
 	public final static String MUSIC_DIR_PATH = "./ServerData/Music/";
-	public final static File DATA_DIR = new File(MUSIC_DIR_PATH);
+	public final static File MUSIC_DIR = new File(MUSIC_DIR_PATH);
 	public final static File LAN_DATA_FILE = new File("./ServerData/LanMusicData.property");
 	
 	/**

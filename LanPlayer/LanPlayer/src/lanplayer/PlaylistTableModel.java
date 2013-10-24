@@ -133,6 +133,33 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		return retObj;
 	}
 
+	private synchronized void handleReceivedFile(ReceivedFile rf) {
+		File rawFile = rf.getFile();
+		File newFile = null;
+		String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
+		try {
+			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, 0, null, null);
+			Integer track = md.getTrackNumber().getTrack();
+			String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
+			newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
+			if(!newFile.exists()) {
+				rawFile.renameTo(newFile);
+			}
+			else {
+				rawFile.deleteOnExit();
+				rawFile.delete();
+				return;
+			}
+		} catch (MalformedURLException | UnsupportedAudioFileException e) {
+		}
+		if(newFile != null && newFile.exists()) {
+			this.lanData.addNewFile(newFile, rf.getIp(), false);
+		}
+		else {
+			this.lanData.addNewFile(rawFile, rf.getIp(), false);
+		}
+	}
+	
 	@Override
 	public void update(Observable observable, Object obj) {
 		if(observable instanceof LanData) {
@@ -162,29 +189,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		else if(observable instanceof ServerHandler) {
 			if(obj instanceof ReceivedFile) {
 				ReceivedFile rf = (ReceivedFile) obj;
-				File rawFile = rf.getFile();
-				File newFile = null;
-				String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
-				try {
-					MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, 0, null, null);
-					Integer track = md.getTrackNumber().getTrack();
-					String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
-					newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
-					if(!newFile.exists()) {
-						rawFile.renameTo(newFile);
-					}
-					else {
-						rawFile.delete();
-						return;
-					}
-				} catch (MalformedURLException | UnsupportedAudioFileException e) {
-				}
-				if(newFile != null && newFile.exists()) {
-					this.lanData.addNewFile(newFile, rf.getIp(), false);
-				}
-				else {
-					this.lanData.addNewFile(rawFile, rf.getIp(), false);
-				}
+				handleReceivedFile(rf);
 			}
 			else if(obj.equals(ClientHandler.MSG_UPLOAD_FINISHED)) {
 				reloadList();

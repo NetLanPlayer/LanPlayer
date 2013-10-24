@@ -68,11 +68,10 @@ public class Server {
 									}
 									out.close();
 									client.close();
+									serverHandler.handleClientFile(file, client.getInetAddress().getHostAddress());
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
-
-								serverHandler.handleClientFile(file, client.getInetAddress().getHostAddress());
 							}
 						}).start();
 					}

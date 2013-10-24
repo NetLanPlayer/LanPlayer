@@ -99,8 +99,8 @@ public class PlaylistPanel extends JPanel {
 	}
 		
 	private void initLanData() {
-		if(!ServerGui.DATA_DIR.exists()) {
-			ServerGui.DATA_DIR.mkdir();
+		if(!ServerGui.MUSIC_DIR.exists()) {
+			ServerGui.MUSIC_DIR.mkdirs();
 		}
 		if(!ServerGui.LAN_DATA_FILE.exists()) {
 			try {
@@ -108,7 +108,7 @@ public class PlaylistPanel extends JPanel {
 			} catch (Exception e) {
 			}
 		}
-		lanData = new LanData(ServerGui.DATA_DIR, ServerGui.LAN_DATA_FILE, ServerGui.INIT_PARTICIPANTS, true);
+		lanData = new LanData(ServerGui.MUSIC_DIR, ServerGui.LAN_DATA_FILE, ServerGui.INIT_PARTICIPANTS, true);
 			
 		if(!lanData.hasEntries()) {
 			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);

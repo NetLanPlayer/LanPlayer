@@ -153,7 +153,7 @@ public class ClientGui extends JFrame {
 			}
 
 		});
-		txtEnterIpAddress.setText("Enter ServerIP");
+		txtEnterIpAddress.setText("localhost");
 		txtEnterIpAddress.setSelectionStart(0);
 		txtEnterIpAddress.setColumns(10);
 		GridBagConstraints gbc_btnConnect = new GridBagConstraints();
@@ -333,7 +333,7 @@ public class ClientGui extends JFrame {
 
 	private void initLanData() {
 		if (!DATA_DIR.exists()) {
-			DATA_DIR.mkdir();
+			DATA_DIR.mkdirs();
 		} else {
 			File[] files = DATA_DIR.listFiles();
 			for (File f : files) {
