@@ -25,7 +25,7 @@ public class ServerHandler extends Observable  {
 		message = message.trim();
 		System.out.println("Server: Received message: " + message);
 		if(ClientHandler.MSG_REQ_PROPERTY.equals(message)) {
-			//handlePropertyFileReq();
+			handlePropertyFileReq();
 		}
 		else if(ClientHandler.MSG_UPLOAD_FINISHED.equals(message)) {
 			handleUploadFinished();

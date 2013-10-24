@@ -209,10 +209,11 @@ public class Server {
 						try {
 							BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
 							FileInputStream in = new FileInputStream(file);
-							while (in.read(buffer) != -1) {
-								out.write(buffer);
-								out.flush();
+							int count = 0;
+							while ((count = in.read(buffer)) >= 0) {
+								out.write(buffer, 0, count);
 							}
+							out.close();
 							in.close();
 							propertySendClients.remove(client);
 							client.close();

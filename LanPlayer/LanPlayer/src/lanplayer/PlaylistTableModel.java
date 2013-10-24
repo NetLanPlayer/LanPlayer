@@ -199,7 +199,7 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
-				//server.sendFile(lanData.getFile());
+				server.sendFile(lanData.getFile());
 			}
 		}
 	}

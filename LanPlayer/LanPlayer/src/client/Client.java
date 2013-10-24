@@ -125,18 +125,24 @@ public class Client {
 					System.out.println("Client: waiting for file");
 					BufferedInputStream in = new BufferedInputStream(server.getInputStream());
 					byte[] buffer = new byte[1024];
-					FileOutputStream out = new FileOutputStream(ClientGui.LAN_DATA_FILE);
-					while (in.read(buffer) != -1) {
-						out.write(buffer);
-						out.flush();
+					File temp = new File("./ClientData/temp");
+					if(!temp.exists()) {
+						temp.createNewFile();
 					}
-					FileInputStream fis = new FileInputStream(ClientGui.LAN_DATA_FILE);
-					Properties prop = new Properties();
-					prop.load(fis);
-					//TODO UPDATE OBSERVER
+					
+					FileOutputStream out = new FileOutputStream(temp);
+					int count = 0;
+					while ((count = in.read(buffer)) >= 0) {
+						out.write(buffer, 0, count);
+					}
+					clientHandler.handleServerFile(temp);
+					
 					out.close();
 					in.close();
 					server.close();
+					
+					temp.delete();
+					
 					receiveFile();
 
 				} catch (UnknownHostException e) {
