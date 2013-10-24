@@ -7,16 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Observable;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import main.ClientGui;
 
@@ -25,12 +21,7 @@ public class Client {
 	private final ExecutorService pool;
 	private final String serverAddress;
 	private Socket server;
-	private BufferedOutputStream serverOutput;
-	private BufferedInputStream serverInput;
-	// private AtomicInteger c = new AtomicInteger(1);
-
 	private static final int BUFFER_SIZE = 4096;
-
 	private ClientHandler clientHandler;
 
 	public ClientHandler getClientHandler() {
@@ -52,13 +43,13 @@ public class Client {
 			@Override
 			public void run() {
 				for (final File file : files) {
+					sendMessage("hello");
 					try (Socket socket = new Socket(serverAddress, 55000)) {
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
 						FileInputStream in = new FileInputStream(file);
 						int count = 0;
 						while ((count = in.read(buffer)) >= 0) {
-							System.out.println("Client: sending file: " + file.getName());
 							out.write(buffer, 0, count);
 						}
 						System.out.println("Client: File " + file.getName() + " sent.");

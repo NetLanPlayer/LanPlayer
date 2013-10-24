@@ -1,6 +1,5 @@
 package client;
 
-import java.io.File;
 import java.util.Observable;
 import java.util.Properties;
 

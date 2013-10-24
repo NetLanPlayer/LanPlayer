@@ -6,16 +6,12 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-
 import main.ServerGui;
 import server.ReceivedFile;
 import server.Server;
 import server.ServerHandler;
-import de.quippy.javamod.main.playlist.PlayList;
 
 public class PlaylistTableModel extends AbstractTableModel implements Observer {
 

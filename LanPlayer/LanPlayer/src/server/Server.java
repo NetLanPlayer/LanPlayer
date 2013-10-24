@@ -5,25 +5,17 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import client.Client;
-import lanplayer.PlaylistPanel;
-import main.ServerGui;
 
 public class Server {
 
@@ -116,6 +108,7 @@ public class Server {
 									while (in.read(buffer) != -1) {
 										message = new String(buffer);
 									}
+									System.out.println(message);
 									serverHandler.handleClientMessage(message);
 									client.close();
 								} catch (IOException e) {

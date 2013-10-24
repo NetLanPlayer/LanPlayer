@@ -4,21 +4,15 @@ import utilities.IPAddressValidator;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JTextField;
-
 import java.awt.GridBagConstraints;
-
 import javax.swing.JButton;
-
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -26,30 +20,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JSeparator;
-
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-
-import javax.swing.JSlider;
-import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
-
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
-import lanplayer.MusicData;
-import lanplayer.PlaylistPanel;
-import lanplayer.PlaylistTableModel;
 
 public class ClientGui extends JFrame {
 
@@ -157,13 +138,11 @@ public class ClientGui extends JFrame {
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				if (!txtEnterIpAddress.isEnabled())
+				if (txtEnterIpAddress.isEditable())
 					if (arg0.getKeyCode() == KeyEvent.VK_ENTER)
 						uploadButtonAction();
 
@@ -171,8 +150,6 @@ public class ClientGui extends JFrame {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-
 			}
 
 		});
