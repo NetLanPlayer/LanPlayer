@@ -16,7 +16,7 @@ import server.ReceivedFile;
 import server.Server;
 import server.ServerHandler;
 
-public class PlaylistTableModel extends AbstractTableModel implements Observer {
+public class PlaylistTableModel extends AbstractTableModel implements ITableModel, Observer {
 
 	private static final long serialVersionUID = 8800273125331888962L;
 	
@@ -153,10 +153,10 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 		} catch (MalformedURLException | UnsupportedAudioFileException e) {
 		}
 		if(newFile != null && newFile.exists()) {
-			this.lanData.addNewFile(newFile, rf.getIp(), false);
+			this.lanData.addNewFile(newFile, rf.getIp(), true);
 		}
 		else {
-			this.lanData.addNewFile(rawFile, rf.getIp(), false);
+			this.lanData.addNewFile(rawFile, rf.getIp(), true);
 		}
 	}
 	
@@ -171,12 +171,16 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 				if(player != null) {
 					player.reloadPlaylist();
 				}
+				
+				server.sendFile(lanData.getFile());
 			}
 			else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
 				reloadList();
 				fireTableDataChanged();
 				playlistPanel.restoreSelection();
 				playlistPanel.setDeleteBtnState();
+				
+				server.sendFile(lanData.getFile());
 			}
 			else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
 				try {
@@ -190,16 +194,6 @@ public class PlaylistTableModel extends AbstractTableModel implements Observer {
 			if(obj instanceof ReceivedFile) {
 				ReceivedFile rf = (ReceivedFile) obj;
 				handleReceivedFile(rf);
-			}
-			else if(obj.equals(ClientHandler.MSG_UPLOAD_FINISHED)) {
-				reloadList();
-				fireTableDataChanged();
-				playlistPanel.restoreSelection();
-				PlayerPanel player = this.playlistPanel.getPlayerPanel();
-				if(player != null) {
-					player.reloadPlaylist();
-				}
-				server.sendFile(lanData.getFile());
 			}
 		}
 	}

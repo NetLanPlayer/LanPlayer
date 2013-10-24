@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -14,36 +15,64 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.SwingUtilities;
+
 import server.Server;
 import main.ClientGui;
 
 public class Client {
 
-	private final ExecutorService pool;
+	//private final ExecutorService pool;
 	private final String serverAddress;
 	private Socket server;
 	private static final int BUFFER_SIZE = 4096;
 	private ClientHandler clientHandler;
-
+	private ClientGui clientGui;
+	
+	
 	public ClientHandler getClientHandler() {
 		return clientHandler;
 	}
 
-	public Client(String serverAddress) throws UnknownHostException, IOException {
+	public Client(String serverAddress, ClientGui callee) throws UnknownHostException, IOException {
 
 		this.clientHandler = new ClientHandler(this);
-
+		this.clientGui = callee;
 		this.serverAddress = serverAddress;
-		pool = Executors.newCachedThreadPool();
+		//pool = Executors.newCachedThreadPool();
 		receiveMessage();
 		receiveFile();
 	}
 
 	private void sendFile(final File[] files) {
 		new Thread(new Runnable() {
+			
+			private void updateProgressBar(final int percent) {
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						clientGui.getUploadBar().setValue(percent);
+						if(percent >= 95) {
+							try {
+								Thread.sleep(5000);
+							} catch (InterruptedException e) {
+							}
+							clientGui.getUploadBar().setValue(0);
+							clientGui.getBtnUpload().setEnabled(false);
+							clientGui.enablePathAndSearch(true);
+						}
+					}
+					
+				});
+			}
+			
 			@Override
 			public void run() {
-				for (final File file : files) {
+				
+				int size = files.length;
+				for (int i = 0; i < files.length; i++) {
+					final File file = files[i];
 					try (Socket socket = new Socket(serverAddress, Server.REC_FILE_PORT)) {
 						BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE);
 						byte[] buffer = new byte[BUFFER_SIZE];
@@ -53,6 +82,7 @@ public class Client {
 							out.write(buffer, 0, count);
 						}
 						System.out.println("Client: File " + file.getName() + " sent.");
+						clientGui.enablePathAndSearch(false);
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {
@@ -60,8 +90,17 @@ public class Client {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					int percent = (100 / size) * (i + 1);
+					if(percent < 0) percent = 0;
+					if(percent > 100) percent = 100;
+					updateProgressBar(percent);
 				}
-				sendMessage(ClientHandler.MSG_UPLOAD_FINISHED);
+//				try {
+//					sendMessage(ClientHandler.MSG_UPLOAD_FINISHED);	
+//				}
+//				catch(ConnectException ce) {
+//					//TODO
+//				}
 			}
 		}).start();
 	}
@@ -87,10 +126,14 @@ public class Client {
 					out.write(buffer);
 					out.flush();
 					server.close();
+				} catch(ConnectException ce) {
+					clientGui.disconnectedState();
+					return;
 				} catch (IOException e) {
-					e.printStackTrace();
+					clientGui.disconnectedState();
+					return;
 				}
-
+				clientGui.connectedState();
 			}
 		}).start();
 	}
@@ -145,17 +188,54 @@ public class Client {
 					temp.delete();
 					
 					receiveFile();
-
+				} catch (ConnectException ce) {
+					clientGui.disconnectedState();
+					return;
 				} catch (UnknownHostException e) {
-					e.printStackTrace();
+					clientGui.disconnectedState();
+					return;
 				} catch (IOException e) {
-					e.printStackTrace();
+					clientGui.disconnectedState();
+					return;
 				}
-
+				clientGui.connectedState();
 			}
 		}).start();
 	}
 
+	/**
+	 * checks path: if path is MP3 file or a directory with MP3 files in it.
+	 * @param path
+	 * @return true if valid.
+	 */
+	public boolean isValidPath(String path) {
+		path = validatePath(path);
+		File file = new File(path);
+		if(file.isDirectory()) {
+			try {
+				for(File f : file.listFiles()) {
+					if(!f.isFile() && f.getName().lastIndexOf(".") < 0) continue;
+					if(f.getName().substring(f.getName().lastIndexOf("."), f.getName().length()).equals(".mp3")) {
+						return true;
+					}
+				}
+			}
+			catch(Exception e) {
+				return false;
+			}
+			return false;
+		}
+		else if(file.isFile()) {
+			if(file.getName().substring(file.getName().lastIndexOf("."), file.getName().length()).equals(".mp3")) {
+				return true;
+			}
+			return false;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	/**
 	 * checks path: if path is MP3 file or a directory with MP3 files in it, it
 	 * will upload all this files to a given server.
@@ -213,10 +293,10 @@ public class Client {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		try {
-			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-		}
-		pool.shutdown();
+//		try {
+//			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+//		} catch (InterruptedException e) {
+//		}
+//		pool.shutdown();
 	}
 }

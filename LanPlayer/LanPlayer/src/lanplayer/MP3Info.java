@@ -46,15 +46,16 @@ public class MP3Info extends MusicInfo {
 
 	@Override
 	public String getAlbum() {
+		String albumStr = "";
 		if(mp3FileIDTags != null) {
 			if (mp3FileIDTags.id3v1Exists()) {
-				return mp3FileIDTags.getAlbum(MP3FileID3Controller.ID3V1);
+				albumStr = mp3FileIDTags.getAlbum(MP3FileID3Controller.ID3V1);
 			}
 			else if(mp3FileIDTags.id3v2Exists()) {
-				return mp3FileIDTags.getAlbum(MP3FileID3Controller.ID3V2);
+				albumStr = mp3FileIDTags.getAlbum(MP3FileID3Controller.ID3V2);
 			}
 		}
-		return "";
+		return albumStr;
 	}
 
 	@Override

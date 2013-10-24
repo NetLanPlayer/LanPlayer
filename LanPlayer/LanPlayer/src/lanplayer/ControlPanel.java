@@ -69,7 +69,7 @@ public class ControlPanel extends JPanel {
 		add(plControlPanel, gbc_plControlPanel);
 		GridBagLayout gbl_plControlPanel = new GridBagLayout();
 		gbl_plControlPanel.columnWidths = new int[]{60, 0, 30, 0, 50, 30, 0, 30, 0, 0, 0};
-		gbl_plControlPanel.rowHeights = new int[]{0, 0};
+		gbl_plControlPanel.rowHeights = new int[]{30, 0};
 		gbl_plControlPanel.columnWeights = new double[]{0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_plControlPanel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		plControlPanel.setLayout(gbl_plControlPanel);
@@ -86,6 +86,7 @@ public class ControlPanel extends JPanel {
 		btnSetSkip = new JButton("Set Participants");
 		btnSetSkip.setEnabled(false);
 		GridBagConstraints gbc_btnSetSkip = new GridBagConstraints();
+		gbc_btnSetSkip.fill = GridBagConstraints.VERTICAL;
 		gbc_btnSetSkip.insets = new Insets(5, 5, 5, 5);
 		gbc_btnSetSkip.gridx = 1;
 		gbc_btnSetSkip.gridy = 0;

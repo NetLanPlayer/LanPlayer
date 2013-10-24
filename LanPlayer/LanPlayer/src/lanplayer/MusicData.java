@@ -16,7 +16,7 @@ public class MusicData implements Comparable<MusicData> {
 	private String ip = "";
 	private String title = null;
 	private String artist = null;
-	private String album = null;
+	private Album album = null;
 	private TrackNumber trackno = null;
 	private String duration = null;
 	private Date date;
@@ -55,9 +55,9 @@ public class MusicData implements Comparable<MusicData> {
 		return title;
 	}
 
-	public String getAlbum() {
-		if(album != null && !album.isEmpty()) return album;
-		album = musicInfo == null ? "" : musicInfo.getAlbum();
+	public Album getAlbum() {
+		if(album != null && !album.getAlbum().isEmpty()) return album;
+		album = musicInfo == null ? new Album(0,"") : new Album(getTrackNumber().getTrack(), musicInfo.getAlbum());
 		return album;
 	}
 
@@ -76,7 +76,7 @@ public class MusicData implements Comparable<MusicData> {
 	
 	public TrackNumber getTrackNumber() {
 		if(trackno != null && album != null) return trackno;
-		trackno = musicInfo == null ? new TrackNumber(0,null) : musicInfo.getTrackNumber();
+		trackno = musicInfo == null ? new TrackNumber(0,"") : musicInfo.getTrackNumber();
 		return trackno;
 	}
 	
@@ -115,12 +115,13 @@ public class MusicData implements Comparable<MusicData> {
 		
 		this.title = title;
 		this.artist = artist;
-		this.album = album;
+		
 		this.duration = duration;
 		
 		try {
 			int tryTrackNo = Integer.parseInt(trackno);
 			this.trackno = new TrackNumber(tryTrackNo, album);
+			this.album = new Album(tryTrackNo, album);
 		}
 		catch(NumberFormatException nfe) {
 		}

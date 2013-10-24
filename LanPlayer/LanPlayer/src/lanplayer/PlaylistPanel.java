@@ -114,9 +114,9 @@ public class PlaylistPanel extends JPanel {
 			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
 		}
 		else {
-			lanData.clear();
-			lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
-			lanData.refresh();
+			//lanData.clear();
+			//lanData.addNewFile(ServerGui.LAN_PLAYER_INIT, "LAN PLAYER", true);
+			//lanData.refresh();
 		}
 		lanData.clearNonExistingFiles();
 		//lanData.setAndStoreCurPlayed(1);
@@ -368,56 +368,5 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.getColumnModel().getColumn(10).setMinWidth(65);
 	}
 		
-	class PlaylistTableCellRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8149911584155489952L;
-
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-	        JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-	        
-	        int modelIndex = table.convertRowIndexToModel(row);
-	        if(!isSelected && playlistTableModel.isCurrentlyPlayed(modelIndex)) {
-	        	label.setBackground(Color.GREEN);
-	        }
-	        else if(!isSelected) {
-	        	label.setBackground(Color.WHITE);
-	        }
-	        
-	        if(value instanceof String) {
-	            label.setToolTipText((String) value);
-	            label.setIconTextGap(5);
-	            label.setHorizontalAlignment(SwingConstants.LEADING);
-	            label.setText(" " + (String) value);
-	        }
-	        else if(value instanceof Number) {
-	            int countDigits = value.toString().length();
-	            label.setHorizontalAlignment(SwingConstants.TRAILING);
-	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
-	            label.setText(value.toString() + " ");
-	        }
-	        else if(value instanceof SimpleDate) {
-	        	 label.setToolTipText(value.toString());
-		         label.setIconTextGap(5);
-		         label.setHorizontalAlignment(SwingConstants.LEADING);
-		         //label.setHorizontalAlignment(SwingConstants.CENTER);
-		         label.setText(" " + value.toString());
-	        	
-	        }
-	        else {
-	        	if(value != null) {
-	        		label.setToolTipText(value.toString());
-	        		label.setText(" " + value.toString());
-	        	} 
-	            label.setIconTextGap(5);
-	            label.setHorizontalAlignment(SwingConstants.LEADING);
-	            
-	        }
-	        return label;
-	    }
-		
-	}
 		
 }

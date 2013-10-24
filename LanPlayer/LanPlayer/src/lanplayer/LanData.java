@@ -282,7 +282,7 @@ public class LanData extends Observable {
 		} catch (MalformedURLException | UnsupportedAudioFileException e1) {
 		}
 		
-		String value = formBaiscValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, 0, ip);
+		String value = formBasicValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum().getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, 0, ip);
 		data.setProperty(setValue(POS_TAG, "" + lastPosition), value);
 		try {
 			storeData();
@@ -301,7 +301,7 @@ public class LanData extends Observable {
 		return true;
 	}
 		
-	private String formBaiscValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, int skip, String ip) {
+	private String formBasicValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, int skip, String ip) {
 		StringBuilder form = new StringBuilder();
 		String modPath = filePath.replaceAll("\\\\", "/");
 		form.append(setValue(FILE_TAG, modPath));
@@ -618,9 +618,11 @@ public class LanData extends Observable {
 				gatherMusicFiles(allowedExt, gatherList, f);
 			}
 			else {
-				String extension = f.getName().substring(f.getName().lastIndexOf("."), f.getName().length());
-				if(allowedExt.contains(extension)) {
-					gatherList.add(f);
+				if(f.getName().contains(".")) {
+					String extension = f.getName().substring(f.getName().lastIndexOf("."), f.getName().length());
+					if(allowedExt.contains(extension)) {
+						gatherList.add(f);
+					}
 				}
 			}
 		}

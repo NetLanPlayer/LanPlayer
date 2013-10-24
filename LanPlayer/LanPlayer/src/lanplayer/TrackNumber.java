@@ -2,8 +2,8 @@ package lanplayer;
 
 public class TrackNumber implements Comparable<TrackNumber> {
 
-	private String album;
-	private int track;
+	private String album = "";
+	private int track = 0;
 	
 	public String getAlbum() {
 		return album;

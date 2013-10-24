@@ -27,16 +27,9 @@ public class ServerHandler extends Observable  {
 		if(ClientHandler.MSG_REQ_PROPERTY.equals(message)) {
 			handlePropertyFileReq();
 		}
-		else if(ClientHandler.MSG_UPLOAD_FINISHED.equals(message)) {
-			handleUploadFinished();
-		}
+		
 	}
-	
-	private void handleUploadFinished() {
-		setChanged();
-		notifyObservers(ClientHandler.MSG_UPLOAD_FINISHED);
-	}
-	
+		
 	private void handlePropertyFileReq() {
 		server.sendFile(ServerGui.LAN_DATA_FILE);
 	}
