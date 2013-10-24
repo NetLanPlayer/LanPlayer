@@ -125,8 +125,8 @@ public class MusicData implements Comparable<MusicData> {
 		catch(NumberFormatException nfe) {
 		}
 				
-		if(title == null || artist == null || album == null || trackno == null || duration == null
-				|| title.isEmpty() || artist.isEmpty() || album.isEmpty() || trackno.isEmpty() || duration.isEmpty()) {
+		if(title == null || artist == null || album == null || trackno == null || duration == null) {
+			//	|| title.isEmpty() || artist.isEmpty() || album.isEmpty() || trackno.isEmpty() || duration.isEmpty()) {
 			String extension = musicFile.getName().substring(musicFile.getName().lastIndexOf("."), musicFile.getName().length());
 			if(extension.equals(".mp3")) {
 				musicInfo = new MP3Info(musicFile);
