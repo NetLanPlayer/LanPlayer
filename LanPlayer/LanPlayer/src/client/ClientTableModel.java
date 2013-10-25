@@ -7,6 +7,7 @@ import java.util.Observer;
 import java.util.Properties;
 
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import lanplayer.ITableModel;
@@ -14,6 +15,7 @@ import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlayerPanel;
 import lanplayer.PlaylistPanel;
+import lanplayer.Skip;
 import main.ClientGui;
 import de.quippy.javamod.main.playlist.PlayList;
 
@@ -57,6 +59,7 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 	
 	private void reloadList() {
 		playList.clear();
+		ArrayList<MusicData> intermediateList = new ArrayList<MusicData>();
 		try {
 			this.lanData.loadData();
 		} catch (IOException e) {
@@ -64,9 +67,10 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 		for(int i = 1; i <= lanData.getLastPosition(); i++) {
 			MusicData md = lanData.getMusicData(i);
 			if(md != null) {
-				playList.add(md);
+				intermediateList.add(md);
 			}
 		}
+		playList = intermediateList;
 		rowCount = this.playList.size();
 	}
 	
@@ -147,7 +151,12 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 	public void update(Observable observable, Object obj) {
 		if(obj instanceof Properties) {
 			reloadList();
-			fireTableDataChanged();
+			try {
+				fireTableDataChanged();
+			}
+			catch(NullPointerException npe) {
+				// piss off
+			}
 			System.out.println("Client: Refreshing Table Playlist");
 		}
 		

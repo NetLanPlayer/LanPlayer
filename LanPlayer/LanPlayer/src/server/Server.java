@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -222,6 +223,8 @@ public class Server {
 							in.close();
 							propertySendClients.remove(client);
 							client.close();
+						} catch (SocketException se) {
+							propertySendClients.remove(client);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

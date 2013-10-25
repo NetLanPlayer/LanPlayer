@@ -29,7 +29,6 @@ public class Client {
 	private ClientHandler clientHandler;
 	private ClientGui clientGui;
 	
-	
 	public ClientHandler getClientHandler() {
 		return clientHandler;
 	}

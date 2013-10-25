@@ -15,6 +15,7 @@ import main.ServerGui;
 import server.ReceivedFile;
 import server.Server;
 import server.ServerHandler;
+import server.SkipMessage;
 
 public class PlaylistTableModel extends AbstractTableModel implements ITableModel, Observer {
 
@@ -48,6 +49,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 	
 	private void reloadList() {
 		playList.clear();
+		ArrayList<MusicData> intermediateList = new ArrayList<MusicData>();
 		try {
 			this.lanData.loadData();
 		} catch (IOException e) {
@@ -55,9 +57,10 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		for(int i = 1; i <= lanData.getLastPosition(); i++) {
 			MusicData md = lanData.getMusicData(i);
 			if(md != null) {
-				playList.add(md);
+				intermediateList.add(md);
 			}
 		}
+		playList = intermediateList;
 	}
 	
 	private boolean columnSortable = true;
@@ -138,7 +141,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		File newFile = null;
 		String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
 		try {
-			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, 0, null, null);
+			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, null, null, null, this.lanData.getParticipants());
 			Integer track = md.getTrackNumber().getTrack();
 			String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
 			newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
@@ -187,13 +190,26 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 					this.lanData.loadData();
 				} catch (IOException e) {
 				}
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
 				playlistPanel.getControlPanel().getSkipField().setText("" + lanData.getParticipants());
+				server.sendFile(lanData.getFile());
 			}
 		}
 		else if(observable instanceof ServerHandler) {
 			if(obj instanceof ReceivedFile) {
 				ReceivedFile rf = (ReceivedFile) obj;
 				handleReceivedFile(rf);
+			}
+			else if(obj instanceof SkipMessage) {
+				SkipMessage sm = (SkipMessage) obj;
+				this.lanData.storeSkip(sm.getPosition(), sm.getSkipIp());
+				
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
+				server.sendFile(lanData.getFile());
 			}
 		}
 	}

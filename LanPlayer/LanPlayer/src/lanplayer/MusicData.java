@@ -3,6 +3,7 @@ package lanplayer;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -21,7 +22,7 @@ public class MusicData implements Comparable<MusicData> {
 	private String duration = null;
 	private Date date;
 	private int rating = 0;
-	private int skip = 0;
+	private Skip skip;
 	private int played = 0;
 	private int position = -1;
 	
@@ -41,7 +42,7 @@ public class MusicData implements Comparable<MusicData> {
 		return rating;
 	}
 
-	public int getSkip() {
+	public Skip getSkip() {
 		return skip;
 	}
 
@@ -101,15 +102,15 @@ public class MusicData implements Comparable<MusicData> {
 	 * @param skip
 	 * @param date
 	 * @param ip
+	 * @param participants
 	 * @throws MalformedURLException
 	 * @throws UnsupportedAudioFileException
 	 */
-	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, int rating, int skip, Date date, String ip) throws MalformedURLException, UnsupportedAudioFileException {
+	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, int rating, String skip, Date date, String ip, int participants) throws MalformedURLException, UnsupportedAudioFileException {
 		this.position = position;
 		this.musicFile = musicFile;
 		this.ip = ip;
 		this.rating = rating;
-		this.skip = skip;
 		this.played = played;
 		this.date = date;
 		
@@ -118,6 +119,8 @@ public class MusicData implements Comparable<MusicData> {
 		
 		this.duration = duration;
 		
+		this.skip = new Skip(gatherSkipIp(skip), participants);
+		
 		try {
 			int tryTrackNo = Integer.parseInt(trackno);
 			this.trackno = new TrackNumber(tryTrackNo, album);
@@ -125,7 +128,7 @@ public class MusicData implements Comparable<MusicData> {
 		}
 		catch(NumberFormatException nfe) {
 		}
-				
+		
 		if(title == null || artist == null || album == null || trackno == null || duration == null) {
 			//	|| title.isEmpty() || artist.isEmpty() || album.isEmpty() || trackno.isEmpty() || duration.isEmpty()) {
 			String extension = musicFile.getName().substring(musicFile.getName().lastIndexOf("."), musicFile.getName().length());
@@ -149,5 +152,15 @@ public class MusicData implements Comparable<MusicData> {
 		return new Integer(this.getPosition()).compareTo(new Integer(other.getPosition()));
 	}
 
-	
+	private HashSet<String> gatherSkipIp(String skip) {
+		HashSet<String> retSkipSet = new HashSet<String>();
+		if(skip == null || skip.isEmpty()) return retSkipSet;
+		String tagBegin = LanData.IP_TAG.substring(0,  LanData.IP_TAG.indexOf("]") + 1);
+		while(skip.contains(tagBegin)) {
+			String ip = LanData.getValue(LanData.IP_TAG, skip);
+			retSkipSet.add(ip);
+			skip = LanData.removeFirstTagValue(LanData.IP_TAG, skip);
+		}
+		return retSkipSet;
+	}
 }

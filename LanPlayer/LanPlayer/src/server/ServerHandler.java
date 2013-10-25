@@ -23,15 +23,27 @@ public class ServerHandler extends Observable  {
 
 	public void handleClientMessage(String message) {
 		message = message.trim();
+		if(message == null || message.isEmpty()) return;
 		System.out.println("Server: Received message: " + message);
-		if(ClientHandler.MSG_REQ_PROPERTY.equals(message)) {
-			handlePropertyFileReq();
+		
+		if(message.startsWith(ClientHandler.MSG_REQ_PROPERTY)) {
+			server.sendFile(ServerGui.LAN_DATA_FILE);
 		}
-		
+		else if(message.startsWith(ClientHandler.MSG_REQ_SKIP)) {
+			String posStr = LanData.getValue(LanData.POS_TAG, message);
+			String ip = LanData.getValue(LanData.IP_TAG, message);
+			Integer position = null;
+			try {
+				position = Integer.parseInt(posStr);
+			}
+			catch(NumberFormatException nfe) {
+			}
+			
+			if(position == null || ip == null || ip.isEmpty()) return;
+			
+			setChanged();
+			notifyObservers(new SkipMessage(position, ip));
+		}
 	}
-		
-	private void handlePropertyFileReq() {
-		server.sendFile(ServerGui.LAN_DATA_FILE);
-	}
-	
+			
 }

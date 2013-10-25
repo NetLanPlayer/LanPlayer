@@ -1,6 +1,7 @@
 package main;
 
 import utilities.IPAddressValidator;
+import utilities.MyIp;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -48,8 +49,10 @@ import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
+import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
 import lanplayer.PlaylistTableModel;
+import lanplayer.Skip;
 
 import javax.swing.JProgressBar;
 
@@ -61,6 +64,8 @@ public class ClientGui extends JFrame {
 
 	private final static String INIT_IP_TEXT = "localhost";
 
+	private final static String MY_IP = MyIp.getMyIP();
+	
 	private LanData lanData = null;
 
 	public LanData getLanData() {
@@ -87,6 +92,7 @@ public class ClientGui extends JFrame {
 	private JPanel playlistPanel;
 
 	private JTable clientTable;
+
 	private ClientTableModel clientTableModel;
 
 	private JScrollPane scrollPane;
@@ -97,6 +103,7 @@ public class ClientGui extends JFrame {
 	private JProgressBar uploadBar;
 	private JButton btnSearch;
 	private JButton btnRefresh;
+	private String[] playlistColumnNames = new String[] { "Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "Date", "Uploader" };
 
 	public JProgressBar getUploadBar() {
 		return uploadBar;
@@ -171,13 +178,7 @@ public class ClientGui extends JFrame {
 			}
 
 		});
-		// txtEnterIpAddress.addMouseListener(new MouseAdapter() {
-		//
-		// @Override
-		// public void mouseClicked(MouseEvent arg0) {
-		// txtEnterIpAddress.select(0, txtEnterIpAddress.getText().length());
-		// }
-		// });
+
 		txtEnterIpAddress.addKeyListener(new KeyListener() {
 
 			@Override
@@ -256,12 +257,7 @@ public class ClientGui extends JFrame {
 			}
 
 		});
-		// txtEnterPath.addMouseListener(new MouseAdapter() {
-		// @Override
-		// public void mouseClicked(MouseEvent arg0) {
-		// txtEnterPath.select(0, txtEnterPath.getText().length());
-		// }
-		// });
+
 		txtEnterPath.setText("");
 		txtEnterPath.setEditable(false);
 		txtEnterPath.setColumns(10);
@@ -329,7 +325,6 @@ public class ClientGui extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 		clientTable = new JTable();
-		String[] playlistColumnNames = { "Pos", "Title", "Artist", "Album", "Track", "Duration", "Played", "Rating", "Skip", "Date", "Uploader" };
 		clientTableModel = new ClientTableModel(this, this.lanData, playlistColumnNames);
 		clientTable.setModel(clientTableModel);
 		clientTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -346,7 +341,17 @@ public class ClientGui extends JFrame {
 				} else {
 					ratingBox.setEnabled(true);
 					btnRate.setEnabled(true);
-					btnSkip.setEnabled(true);
+					
+					int viewRowIndex = clientTable.getSelectedRow();
+					int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+					MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+					if(md.getSkip().hasSkipped(MY_IP)) {
+						btnSkip.setEnabled(false);
+					}
+					else {
+						btnSkip.setEnabled(true);
+					}
+	
 				}
 
 				// if(selectedRow != -1) {
@@ -362,25 +367,14 @@ public class ClientGui extends JFrame {
 			}
 		});
 
-		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(clientTable.getModel()) {
-			public boolean isSortable(int column) {
-				ClientTableModel ctm = (ClientTableModel) clientTable.getModel();
-				if (ctm.isColumnSortable()) {
-					return super.isSortable(column);
-				} else {
-					return false;
-				}
-			}
-		};
-		clientTable.setRowSorter(playlistSorter);
+		addRowSorter();
 
 		scrollPane.setViewportView(clientTable);
 
 		for (int i = 0; i < clientTable.getColumnCount(); i++) {
 			clientTable.getColumnModel().getColumn(i).setCellRenderer(new PlaylistTableCellRenderer());
 		}
-		playlistSorter.toggleSortOrder(0);
-		playlistSorter.setSortsOnUpdates(true);
+
 
 		setClientTableColumnSizes();
 
@@ -401,6 +395,19 @@ public class ClientGui extends JFrame {
 		playlistPanel.add(btnRefresh, gbc_btnNewButton);
 		
 		btnSkip = new JButton("Skip Request");
+		btnSkip.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int viewRowIndex = clientTable.getSelectedRow();
+				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+				if(md.getSkip().hasSkipped(MY_IP)) return;
+				String message = ClientHandler.MSG_REQ_SKIP
+						+ "="
+						+ LanData.setValue(LanData.POS_TAG, "" + md.getPosition()) 
+						+ LanData.setValue(LanData.IP_TAG, MY_IP);
+				client.sendMessage(message);
+			}
+		});
 		btnSkip.setEnabled(false);
 		GridBagConstraints gbc_btnSkip = new GridBagConstraints();
 		gbc_btnSkip.gridwidth = 2;
@@ -432,6 +439,26 @@ public class ClientGui extends JFrame {
 		playlistPanel.add(btnRate, gbc_btnRate);
 	}
 
+	private void addRowSorter() {
+		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(clientTable.getModel()) {
+			public boolean isSortable(int column) {
+				ClientTableModel ctm = (ClientTableModel) clientTable.getModel();
+				if (ctm.isColumnSortable()) {
+					return super.isSortable(column);
+				} else {
+					return false;
+				}
+			}
+		};
+		clientTable.setRowSorter(playlistSorter);
+		//playlistSorter.toggleSortOrder(0);
+		//playlistSorter.setSortsOnUpdates(true);
+	}
+	
+	private void removeRowSorter() {
+		clientTable.setRowSorter(null);
+	}
+	
 	public void disconnectedState() {
 		initLanData();
 		SwingUtilities.invokeLater(new Runnable() {
@@ -452,6 +479,7 @@ public class ClientGui extends JFrame {
 				txtEnterIpAddress.setText("Connection failed or it disconnected");
 				uploadBar.setEnabled(false);
 				enablePathAndSearch(false);
+				removeRowSorter();
 			}
 
 		});
@@ -459,6 +487,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public void connectedState() {
+		addRowSorter();
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
@@ -486,9 +515,7 @@ public class ClientGui extends JFrame {
 		try {
 			client = new Client(txtEnterIpAddress.getText(), this);
 
-			client.getClientHandler().addObserver(clientTableModel); // adding
-																		// observer
-																		// here
+			client.getClientHandler().addObserver(clientTableModel); // adding observer here!
 			client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 
 		} catch (UnknownHostException e) {

@@ -178,10 +178,9 @@ public class LanData extends Observable {
 		String tracknoStr = getValue(TRACKNO_TAG, formValue);
 		String durationStr = getValue(DURATION_TAG, formValue);
 		
-		int played = 0; int skip = 0; int rating = 0;
+		int played = 0; int rating = 0;
 		try {
 			played = Integer.parseInt(playedStr);
-			skip = Integer.parseInt(skipStr);
 			rating = Integer.parseInt(ratingStr);
 		}
 		catch(Exception e) {
@@ -191,7 +190,7 @@ public class LanData extends Observable {
 		File musicFile = new File(file);
 		MusicData musicData = null;
 		try {
-			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, rating, skip, date, ip);
+			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, rating, skipStr, date, ip, this.participants);
 		} catch (Exception e) {
 			return null;
 		}
@@ -205,7 +204,7 @@ public class LanData extends Observable {
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storePlayed(int position, int played) {
-		return storeNumber(PLAYED_TAG, position, played);
+		return storeValue(PLAYED_TAG, position, "" + played, true);
 	}
 	
 	/**
@@ -214,8 +213,8 @@ public class LanData extends Observable {
 	 * @param skip int to set.
 	 * @return True if successful, false otherwise.
 	 */
-	public boolean storeSkip(int position, int skip) {
-		return storeNumber(SKIP_TAG, position, skip);
+	public boolean storeSkip(int position, String ip) {
+		return storeValue(SKIP_TAG, position, setValue(LanData.IP_TAG, ip), false);
 	}
 	
 	/**
@@ -225,10 +224,10 @@ public class LanData extends Observable {
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storeRating(int position, int rating) {
-		return storeNumber(RATING_TAG, position, rating);
+		return storeValue(RATING_TAG, position,"" + rating, true);
 	}
 	
-	private boolean storeNumber(String tag, int position, int value) {
+	private boolean storeValue(String tag, int position, String value, boolean overwrite) {
 		if(tag == null || tag.isEmpty() || position < 1 || position > lastPosition) return false;
 		if(position < 0 || position > lastPosition) return false;
 		String formValue = data.getProperty(setValue(POS_TAG, "" + position));
@@ -244,7 +243,15 @@ public class LanData extends Observable {
 		String pre = formValue.substring(0, indexBegin);
 		String post = formValue.substring(indexEnd + tagEnd.length(), formValue.length());
 		
-		data.setProperty(setValue(POS_TAG, "" + position), pre + tagBegin + value + tagEnd + post);
+		if(!overwrite) {
+			String prevValue = formValue.substring(indexBegin + tagBegin.length(), indexEnd) ;
+			value = prevValue + value;
+			data.setProperty(setValue(POS_TAG, "" + position), pre + tagBegin + value + tagEnd + post);
+		}
+		else {
+			data.setProperty(setValue(POS_TAG, "" + position), pre + tagBegin + value + tagEnd + post);
+		}	
+		
 		try {
 			storeData();
 		} catch (IOException e) {
@@ -275,14 +282,14 @@ public class LanData extends Observable {
 		if(!posOk) {
 			return false;
 		}
-		
+			
 		MusicData temp = new MusicData();
 		try {
-			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, 0, 0, new Date(), ip);
+			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, 0, null, new Date(), ip, this.participants);
 		} catch (MalformedURLException | UnsupportedAudioFileException e1) {
 		}
 		
-		String value = formBasicValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum().getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, 0, ip);
+		String value = formBasicValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum().getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, "", ip);
 		data.setProperty(setValue(POS_TAG, "" + lastPosition), value);
 		try {
 			storeData();
@@ -301,7 +308,7 @@ public class LanData extends Observable {
 		return true;
 	}
 		
-	private String formBasicValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, int skip, String ip) {
+	private String formBasicValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, String skip, String ip) {
 		StringBuilder form = new StringBuilder();
 		String modPath = filePath.replaceAll("\\\\", "/");
 		form.append(setValue(FILE_TAG, modPath));
@@ -311,16 +318,16 @@ public class LanData extends Observable {
 		form.append(setValue(ALBUM_TAG, album));
 		form.append(setValue(TRACKNO_TAG, trackno));
 		form.append(setValue(DURATION_TAG, duration));
-		
+		form.append(setValue(IP_TAG, ip)); // must be before rating and skip!
 		form.append(setValue(PLAYED_TAG, "" + played));
 		form.append(setValue(RATING_TAG, "" + rating));
-		form.append(setValue(SKIP_TAG, "" + skip));
-		form.append(setValue(DATE_TAG, "" + SimpleDate.formattedDate(new Date())));
-		form.append(setValue(IP_TAG, ip));
+		form.append(setValue(SKIP_TAG, skip));
+		form.append(setValue(DATE_TAG, new SimpleDate(new Date()).toString()));
+		
 		return form.toString();
 	}
 	
-	private String setValue(String tag, String value) {
+	public static String setValue(String tag, String value) {
 		if(value == null) value = "";
 		return tag.replaceAll(PLACEHOLDER, value);
 	}
@@ -337,7 +344,7 @@ public class LanData extends Observable {
 		return getValue(tag, formValue);
 	}
 	
-	private String getValue(String tag, String formValue) {
+	public static String getValue(String tag, String formValue) {
 		if(tag == null || tag.isEmpty() || formValue == null || formValue.isEmpty()) return null;
 		String tagBegin = tag.substring(0, tag.indexOf("]") + 1);
 		String tagEnd = tag.substring(tag.lastIndexOf("["), tag.length());
@@ -346,6 +353,18 @@ public class LanData extends Observable {
 		int indexEnd = formValue.indexOf(tagEnd);
 		if(indexBegin == -1 || indexEnd == -1) return null;		
 		return formValue.substring(indexBegin + tagBegin.length(), indexEnd);
+	}
+	
+	public static String removeFirstTagValue(String tag, String formValue) {
+		if(tag == null || tag.isEmpty() || formValue == null || formValue.isEmpty()) return null;
+		String tagBegin = tag.substring(0, tag.indexOf("]") + 1);
+		String tagEnd = tag.substring(tag.lastIndexOf("["), tag.length());
+		
+		int indexBegin = formValue.indexOf(tagBegin);
+		int indexEnd = formValue.indexOf(tagEnd);
+		if(indexBegin == -1 || indexEnd == -1) return null;
+		
+		return formValue.substring(indexEnd + tagEnd.length(), formValue.length());
 	}
 	
 	/**

@@ -7,6 +7,8 @@ import java.util.Date;
 public class SimpleDate implements Comparable<SimpleDate> {
 
 	private Date date;
+	private String simpleDate;
+	
 	
 	public Date getDate() {
 		return date;
@@ -15,13 +17,14 @@ public class SimpleDate implements Comparable<SimpleDate> {
 	public SimpleDate(Date date) {
 		this.date = date;
 		if(date == null) {
-			date = new Date();
+			this.date = new Date();
 		}
+		simpleDate = formattedDate(this.date);
 	}
 	
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 	
-	public static String formattedDate(Date date) {
+	private static String formattedDate(Date date) {
 		if(date == null) return "";
 		return sdf.format(date);
 	}
@@ -35,7 +38,7 @@ public class SimpleDate implements Comparable<SimpleDate> {
 	}
 	
 	public String toString() {
-		return formattedDate(this.date);
+		return simpleDate;
 	}
 
 	@Override
