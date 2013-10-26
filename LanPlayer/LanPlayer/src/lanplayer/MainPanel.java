@@ -1,30 +1,17 @@
 package lanplayer;
 
 import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import java.awt.GridBagLayout;
-
-import javax.swing.JPanel;
-
 import de.quippy.javamod.system.Helpers;
-
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-
-import javax.swing.border.TitledBorder;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
 import server.Server;
 
 public class MainPanel extends JFrame {
+
+	private static final long serialVersionUID = -3366064443983574030L;
 
 	public MainPanel(Server server) {
 		setTitle("Lan Player");

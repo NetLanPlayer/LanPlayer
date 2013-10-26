@@ -5,19 +5,11 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
-
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-
 import lanplayer.ITableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
-import lanplayer.PlayerPanel;
-import lanplayer.PlaylistPanel;
-import lanplayer.Skip;
 import main.ClientGui;
-import de.quippy.javamod.main.playlist.PlayList;
 
 public class ClientTableModel extends AbstractTableModel implements ITableModel, Observer {
 

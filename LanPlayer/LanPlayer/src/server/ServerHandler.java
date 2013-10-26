@@ -2,7 +2,6 @@ package server;
 
 import java.io.File;
 import java.util.Observable;
-
 import lanplayer.LanData;
 import main.ServerGui;
 import client.Client;
