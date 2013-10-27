@@ -2,8 +2,12 @@ package main;
 
 import utilities.IPAddressValidator;
 import utilities.MyIp;
+
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
@@ -11,10 +15,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JTextField;
+
 import java.awt.GridBagConstraints;
+
 import javax.swing.JButton;
+
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -23,23 +32,29 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
+
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
+
 import javax.swing.JProgressBar;
 
 public class ClientGui extends JFrame {
@@ -51,7 +66,7 @@ public class ClientGui extends JFrame {
 	private final static String INIT_IP_TEXT = "localhost";
 
 	private final static String MY_IP = MyIp.getMyIP();
-	
+
 	private LanData lanData = null;
 
 	public LanData getLanData() {
@@ -114,6 +129,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public ClientGui() {
+		setTitle("Frame");
 		btnConnect = new JButton("Connect");
 		initLanData();
 		initialize();
@@ -221,12 +237,29 @@ public class ClientGui extends JFrame {
 		gbc_txtEnterPath.gridx = 0;
 		gbc_txtEnterPath.gridy = 0;
 		uploadPanel.add(txtEnterPath, gbc_txtEnterPath);
-		txtEnterPath.addFocusListener(new FocusAdapter() {
+		txtEnterPath.addMouseListener(new MouseListener() {
+
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void mouseClicked(MouseEvent arg0) {
 				if (txtEnterPath.getText() == null)
 					return;
 				txtEnterPath.select(0, txtEnterPath.getText().length());
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
 			}
 
 		});
@@ -249,6 +282,35 @@ public class ClientGui extends JFrame {
 		txtEnterPath.setColumns(10);
 
 		btnSearch = new JButton("Search");
+		btnSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser = new JFileChooser();
+				chooser.setDialogTitle("Search track or Directory");
+				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				chooser.setFileFilter(new FileFilter() {
+
+					@Override
+					public boolean accept(File f) {
+						if (f.isDirectory())
+							return true;
+						return f.getName().endsWith(".mp3");
+					}
+
+					@Override
+					public String getDescription() {
+						return null;
+					}
+
+				});
+				int choosen = chooser.showOpenDialog(txtEnterPath);
+				if (choosen == JFileChooser.APPROVE_OPTION) {
+					txtEnterPath.setText(chooser.getCurrentDirectory().toString() + "\\" + chooser.getSelectedFile().getName());
+				}
+				if (client.isValidPath(txtEnterPath.getText())) {
+					btnUpload.setEnabled(true);
+				}
+			}
+		});
 		btnSearch.setEnabled(false);
 		GridBagConstraints gbc_btnSearch = new GridBagConstraints();
 		gbc_btnSearch.fill = GridBagConstraints.HORIZONTAL;
@@ -315,7 +377,6 @@ public class ClientGui extends JFrame {
 		clientTable.setModel(clientTableModel);
 		clientTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		
 		clientTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
@@ -327,17 +388,16 @@ public class ClientGui extends JFrame {
 				} else {
 					ratingBox.setEnabled(true);
 					btnRate.setEnabled(true);
-					
+
 					int viewRowIndex = clientTable.getSelectedRow();
 					int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
 					MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
-					if(md.getSkip().hasSkipped(MY_IP)) {
+					if (md.getSkip().hasSkipped(MY_IP)) {
 						btnSkip.setEnabled(false);
-					}
-					else {
+					} else {
 						btnSkip.setEnabled(true);
 					}
-	
+
 				}
 
 				// if(selectedRow != -1) {
@@ -361,13 +421,13 @@ public class ClientGui extends JFrame {
 			clientTable.getColumnModel().getColumn(i).setCellRenderer(new PlaylistTableCellRenderer());
 		}
 
-
 		setClientTableColumnSizes();
 
 		btnRefresh = new JButton("Refresh Playlist");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if(client == null) return;
+				if (client == null)
+					return;
 				client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 			}
 		});
@@ -379,18 +439,16 @@ public class ClientGui extends JFrame {
 		gbc_btnNewButton.gridx = 1;
 		gbc_btnNewButton.gridy = 0;
 		playlistPanel.add(btnRefresh, gbc_btnNewButton);
-		
+
 		btnSkip = new JButton("Skip Request");
 		btnSkip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int viewRowIndex = clientTable.getSelectedRow();
 				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
 				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
-				if(md.getSkip().hasSkipped(MY_IP)) return;
-				String message = ClientHandler.MSG_REQ_SKIP
-						+ "="
-						+ LanData.setValue(LanData.POS_TAG, "" + md.getPosition()) 
-						+ LanData.setValue(LanData.IP_TAG, MY_IP);
+				if (md.getSkip().hasSkipped(MY_IP))
+					return;
+				String message = ClientHandler.MSG_REQ_SKIP + "=" + LanData.setValue(LanData.POS_TAG, "" + md.getPosition()) + LanData.setValue(LanData.IP_TAG, MY_IP);
 				client.sendMessage(message);
 			}
 		});
@@ -437,14 +495,14 @@ public class ClientGui extends JFrame {
 			}
 		};
 		clientTable.setRowSorter(playlistSorter);
-		//playlistSorter.toggleSortOrder(0);
-		//playlistSorter.setSortsOnUpdates(true);
+		// playlistSorter.toggleSortOrder(0);
+		// playlistSorter.setSortsOnUpdates(true);
 	}
-	
+
 	private void removeRowSorter() {
 		clientTable.setRowSorter(null);
 	}
-	
+
 	public void disconnectedState() {
 		initLanData();
 		SwingUtilities.invokeLater(new Runnable() {
@@ -501,7 +559,9 @@ public class ClientGui extends JFrame {
 		try {
 			client = new Client(txtEnterIpAddress.getText(), this);
 
-			client.getClientHandler().addObserver(clientTableModel); // adding observer here!
+			client.getClientHandler().addObserver(clientTableModel); // adding
+																						// observer
+																						// here!
 			client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 
 		} catch (UnknownHostException e) {

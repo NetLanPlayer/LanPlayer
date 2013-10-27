@@ -96,7 +96,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	private SeekBarPanel seekBarPanel = null;
 
-	private String searchPath;
+	private String searchPath = null;
 
 	private LEDScrollPanel ledScrollPanel = null;
 

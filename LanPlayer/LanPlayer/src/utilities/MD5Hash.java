@@ -32,6 +32,8 @@ public class MD5Hash {
 				while(line != null && !line.startsWith("#")) {
 					fis.read(b);	
 				}
+				br.close();
+				fis.close();
 			} catch (FileNotFoundException e) {
 				return null;
 			} catch (IOException e1) {
