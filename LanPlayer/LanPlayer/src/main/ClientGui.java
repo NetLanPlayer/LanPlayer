@@ -464,6 +464,12 @@ public class ClientGui extends JFrame {
 		fillRatingBox();
 
 		btnRate = new JButton("Rate Track");
+		btnRate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//TODO implement rating
+//				client.sendMessage(message);
+			}
+		});
 		btnRate.setEnabled(false);
 		GridBagConstraints gbc_btnRate = new GridBagConstraints();
 		gbc_btnRate.insets = new Insets(5, 5, 5, 5);
