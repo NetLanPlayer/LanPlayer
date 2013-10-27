@@ -288,7 +288,7 @@ public class ClientGui extends JFrame {
 
 					@Override
 					public String getDescription() {
-						return null;
+						return "mp3";
 					}
 
 				});
