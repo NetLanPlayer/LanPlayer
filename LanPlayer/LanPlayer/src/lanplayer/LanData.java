@@ -2,7 +2,6 @@ package lanplayer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,7 +24,7 @@ public class LanData extends Observable {
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
 	
-	private final static int SEARCH_TIMER_MS = 5000;
+//	private final static int SEARCH_TIMER_MS = 5000;
 	
 	public final static String PARTICIPANTS_TAG = "[participants]";
 	public final static String LAST_POSITION_TAG = "[lastPos]";
@@ -609,7 +608,7 @@ public class LanData extends Observable {
 		
 		List<File> gatherList = new ArrayList<File>();
 		gatherMusicFiles(allowedExt, gatherList, musicDirectory);
-		boolean notify = false;
+//		boolean notify = false;
 		for(File f : gatherList) {
 			String path;
 			try {
@@ -620,7 +619,7 @@ public class LanData extends Observable {
 			}
 			if(!loadedFiles.contains(path)) {
 				addNewFile(f, "Polling", false);
-				notify = true;
+//				notify = true;
 			}
 		}
 		//if(notify) {

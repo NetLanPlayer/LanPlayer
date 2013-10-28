@@ -6,11 +6,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.table.AbstractTableModel;
-
-import client.ClientHandler;
 import main.ServerGui;
 import server.ReceivedFile;
 import server.Server;

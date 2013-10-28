@@ -2,8 +2,6 @@ package lanplayer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -14,22 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Properties;
 import java.util.Random;
-
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import de.quippy.javamod.io.GaplessSoundOutputStreamImpl;
 import de.quippy.javamod.io.SoundOutputStream;
 import de.quippy.javamod.main.gui.PlayThread;
@@ -39,7 +30,6 @@ import de.quippy.javamod.main.gui.components.SAMeterPanel;
 import de.quippy.javamod.main.gui.components.SeekBarPanel;
 import de.quippy.javamod.main.gui.components.SeekBarPanelListener;
 import de.quippy.javamod.main.gui.components.VUMeterPanel;
-import de.quippy.javamod.main.gui.playlist.PlaylistGUIChangeListener;
 import de.quippy.javamod.main.playlist.PlayList;
 import de.quippy.javamod.main.playlist.PlayListEntry;
 import de.quippy.javamod.mixer.Mixer;
@@ -52,14 +42,13 @@ import de.quippy.javamod.multimedia.MultimediaContainerManager;
 import de.quippy.javamod.multimedia.mod.ModContainer;
 import de.quippy.javamod.system.Helpers;
 import de.quippy.javamod.system.Log;
-
 import javax.swing.JSlider;
-import javax.swing.JScrollBar;
-
 import main.ServerGui;
 
 public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThreadEventListener, MultimediaContainerEventListener {
-	
+
+	private static final long serialVersionUID = 6111166830606231317L;
+
 	private PlaylistPanel playlistPanel;
 	
 	public static final String BUTTONPLAY_INACTIVE = "/de/quippy/javamod/main/gui/ressources/play.gif";
@@ -107,7 +96,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	private SeekBarPanel seekBarPanel = null;
 
-	private String searchPath;
+	private String searchPath = null;
 
 	private LEDScrollPanel ledScrollPanel = null;
 

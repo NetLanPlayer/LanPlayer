@@ -1,11 +1,6 @@
 package lanplayer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import de.quippy.javamod.multimedia.MultimediaContainer;
 import de.quippy.javamod.multimedia.MultimediaContainerManager;
 import de.quippy.javamod.system.Helpers;
