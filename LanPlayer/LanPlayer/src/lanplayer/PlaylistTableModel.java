@@ -20,6 +20,13 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 	
 	private ArrayList<MusicData> playList = new ArrayList<MusicData>();
 	public ArrayList<MusicData> getPlayList() {
+//		ArrayList<MusicData> temp = new ArrayList<MusicData>();
+//		for(MusicData md : playList) {
+//			if(!md.getSkip().isSkip()) {
+//				temp.add(md);
+//			}
+//		}
+//		return temp;
 		return playList;
 	}
 	
@@ -53,7 +60,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		}
 		for(int i = 1; i <= lanData.getLastPosition(); i++) {
 			MusicData md = lanData.getMusicData(i);
-			if(md != null) {
+			if(md != null && !md.getSkip().isSkip()) {
 				intermediateList.add(md);
 			}
 		}
@@ -132,7 +139,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		}
 		return retObj;
 	}
-
+	
 	private synchronized void handleReceivedFile(ReceivedFile rf) {
 		File rawFile = rf.getFile();
 		File newFile = null;
@@ -140,9 +147,11 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		String rawName = rawFile.getName().substring(0, rawFile.getName().lastIndexOf("."));
 		try {
 			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, null, null, null, this.lanData.getParticipants());
-			String number = "" + md.getPosition();
+			Integer trackno = md.getTrackNumber().getTrack();
+			String number = (trackno == null || trackno == 0) ? "" : "" + trackno;
 			String title = md.getTitle() == null || md.getTitle().isEmpty() ? rawName : md.getTitle();
-			String newFileName = (number == null || number.isEmpty() ? "" : number + " - ") + title + extension;
+			String newFileName = (number.isEmpty() ? "" : number + " - ") + title + extension;
+			newFileName.replaceAll("[^a-zA-Z]", "");
 			newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
 			if(!newFile.exists()) {
 				rawFile.renameTo(newFile);
@@ -153,6 +162,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				return;
 			}
 		} catch (MalformedURLException | UnsupportedAudioFileException e) {
+			return;
 		}
 		if(newFile != null && newFile.exists()) {
 			this.lanData.addNewFile(newFile, rf.getIp(), true);
@@ -180,8 +190,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				reloadList();
 				fireTableDataChanged();
 				playlistPanel.restoreSelection();
-				playlistPanel.setDeleteBtnState();
-				
+				playlistPanel.setDeleteBtnState();				
 				server.sendFile(lanData.getFile());
 			}
 			else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
@@ -193,6 +202,12 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				fireTableDataChanged();
 				playlistPanel.restoreSelection();
 				playlistPanel.getControlPanel().getSkipField().setText("" + lanData.getParticipants());
+				
+				PlayerPanel player = this.playlistPanel.getPlayerPanel();
+				if(player != null) {
+					player.reloadPlaylist();
+				}
+				
 				server.sendFile(lanData.getFile());
 			}
 		}
@@ -208,6 +223,12 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				reloadList();
 				fireTableDataChanged();
 				playlistPanel.restoreSelection();
+				
+				PlayerPanel player = this.playlistPanel.getPlayerPanel();
+				if(player != null) {
+					player.reloadPlaylist();
+				}
+				
 				server.sendFile(lanData.getFile());
 			}
 		}
