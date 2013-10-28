@@ -137,10 +137,12 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		File rawFile = rf.getFile();
 		File newFile = null;
 		String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
+		String rawName = rawFile.getName().substring(0, rawFile.getName().lastIndexOf("."));
 		try {
 			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, null, null, null, this.lanData.getParticipants());
-			Integer track = md.getTrackNumber().getTrack();
-			String newFileName = (track == null ? "" : track + " - ") +  md.getTitle() + extension;
+			String number = "" + md.getPosition();
+			String title = md.getTitle() == null || md.getTitle().isEmpty() ? rawName : md.getTitle();
+			String newFileName = (number == null || number.isEmpty() ? "" : number + " - ") + title + extension;
 			newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
 			if(!newFile.exists()) {
 				rawFile.renameTo(newFile);
