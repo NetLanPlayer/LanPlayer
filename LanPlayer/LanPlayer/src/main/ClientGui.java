@@ -439,7 +439,7 @@ public class ClientGui extends JFrame {
 		playlistPanel.add(btnRate, gbc_btnRate);
 	}
 
-	private void addRowSorter() {
+	public void addRowSorter() {
 		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(clientTable.getModel()) {
 			public boolean isSortable(int column) {
 				ClientTableModel ctm = (ClientTableModel) clientTable.getModel();
@@ -455,7 +455,7 @@ public class ClientGui extends JFrame {
 		//playlistSorter.setSortsOnUpdates(true);
 	}
 	
-	private void removeRowSorter() {
+	public void removeRowSorter() {
 		clientTable.setRowSorter(null);
 	}
 	
@@ -487,7 +487,6 @@ public class ClientGui extends JFrame {
 	}
 
 	public void connectedState() {
-		addRowSorter();
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
@@ -499,6 +498,7 @@ public class ClientGui extends JFrame {
 				btnUpload.setEnabled(false);
 				uploadBar.setEnabled(true);
 				enablePathAndSearch(true);
+				addRowSorter();
 			}
 
 		});
@@ -529,6 +529,7 @@ public class ClientGui extends JFrame {
 			txtEnterIpAddress.setEditable(true);
 			return;
 		}
+		connectedState();
 
 	}
 

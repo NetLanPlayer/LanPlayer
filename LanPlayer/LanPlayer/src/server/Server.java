@@ -161,7 +161,6 @@ public class Server {
 						propertySendClients.add(propertySendServer.accept());
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
 				}
 
 			}
@@ -192,8 +191,7 @@ public class Server {
 							communicationClients.remove(client);
 							client.close();
 						} catch (IOException e) {
-							e.printStackTrace();
-
+							communicationClients.remove(client);
 						}
 
 					}
@@ -226,7 +224,7 @@ public class Server {
 						} catch (SocketException se) {
 							propertySendClients.remove(client);
 						} catch (IOException e) {
-							e.printStackTrace();
+							propertySendClients.remove(client);
 						}
 
 					}

@@ -631,7 +631,9 @@ public class LanData extends Observable {
 	}
 	
 	private void gatherMusicFiles(HashSet<String> allowedExt, List<File> gatherList, File directory) {
+		if(directory == null || !directory.isDirectory()) return;
 		File[] files = directory.listFiles();
+		if(files == null) return;
 		for(File f : files) {
 			if(f.isDirectory()) {
 				gatherMusicFiles(allowedExt, gatherList, f);

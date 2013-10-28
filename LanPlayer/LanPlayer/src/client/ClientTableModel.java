@@ -152,9 +152,11 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 		if(obj instanceof Properties) {
 			reloadList();
 			try {
+				//clientGui.removeRowSorter();
 				fireTableDataChanged();
+				//clientGui.addRowSorter();
 			}
-			catch(NullPointerException npe) {
+			catch(Exception e) {
 				// piss off
 			}
 			System.out.println("Client: Refreshing Table Playlist");

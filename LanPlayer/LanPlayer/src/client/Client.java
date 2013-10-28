@@ -43,33 +43,24 @@ public class Client {
 		receiveFile();
 	}
 
-	private void sendFile(final File[] files) {
-		new Thread(new Runnable() {
-			
-			private void updateProgressBar(final int percent) {
-				SwingUtilities.invokeLater(new Runnable() {
+	private void updateProgressBar(final int percent) {
+		SwingUtilities.invokeLater(new Runnable() {
 
-					@Override
-					public void run() {
-						clientGui.getUploadBar().setValue(percent);
-						if(percent >= 95) {
-							try {
-								Thread.sleep(5000);
-							} catch (InterruptedException e) {
-							}
-							clientGui.getUploadBar().setValue(0);
-							clientGui.getBtnUpload().setEnabled(false);
-							clientGui.enablePathAndSearch(true);
-						}
-					}
-					
-				});
-			}
-			
 			@Override
 			public void run() {
-				
-				int size = files.length;
+				clientGui.getUploadBar().setValue(percent);
+			}
+			
+		});
+	}
+	
+	private void sendFile(final File[] files) {
+		new Thread(new Runnable() {
+						
+			@Override
+			public void run() {
+				clientGui.enablePathAndSearch(false);
+				int size = files.length;				
 				for (int i = 0; i < files.length; i++) {
 					final File file = files[i];
 					try (Socket socket = new Socket(serverAddress, Server.REC_FILE_PORT)) {
@@ -81,25 +72,27 @@ public class Client {
 							out.write(buffer, 0, count);
 						}
 						System.out.println("Client: File " + file.getName() + " sent.");
-						clientGui.enablePathAndSearch(false);
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {
-						e.printStackTrace();
+						clientGui.disconnectedState();
 					} catch (IOException e) {
-						e.printStackTrace();
+						clientGui.disconnectedState();
 					}
-					int percent = (100 / size) * (i + 1);
+					int percent = ((int) Math.ceil((100.0 / size))) * (i + 1);
 					if(percent < 0) percent = 0;
 					if(percent > 100) percent = 100;
 					updateProgressBar(percent);
+					if(percent >= 100) {
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e) {
+						}
+						clientGui.getUploadBar().setValue(0);
+						clientGui.getBtnUpload().setEnabled(false);
+						clientGui.enablePathAndSearch(true);
+					}
 				}
-//				try {
-//					sendMessage(ClientHandler.MSG_UPLOAD_FINISHED);	
-//				}
-//				catch(ConnectException ce) {
-//					//TODO
-//				}
 			}
 		}).start();
 	}
@@ -132,7 +125,7 @@ public class Client {
 					clientGui.disconnectedState();
 					return;
 				}
-				clientGui.connectedState();
+				//clientGui.connectedState();
 			}
 		}).start();
 	}
@@ -197,7 +190,7 @@ public class Client {
 					clientGui.disconnectedState();
 					return;
 				}
-				clientGui.connectedState();
+				//clientGui.connectedState();
 			}
 		}).start();
 	}
@@ -290,7 +283,6 @@ public class Client {
 		try {
 			server.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 //		try {
 //			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
