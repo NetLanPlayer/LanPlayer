@@ -6,9 +6,12 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.table.AbstractTableModel;
+
 import main.ServerGui;
+import server.RatingMessage;
 import server.ReceivedFile;
 import server.Server;
 import server.ServerHandler;
@@ -146,7 +149,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
 		String rawName = rawFile.getName().substring(0, rawFile.getName().lastIndexOf("."));
 		try {
-			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, 0, null, null, null, this.lanData.getParticipants());
+			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, null, null, null, null, this.lanData.getParticipants());
 			Integer trackno = md.getTrackNumber().getTrack();
 			String number = (trackno == null || trackno == 0) ? "" : "" + trackno;
 			String title = md.getTitle() == null || md.getTitle().isEmpty() ? rawName : md.getTitle();
@@ -219,6 +222,21 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 			else if(obj instanceof SkipMessage) {
 				SkipMessage sm = (SkipMessage) obj;
 				this.lanData.storeSkip(sm.getPosition(), sm.getSkipIp());
+				
+				reloadList();
+				fireTableDataChanged();
+				playlistPanel.restoreSelection();
+				
+				PlayerPanel player = this.playlistPanel.getPlayerPanel();
+				if(player != null) {
+					player.reloadPlaylist();
+				}
+				
+				server.sendFile(lanData.getFile());
+			}
+			else if(obj instanceof RatingMessage) {
+				RatingMessage rm = (RatingMessage) obj;
+				this.lanData.storeRating(rm.getPosition(), rm.getIpPlusRating());
 				
 				reloadList();
 				fireTableDataChanged();

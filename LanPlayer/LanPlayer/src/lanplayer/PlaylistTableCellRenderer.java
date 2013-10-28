@@ -35,7 +35,7 @@ public class PlaylistTableCellRenderer extends DefaultTableCellRenderer implemen
 	            label.setHorizontalAlignment(SwingConstants.LEADING);
 	            label.setText(" " + (String) value);
 	        }
-	        else if(value instanceof Number || value instanceof TrackNumber) {
+	        else if(value instanceof Number || value instanceof TrackNumber || value instanceof Rating) {
 	            int countDigits = value.toString().length();
 	            label.setHorizontalAlignment(SwingConstants.TRAILING);
 	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);

@@ -3,6 +3,7 @@ package lanplayer;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -21,7 +22,7 @@ public class MusicData implements Comparable<MusicData> {
 	private TrackNumber trackno = null;
 	private String duration = null;
 	private Date date;
-	private int rating = 0;
+	private Rating rating;
 	private Skip skip;
 	private int played = 0;
 	private int position = -1;
@@ -38,7 +39,7 @@ public class MusicData implements Comparable<MusicData> {
 		return ip;
 	}
 
-	public int getRating() {
+	public Rating getRating() {
 		return rating;
 	}
 
@@ -106,11 +107,10 @@ public class MusicData implements Comparable<MusicData> {
 	 * @throws MalformedURLException
 	 * @throws UnsupportedAudioFileException
 	 */
-	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, int rating, String skip, Date date, String ip, int participants) throws MalformedURLException, UnsupportedAudioFileException {
+	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, String rating, String skip, Date date, String ip, int participants) throws MalformedURLException, UnsupportedAudioFileException {
 		this.position = position;
 		this.musicFile = musicFile;
 		this.ip = ip;
-		this.rating = rating;
 		this.played = played;
 		this.date = date;
 		
@@ -119,6 +119,8 @@ public class MusicData implements Comparable<MusicData> {
 		
 		this.duration = duration;
 		
+		this.rating = new Rating(gatherRatingIp(rating));
+
 		this.skip = new Skip(gatherSkipIp(skip), participants);
 		
 		try {
@@ -162,5 +164,26 @@ public class MusicData implements Comparable<MusicData> {
 			skip = LanData.removeFirstTagValue(LanData.IP_TAG, skip);
 		}
 		return retSkipSet;
+	}
+	
+	private HashMap<String, Integer> gatherRatingIp(String rating) {
+		HashMap<String, Integer> retRatingMap = new HashMap<String, Integer>();
+		if(rating == null || rating.isEmpty()) return retRatingMap;
+		String tagBegin = LanData.IP_TAG.substring(0,  LanData.IP_TAG.indexOf("]") + 1);
+		while(rating.contains(tagBegin)) {
+			String ipPlusRating = LanData.getValue(LanData.IP_TAG, rating);
+			String ip = ipPlusRating.substring(0, ipPlusRating.indexOf("="));
+			String ratedStr = ipPlusRating.substring(ipPlusRating.indexOf("=") + 1, ipPlusRating.length());
+			Integer rated = null;
+			try {
+				rated = Integer.parseInt(ratedStr);
+			}
+			catch(NumberFormatException nfe) {
+				continue;
+			}
+			retRatingMap.put(ip, rated);
+			rating = LanData.removeFirstTagValue(LanData.IP_TAG, rating);
+		}
+		return retRatingMap;
 	}
 }

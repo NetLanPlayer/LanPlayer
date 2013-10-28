@@ -14,6 +14,7 @@ public class ClientHandler extends Observable {
 
 	public final static String MSG_REQ_PROPERTY = "MSG_REQ_PROPERTY";
 	public final static String MSG_REQ_SKIP = "MSG_REQ_SKIP";
+	public final static String MSG_REQ_RATING = "MSG_REQ_RATING";
 
 	private Client client;
 	
