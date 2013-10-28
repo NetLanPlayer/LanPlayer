@@ -60,7 +60,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		}
 		for(int i = 1; i <= lanData.getLastPosition(); i++) {
 			MusicData md = lanData.getMusicData(i);
-			if(md != null && !md.getSkip().isSkip()) {
+			if(md != null) {
 				intermediateList.add(md);
 			}
 		}
@@ -151,7 +151,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 			String number = (trackno == null || trackno == 0) ? "" : "" + trackno;
 			String title = md.getTitle() == null || md.getTitle().isEmpty() ? rawName : md.getTitle();
 			String newFileName = (number.isEmpty() ? "" : number + " - ") + title + extension;
-			newFileName.replaceAll("[^a-zA-Z]", "");
+			newFileName = newFileName.replaceAll("[^a-zA-Z]", "");
 			newFile = new File(ServerGui.MUSIC_DIR_PATH + newFileName);
 			if(!newFile.exists()) {
 				rawFile.renameTo(newFile);
