@@ -5,8 +5,6 @@ import utilities.MyIp;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-
-import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,15 +13,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.GridBagLayout;
-
 import javax.swing.JTextField;
-
 import java.awt.GridBagConstraints;
-
 import javax.swing.JButton;
-
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -37,7 +30,6 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -47,14 +39,12 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
-
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
-
 import javax.swing.JProgressBar;
 
 public class ClientGui extends JFrame {
@@ -237,16 +227,16 @@ public class ClientGui extends JFrame {
 		gbc_txtEnterPath.gridx = 0;
 		gbc_txtEnterPath.gridy = 0;
 		uploadPanel.add(txtEnterPath, gbc_txtEnterPath);
-//		txtEnterPath.addFocusListener(new FocusAdapter() {
-//
-//			@Override
-//			public void focusGained(FocusEvent arg0) {
-//				if (txtEnterPath.getText() == null)
-//					return;
-//				txtEnterPath.select(0, txtEnterPath.getText().length());
-//			}
-//		});
-		
+		// txtEnterPath.addFocusListener(new FocusAdapter() {
+		//
+		// @Override
+		// public void focusGained(FocusEvent arg0) {
+		// if (txtEnterPath.getText() == null)
+		// return;
+		// txtEnterPath.select(0, txtEnterPath.getText().length());
+		// }
+		// });
+
 		txtEnterPath.addKeyListener(new KeyAdapter() {
 
 			public void keyReleased(KeyEvent ke) {
@@ -268,14 +258,8 @@ public class ClientGui extends JFrame {
 		btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				
-				
+
 				JFileChooser chooser = new JFileChooser();
-				JFrame frame = new JFrame();
-				Action details = chooser.getActionMap().get("viewTypeDetails");
-				details.actionPerformed(null);
-				chooser.showOpenDialog(frame);
 				chooser.setDialogTitle("Search track or Directory");
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setFileFilter(new FileFilter() {
@@ -299,8 +283,7 @@ public class ClientGui extends JFrame {
 				}
 				if (client != null && client.isValidPath(txtEnterPath.getText())) {
 					btnUpload.setEnabled(true);
-				}
-				else {
+				} else {
 					btnUpload.setEnabled(false);
 				}
 			}
@@ -470,8 +453,8 @@ public class ClientGui extends JFrame {
 		btnRate = new JButton("Rate Track");
 		btnRate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO implement rating
-//				client.sendMessage(message);
+				// TODO implement rating
+				// client.sendMessage(message);
 			}
 		});
 		btnRate.setEnabled(false);
@@ -550,7 +533,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public void enablePathAndSearch(boolean enable) {
-		if(!enable) {
+		if (!enable) {
 			txtEnterPath.setText("");
 		}
 		txtEnterPath.setEnabled(enable);
