@@ -63,6 +63,10 @@ public class Server {
 						new Thread(new Runnable() {
 							public void run() {
 								byte[] buffer = new byte[BUFFER_SIZE];
+								File loc = new File(fileLocation);
+								if(!loc.exists()) {
+									loc.mkdirs();
+								}
 								File file = new File(fileLocation + nameCounter.getAndIncrement() + ".mp3");
 
 								try (BufferedInputStream in = new BufferedInputStream(client.getInputStream(), BUFFER_SIZE)) {

@@ -54,7 +54,6 @@ public class Client {
 						
 			@Override
 			public void run() {
-				clientGui.enablePathAndSearch(false);
 				int size = files.length;				
 				for (int i = 0; i < files.length; i++) {
 					final File file = files[i];

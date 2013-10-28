@@ -227,32 +227,16 @@ public class ClientGui extends JFrame {
 		gbc_txtEnterPath.gridx = 0;
 		gbc_txtEnterPath.gridy = 0;
 		uploadPanel.add(txtEnterPath, gbc_txtEnterPath);
-		txtEnterPath.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				if (txtEnterPath.getText() == null)
-					return;
-				txtEnterPath.select(0, txtEnterPath.getText().length());
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-			}
-
-		});
+//		txtEnterPath.addFocusListener(new FocusAdapter() {
+//
+//			@Override
+//			public void focusGained(FocusEvent arg0) {
+//				if (txtEnterPath.getText() == null)
+//					return;
+//				txtEnterPath.select(0, txtEnterPath.getText().length());
+//			}
+//		});
+		
 		txtEnterPath.addKeyListener(new KeyAdapter() {
 
 			public void keyReleased(KeyEvent ke) {
@@ -288,7 +272,7 @@ public class ClientGui extends JFrame {
 
 					@Override
 					public String getDescription() {
-						return "mp3";
+						return "*.mp3";
 					}
 
 				});
@@ -296,8 +280,11 @@ public class ClientGui extends JFrame {
 				if (choosen == JFileChooser.APPROVE_OPTION) {
 					txtEnterPath.setText(chooser.getCurrentDirectory().toString() + "\\" + chooser.getSelectedFile().getName());
 				}
-				if (client.isValidPath(txtEnterPath.getText())) {
+				if (client != null && client.isValidPath(txtEnterPath.getText())) {
 					btnUpload.setEnabled(true);
+				}
+				else {
+					btnUpload.setEnabled(false);
 				}
 			}
 		});
@@ -330,7 +317,7 @@ public class ClientGui extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (client.checkPathAndSend(txtEnterPath.getText())) {
 					enablePathAndSearch(false);
-					txtEnterPath.setText("");
+					btnUpload.setEnabled(false);
 				} else {
 					txtEnterPath.setText("Path was wrong");
 					enablePathAndSearch(true);
@@ -546,6 +533,9 @@ public class ClientGui extends JFrame {
 	}
 
 	public void enablePathAndSearch(boolean enable) {
+		if(!enable) {
+			txtEnterPath.setText("");
+		}
 		txtEnterPath.setEnabled(enable);
 		txtEnterPath.setEditable(enable);
 		btnSearch.setEnabled(enable);
