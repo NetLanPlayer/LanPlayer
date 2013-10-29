@@ -20,6 +20,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 	
 	private ArrayList<MusicData> playList = new ArrayList<MusicData>();
 	public ArrayList<MusicData> getPlayList() {
+		
 //		ArrayList<MusicData> temp = new ArrayList<MusicData>();
 //		for(MusicData md : playList) {
 //			if(!md.getSkip().isSkip()) {
@@ -233,5 +234,4 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 			}
 		}
 	}
-
 }

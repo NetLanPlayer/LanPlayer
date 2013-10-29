@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -19,12 +20,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
-	
+
 	public static final int REC_FILE_PORT = 55000;
 	public static final int SEND_FILE_PORT = 58000;
 	public static final int REC_MESSAGE_PORT = 56000;
 	public static final int SEND_MESSAGE_PORT = 57000;
-	
+
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
 	private ExecutorService pool;
@@ -50,8 +51,8 @@ public class Server {
 
 	private void initServer() {
 		/**
-		 * This serversocket accepts connections for RECEIVING TRACKS FROM
-		 * CLIENT, PORT: 55000
+		 * This serversocket accepts connections for RECEIVING TRACKS FROM CLIENT,
+		 * PORT: 55000
 		 **/
 		new Thread(new Runnable() {
 
@@ -64,7 +65,7 @@ public class Server {
 							public void run() {
 								byte[] buffer = new byte[BUFFER_SIZE];
 								File loc = new File(fileLocation);
-								if(!loc.exists()) {
+								if (!loc.exists()) {
 									loc.mkdirs();
 								}
 								File file = new File(fileLocation + nameCounter.getAndIncrement() + ".mp3");
@@ -117,7 +118,7 @@ public class Server {
 									while (in.read(buffer) != -1) {
 										message = new String(buffer);
 									}
-									serverHandler.handleClientMessage(message);
+									serverHandler.handleClientMessage(message, client.getInetAddress());
 									client.close();
 								} catch (IOException e) {
 								}
@@ -141,7 +142,8 @@ public class Server {
 			public void run() {
 				try (final ServerSocket propertySendServer = new ServerSocket(SEND_MESSAGE_PORT)) {
 					while (true) {
-						communicationClients.add(propertySendServer.accept());					}
+						communicationClients.add(propertySendServer.accept());
+					}
 				} catch (java.net.BindException be) {
 					System.exit(0);
 				} catch (IOException e) {
@@ -150,7 +152,7 @@ public class Server {
 
 			}
 		}).start();
-		
+
 		/**
 		 * This serversocket accepts connections for SENDING FILES TO CLIENT,
 		 * PORT: 58000
@@ -232,6 +234,39 @@ public class Server {
 						}
 
 					}
+				}
+			}).start();
+		}
+	}
+
+	public void sendFile(final File file, final InetAddress specClient) {
+		if (!propertySendClients.isEmpty()) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					byte[] buffer = new byte[BUFFER_SIZE];
+					Socket client = null;
+					for (Socket s : propertySendClients) {
+						if (s.getInetAddress().equals(specClient))
+							client = s;
+					}
+					try {
+						BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
+						FileInputStream in = new FileInputStream(file);
+						int count = 0;
+						while ((count = in.read(buffer)) >= 0) {
+							out.write(buffer, 0, count);
+						}
+						out.close();
+						in.close();
+						propertySendClients.remove(client);
+						client.close();
+					} catch (SocketException se) {
+						propertySendClients.remove(client);
+					} catch (IOException e) {
+						propertySendClients.remove(client);
+					}
+
 				}
 			}).start();
 		}
