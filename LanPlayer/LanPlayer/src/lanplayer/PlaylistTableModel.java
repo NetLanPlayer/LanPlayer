@@ -252,5 +252,4 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 			}
 		}
 	}
-
 }
