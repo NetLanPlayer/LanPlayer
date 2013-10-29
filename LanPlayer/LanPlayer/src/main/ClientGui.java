@@ -32,30 +32,24 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
-
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
-
 import javax.swing.JProgressBar;
 
 public class ClientGui extends JFrame {
@@ -364,7 +358,7 @@ public class ClientGui extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 		clientTable = new JTable();
-		clientTableModel = new ClientTableModel(this, this.lanData, playlistColumnNames);
+		clientTableModel = new ClientTableModel(this.lanData, playlistColumnNames);
 		clientTable.setModel(clientTableModel);
 		clientTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 

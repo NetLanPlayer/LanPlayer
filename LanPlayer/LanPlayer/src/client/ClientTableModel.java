@@ -9,7 +9,6 @@ import javax.swing.table.AbstractTableModel;
 import lanplayer.ITableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
-import main.ClientGui;
 
 public class ClientTableModel extends AbstractTableModel implements ITableModel, Observer {
 
@@ -20,14 +19,12 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 		return playList;
 	}
 	
-	private ClientGui clientGui;
 	private LanData lanData;
 	private String[] columnNames;
 	
 	private int rowCount = 0;
 	
-	public ClientTableModel(ClientGui clientGui, LanData lanData, String[] columnNames) {
-		this.clientGui = clientGui;
+	public ClientTableModel(LanData lanData, String[] columnNames) {
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		//this.lanData.addObserver(this);

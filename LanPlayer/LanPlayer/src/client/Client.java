@@ -30,7 +30,7 @@ public class Client {
 
 	public Client(String serverAddress, ClientGui callee) throws UnknownHostException, IOException {
 
-		this.clientHandler = new ClientHandler(this);
+		this.clientHandler = new ClientHandler();
 		this.clientGui = callee;
 		this.serverAddress = serverAddress;
 		//pool = Executors.newCachedThreadPool();
