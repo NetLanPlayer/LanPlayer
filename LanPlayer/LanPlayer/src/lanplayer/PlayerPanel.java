@@ -2,6 +2,7 @@ package lanplayer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -14,14 +15,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import de.quippy.javamod.io.GaplessSoundOutputStreamImpl;
 import de.quippy.javamod.io.SoundOutputStream;
 import de.quippy.javamod.main.gui.PlayThread;
@@ -43,7 +50,9 @@ import de.quippy.javamod.multimedia.MultimediaContainerManager;
 import de.quippy.javamod.multimedia.mod.ModContainer;
 import de.quippy.javamod.system.Helpers;
 import de.quippy.javamod.system.Log;
+
 import javax.swing.JSlider;
+
 import main.ServerGui;
 
 public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThreadEventListener, MultimediaContainerEventListener {
@@ -115,6 +124,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private boolean shuffle = false;
 	
 	public void doShuffle(boolean shuffle) {
+		randomPlayed.clear();
 		this.shuffle = shuffle;
 	}
 
@@ -855,16 +865,29 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		}
 	}
 	
+	
+	private int getRandomIndex() {
+		ArrayList<Integer> availableIndex = new ArrayList<Integer>();
+		if(randomPlayed.size() >= currentPlayList.size()) {
+			randomPlayed.clear();
+		}
+		
+		for(int i = 0; i < currentPlayList.size(); i++) {
+			if(!randomPlayed.contains(currentPlayList.getEntry(i).getFile())) {
+				availableIndex.add(i);
+			}
+		}
+
+		Random random = new Random();
+		int randomIndex = random.nextInt(availableIndex.size());
+		randomPlayed.add(currentPlayList.getEntry(availableIndex.get(randomIndex)).getFile());
+		return availableIndex.get(randomIndex);
+	}
+	
 	public boolean doNextPlayListEntry() {		
 		boolean ok = false;
 		if(shuffle) {
-			Random random = new Random();
-			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
-			int newCurrent = random.nextInt(currentPlayList.size());
-			while(index == newCurrent) {
-				newCurrent = random.nextInt(currentPlayList.size());
-			}
-			currentPlayList.setCurrentElement(newCurrent);
+			currentPlayList.setCurrentElement(getRandomIndex());
 		}
 		while (currentPlayList != null && currentPlayList.hasNext() && !ok) {
 			//currentPlayList.next();
@@ -887,13 +910,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private boolean doPrevPlayListEntry() {
 		boolean ok = false;
 		if(shuffle) {
-			Random random = new Random();
-			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
-			int newCurrent = random.nextInt(currentPlayList.size());
-			while(index == newCurrent) {
-				newCurrent = random.nextInt(currentPlayList.size());
-			}
-			currentPlayList.setCurrentElement(newCurrent);
+			currentPlayList.setCurrentElement(getRandomIndex());
 		}
 		while (currentPlayList != null && currentPlayList.hasPrevious() && !ok) {
 			//currentPlayList.previous();

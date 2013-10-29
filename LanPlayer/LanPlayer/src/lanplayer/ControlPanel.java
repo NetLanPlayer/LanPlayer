@@ -43,7 +43,6 @@ public class ControlPanel extends JPanel {
 
 	private JComboBox<Integer> ratingBox;
 	private JButton btnRefreshPlaylist;
-	private JLabel lblParticipants;
 
 	public JButton getBtnRefreshPlaylist() {
 		return btnRefreshPlaylist;
@@ -73,10 +72,10 @@ public class ControlPanel extends JPanel {
 		GridBagLayout gbl_plControlPanel = new GridBagLayout();
 		gbl_plControlPanel.columnWidths = new int[] { 60, 0, 30, 0, 50, 30, 0,
 				30, 0, 0, 0 };
-		gbl_plControlPanel.rowHeights = new int[] { 30, 0, 0 };
+		gbl_plControlPanel.rowHeights = new int[] { 30, 0 };
 		gbl_plControlPanel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0,
 				0.0, 1.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_plControlPanel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
+		gbl_plControlPanel.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
 		plControlPanel.setLayout(gbl_plControlPanel);
 
 		skipField = new JTextField();
@@ -99,7 +98,7 @@ public class ControlPanel extends JPanel {
 
 		JLabel filler1 = new JLabel(" ");
 		GridBagConstraints gbc_filler1 = new GridBagConstraints();
-		gbc_filler1.insets = new Insets(5, 5, 5, 5);
+		gbc_filler1.insets = new Insets(5, 5, 0, 5);
 		gbc_filler1.gridx = 2;
 		gbc_filler1.gridy = 0;
 		plControlPanel.add(filler1, gbc_filler1);
@@ -124,7 +123,7 @@ public class ControlPanel extends JPanel {
 
 		JLabel filler2 = new JLabel(" ");
 		GridBagConstraints gbc_filler2 = new GridBagConstraints();
-		gbc_filler2.insets = new Insets(5, 5, 5, 5);
+		gbc_filler2.insets = new Insets(5, 5, 0, 5);
 		gbc_filler2.gridx = 5;
 		gbc_filler2.gridy = 0;
 		plControlPanel.add(filler2, gbc_filler2);
@@ -138,7 +137,7 @@ public class ControlPanel extends JPanel {
 
 		JLabel filler3 = new JLabel(" ");
 		GridBagConstraints gbc_filler3 = new GridBagConstraints();
-		gbc_filler3.insets = new Insets(5, 5, 5, 5);
+		gbc_filler3.insets = new Insets(5, 5, 0, 5);
 		gbc_filler3.gridx = 7;
 		gbc_filler3.gridy = 0;
 		plControlPanel.add(filler3, gbc_filler3);
@@ -154,17 +153,10 @@ public class ControlPanel extends JPanel {
 		btnDeleteTrack = new JButton("Delete Track");
 		btnDeleteTrack.setEnabled(false);
 		GridBagConstraints gbc_btnDeleteTrack = new GridBagConstraints();
-		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 0);
+		gbc_btnDeleteTrack.insets = new Insets(5, 5, 5, 5);
 		gbc_btnDeleteTrack.gridx = 9;
 		gbc_btnDeleteTrack.gridy = 0;
 		plControlPanel.add(btnDeleteTrack, gbc_btnDeleteTrack);
-		
-		lblParticipants = new JLabel("Participants: ");
-		GridBagConstraints gbc_lblParticipants = new GridBagConstraints();
-		gbc_lblParticipants.insets = new Insets(0, 0, 0, 5);
-		gbc_lblParticipants.gridx = 1;
-		gbc_lblParticipants.gridy = 1;
-		plControlPanel.add(lblParticipants, gbc_lblParticipants);
 	}
 
 	private void fillRatingBox() {
