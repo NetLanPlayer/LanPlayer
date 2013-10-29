@@ -177,10 +177,9 @@ public class LanData extends Observable {
 		String tracknoStr = getValue(TRACKNO_TAG, formValue);
 		String durationStr = getValue(DURATION_TAG, formValue);
 		
-		int played = 0; int rating = 0;
+		int played = 0;
 		try {
 			played = Integer.parseInt(playedStr);
-			rating = Integer.parseInt(ratingStr);
 		}
 		catch(Exception e) {
 			return null;
@@ -189,7 +188,7 @@ public class LanData extends Observable {
 		File musicFile = new File(file);
 		MusicData musicData = null;
 		try {
-			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, rating, skipStr, date, ip, this.participants);
+			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, ratingStr, skipStr, date, ip, this.participants);
 		} catch (Exception e) {
 			return null;
 		}
@@ -209,7 +208,7 @@ public class LanData extends Observable {
 	/**
 	 * Sets the skip value for the file at position in property file.
 	 * @param position int position.
-	 * @param skip int to set.
+	 * @param skip String ip.
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean storeSkip(int position, String ip) {
@@ -219,11 +218,11 @@ public class LanData extends Observable {
 	/**
 	 * Sets the rating for the file at position in property file.
 	 * @param position int position.
-	 * @param rating int to set.
+	 * @param ipPlusRating ip and rating to set ('=' separated).
 	 * @return True if successful, false otherwise.
 	 */
-	public boolean storeRating(int position, int rating) {
-		return storeValue(RATING_TAG, position,"" + rating, true);
+	public boolean storeRating(int position, String ipPlusRating) {
+		return storeValue(RATING_TAG, position, setValue(LanData.IP_TAG, ipPlusRating), false);
 	}
 	
 	private boolean storeValue(String tag, int position, String value, boolean overwrite) {
@@ -244,7 +243,23 @@ public class LanData extends Observable {
 		
 		if(!overwrite) {
 			String prevValue = formValue.substring(indexBegin + tagBegin.length(), indexEnd) ;
-			value = prevValue + value;
+			if(value.contains("=")) {
+				String valIp = value.substring(4, value.lastIndexOf("="));
+				if(prevValue.contains(valIp)) {
+					int indexStart = prevValue.indexOf(valIp);
+					String tail = prevValue.substring(indexStart, prevValue.length());
+					String prevIpPlusRaiting = tail.substring(0, tail.indexOf("[/ip]"));
+					prevValue = prevValue.replaceAll(prevIpPlusRaiting, getValue(IP_TAG, value));
+					value = prevValue;
+				}
+				else {
+					value = prevValue + value;
+				}
+			}
+			else {
+				value = prevValue + value;
+			}
+			
 			data.setProperty(setValue(POS_TAG, "" + position), pre + tagBegin + value + tagEnd + post);
 		}
 		else {
@@ -284,11 +299,11 @@ public class LanData extends Observable {
 			
 		MusicData temp = new MusicData();
 		try {
-			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, 0, null, new Date(), ip, this.participants);
+			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, null, null, new Date(), ip, this.participants);
 		} catch (MalformedURLException | UnsupportedAudioFileException e1) {
 		}
 		
-		String value = formBasicValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum().getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, 0, "", ip);
+		String value = formBasicValueString(path, temp.getTitle(), temp.getArtist(), temp.getAlbum().getAlbum(), temp.getTrackNumber().getTrack() + "", temp.getDuraction() , 0, "", "", ip);
 		data.setProperty(setValue(POS_TAG, "" + lastPosition), value);
 		try {
 			storeData();
@@ -307,7 +322,7 @@ public class LanData extends Observable {
 		return true;
 	}
 		
-	private String formBasicValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, int rating, String skip, String ip) {
+	private String formBasicValueString(String filePath, String title, String artist, String album, String trackno, String duration, int played, String rating, String skip, String ip) {
 		StringBuilder form = new StringBuilder();
 		String modPath = filePath.replaceAll("\\\\", "/");
 		form.append(setValue(FILE_TAG, modPath));
@@ -319,7 +334,7 @@ public class LanData extends Observable {
 		form.append(setValue(DURATION_TAG, duration));
 		form.append(setValue(IP_TAG, ip)); // must be before rating and skip!
 		form.append(setValue(PLAYED_TAG, "" + played));
-		form.append(setValue(RATING_TAG, "" + rating));
+		form.append(setValue(RATING_TAG, rating));
 		form.append(setValue(SKIP_TAG, skip));
 		form.append(setValue(DATE_TAG, new SimpleDate(new Date()).toString()));
 		

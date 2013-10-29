@@ -44,6 +44,20 @@ public class ServerHandler extends Observable  {
 			setChanged();
 			notifyObservers(new SkipMessage(position, ip));
 		}
+		else if(message.startsWith(ClientHandler.MSG_REQ_RATING)) {
+			String posStr = LanData.getValue(LanData.POS_TAG, message);
+			String ipPlusRating = LanData.getValue(LanData.IP_TAG, message);
+			Integer position = null;
+			try {
+				position = Integer.parseInt(posStr);
+			}
+			catch(NumberFormatException nfe) {
+			}
+			
+			if(position == null || ipPlusRating == null || ipPlusRating.isEmpty()) return;
+			setChanged();
+			notifyObservers(new RatingMessage(position, ipPlusRating));
+		}
 	}
 
 			

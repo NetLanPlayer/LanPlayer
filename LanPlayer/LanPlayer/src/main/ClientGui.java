@@ -388,6 +388,14 @@ public class ClientGui extends JFrame {
 					} else {
 						btnSkip.setEnabled(true);
 					}
+					
+					Integer hasRated = md.getRating().hasRated(MY_IP);
+					if(hasRated != null) {
+						ratingBox.setSelectedIndex(hasRated - 1);
+					}
+					else {
+						ratingBox.setSelectedIndex(0);
+					}
 
 				}
 
@@ -467,8 +475,12 @@ public class ClientGui extends JFrame {
 		btnRate = new JButton("Rate Track");
 		btnRate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO implement rating
-				// client.sendMessage(message);
+				int viewRowIndex = clientTable.getSelectedRow();
+				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+				Integer rated = (Integer) ratingBox.getSelectedItem();
+				String message = ClientHandler.MSG_REQ_RATING + "=" + LanData.setValue(LanData.POS_TAG, "" + md.getPosition()) + LanData.setValue(LanData.IP_TAG, MY_IP + "=" + rated);
+				client.sendMessage(message);
 			}
 		});
 		btnRate.setEnabled(false);
