@@ -1,13 +1,18 @@
 package lanplayer;
 
 import javax.swing.JPanel;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,9 +24,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+
 import main.ServerGui;
 import server.Server;
 
@@ -57,7 +64,16 @@ public class PlaylistPanel extends JPanel {
 	private LanData lanData = null;
 	
 	public ArrayList<MusicData> getPlaylist() {
-		return playlistTableModel.getPlayList();
+		
+		ArrayList<MusicData> tempList = new ArrayList<MusicData>();
+		
+		for(int i = 0; i < playlistTable.getRowCount(); i++) {
+			MusicData md = (MusicData) playlistTable.getValueAt(i, 0);
+			tempList.add(md);
+		}
+		//System.out.println("Temp List: " + tempList.toString());
+		return tempList;
+		//return playlistTableModel.getPlayList();
 	}
 	
 	public LanData getLanData() {
@@ -142,8 +158,8 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e){
 				if (e.getClickCount() == 2) {
-					int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
-					playerPanel.userSelectedPlaylistEntry(modelIndex);
+					//int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
+					playerPanel.userSelectedPlaylistEntry(playlistTable.getSelectedRow());
 		        }
 		    }
 		});
@@ -194,14 +210,14 @@ public class PlaylistPanel extends JPanel {
 		playlistTable.setRowSorter(playlistSorter);
 		playlistSorter.toggleSortOrder(0);
 		playlistSorter.setSortsOnUpdates(true);
-//		playlistSorter.addRowSorterListener(new RowSorterListener() {
-//
-//			@Override
-//			public void sorterChanged(RowSorterEvent arg0) {
-//				playerPanel.reloadPlaylist();				
-//			}
-//			
-//		});
+		playlistSorter.addRowSorterListener(new RowSorterListener() {
+
+			@Override
+			public void sorterChanged(RowSorterEvent arg0) {
+				playerPanel.reloadPlaylist();				
+			}
+			
+		});
 		
 		controlPanel.getSkipField().setText(this.lanData.getParticipants() + "");
 		controlPanel.getSkipField().addKeyListener(new KeyAdapter() {

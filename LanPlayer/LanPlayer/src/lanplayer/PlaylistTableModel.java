@@ -23,13 +23,6 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 	
 	private ArrayList<MusicData> playList = new ArrayList<MusicData>();
 	public ArrayList<MusicData> getPlayList() {
-//		ArrayList<MusicData> temp = new ArrayList<MusicData>();
-//		for(MusicData md : playList) {
-//			if(!md.getSkip().isSkip()) {
-//				temp.add(md);
-//			}
-//		}
-//		return temp;
 		return playList;
 	}
 	
@@ -209,6 +202,10 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				PlayerPanel player = this.playlistPanel.getPlayerPanel();
 				if(player != null) {
 					player.reloadPlaylist();
+					MusicData md = playlistPanel.getLanData().getMusicData( playlistPanel.getLanData().getCurrentlyPlayed());
+					if(md.getSkip().isSkip()) {
+						player.doNextPlayListEntry();
+					}
 				}
 				
 				server.sendFile(lanData.getFile());
@@ -230,6 +227,10 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				PlayerPanel player = this.playlistPanel.getPlayerPanel();
 				if(player != null) {
 					player.reloadPlaylist();
+					MusicData md = playlistPanel.getLanData().getMusicData(sm.getPosition());
+					if(md.getSkip().isSkip()) {
+						player.doNextPlayListEntry();
+					}
 				}
 				
 				server.sendFile(lanData.getFile());

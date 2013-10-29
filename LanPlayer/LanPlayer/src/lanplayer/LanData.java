@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
@@ -50,7 +51,7 @@ public class LanData extends Observable {
 	}
 
 	private File musicDirectory = null;
-	private HashSet<String> loadedFiles = new HashSet<String>();
+	private HashMap<String, Integer> loadedFiles = new HashMap<String, Integer>();
 	private Properties data = null;
 	
 	
@@ -133,7 +134,7 @@ public class LanData extends Observable {
 			if(formValue != null && !formValue.isEmpty()) {
 				String file = getValue(FILE_TAG, formValue);
 				if(file != null && !file.isEmpty()) {
-					loadedFiles.add(file);
+					loadedFiles.put(file, i);
 				}
 			}			
 		}
@@ -194,7 +195,7 @@ public class LanData extends Observable {
 		}
 		return musicData;
 	}
-	
+		
 	/**
 	 * Sets the played number for the file at position in property file.
 	 * @param position int position.
@@ -632,7 +633,7 @@ public class LanData extends Observable {
 			} catch(IOException e) {
 				continue;
 			}
-			if(!loadedFiles.contains(path)) {
+			if(!loadedFiles.keySet().contains(path)) {
 				addNewFile(f, "Polling", false);
 //				notify = true;
 			}

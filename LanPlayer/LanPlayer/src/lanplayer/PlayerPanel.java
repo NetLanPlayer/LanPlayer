@@ -2,6 +2,7 @@ package lanplayer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -13,14 +14,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import de.quippy.javamod.io.GaplessSoundOutputStreamImpl;
 import de.quippy.javamod.io.SoundOutputStream;
 import de.quippy.javamod.main.gui.PlayThread;
@@ -42,7 +47,9 @@ import de.quippy.javamod.multimedia.MultimediaContainerManager;
 import de.quippy.javamod.multimedia.mod.ModContainer;
 import de.quippy.javamod.system.Helpers;
 import de.quippy.javamod.system.Log;
+
 import javax.swing.JSlider;
+
 import main.ServerGui;
 
 public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThreadEventListener, MultimediaContainerEventListener {
@@ -50,6 +57,8 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private static final long serialVersionUID = 6111166830606231317L;
 
 	private PlaylistPanel playlistPanel;
+	
+	private HashSet<URL> randomPlayed = new HashSet<URL>(); 
 	
 	public static final String BUTTONPLAY_INACTIVE = "/de/quippy/javamod/main/gui/ressources/play.gif";
 	public static final String BUTTONPLAY_ACTIVE = "/de/quippy/javamod/main/gui/ressources/play_aktiv.gif";
@@ -844,21 +853,36 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	private void cascadeOtherEntryPlaying() {
 		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();	
 		if(currentPlayIndex >= 0 && currentPlayIndex < playlistPanel.getPlaylist().size()) {
-			MusicData musicData = playlistPanel.getPlaylist().get(currentPlayIndex);
+			//System.out.println("Curr Index: " + currentPlayIndex);
+			MusicData musicData = (MusicData) playlistPanel.getPlaylistTable().getValueAt(currentPlayIndex, 0);
+			//MusicData musicData = playlistPanel.getPlaylist().get(currentPlayIndex);
 			int position = musicData.getPosition();
 			playlistPanel.getLanData().setAndStoreCurPlayed(position);
 		}
 	}
 	
-	private boolean doNextPlayListEntry() {		
+	public boolean doNextPlayListEntry() {		
 		boolean ok = false;
 		if(shuffle) {
 			Random random = new Random();
+			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
 			int newCurrent = random.nextInt(currentPlayList.size());
+			while(index == newCurrent) {
+				newCurrent = random.nextInt(currentPlayList.size());
+			}
 			currentPlayList.setCurrentElement(newCurrent);
 		}
 		while (currentPlayList != null && currentPlayList.hasNext() && !ok) {
-			currentPlayList.next();
+			//currentPlayList.next();
+			boolean skip = true;
+			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+			while(skip) {
+				index = (index + 1) % currentPlayList.size();
+				MusicData md = (MusicData) playlistPanel.getPlaylistTable().getValueAt(index, 0);
+				skip = md.getSkip().isSkip();
+			}
+			currentPlayList.setCurrentElement(index);
+			//System.out.println("Next Index: " + index);
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
 		cascadeOtherEntryPlaying();
@@ -870,11 +894,22 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 		boolean ok = false;
 		if(shuffle) {
 			Random random = new Random();
+			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
 			int newCurrent = random.nextInt(currentPlayList.size());
+			while(index == newCurrent) {
+				newCurrent = random.nextInt(currentPlayList.size());
+			}
 			currentPlayList.setCurrentElement(newCurrent);
 		}
 		while (currentPlayList != null && currentPlayList.hasPrevious() && !ok) {
-			currentPlayList.previous();
+			//currentPlayList.previous();
+			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+			index = (index - 1);
+			if(index < 0) {
+				index = currentPlayList.size() - 1;
+			}
+			currentPlayList.setCurrentElement(index);
+			//System.out.println("Next Index: " + index);
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
 		cascadeOtherEntryPlaying();
@@ -1045,6 +1080,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 				//doStopPlaying();
 				
 				int position = playlistPanel.getLanData().getCurrentlyPlayed();
+				int viewIndex = playlistPanel.getPlaylistTable().convertRowIndexToView(position - 1);
 				
 //				int currentElement = 0;
 //				if(currentPlayList != null) {
@@ -1055,7 +1091,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 //				}
 	
 				currentPlayList = dropResult;			
-				currentPlayList.setCurrentElement(position - 1);
+				currentPlayList.setCurrentElement(viewIndex);
 				
 //				System.out.println("\n");
 //				
