@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -81,7 +82,7 @@ public class Server {
 									client.close();
 									serverHandler.handleClientFile(file, client.getInetAddress().getHostAddress());
 								} catch (IOException e) {
-									e.printStackTrace();
+									checkConnection();
 								}
 							}
 						}).start();
@@ -91,7 +92,7 @@ public class Server {
 					System.out.println("Application is already running. Address already in use: JVM_Bind");
 					System.exit(0);
 				} catch (IOException e) {
-					e.printStackTrace();
+					checkConnection();
 				}
 			}
 		}).start();
@@ -118,15 +119,16 @@ public class Server {
 									while (in.read(buffer) != -1) {
 										message = new String(buffer);
 									}
-									serverHandler.handleClientMessage(message, client.getInetAddress());
+									serverHandler.handleClientMessage(message, client);
 									client.close();
 								} catch (IOException e) {
+									checkConnection();
 								}
 							}
 						}).start();
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					checkConnection();
 				}
 			}
 		}).start();
@@ -147,7 +149,7 @@ public class Server {
 				} catch (java.net.BindException be) {
 					System.exit(0);
 				} catch (IOException e) {
-					e.printStackTrace();
+					checkConnection();
 				}
 
 			}
@@ -167,6 +169,7 @@ public class Server {
 						propertySendClients.add(propertySendServer.accept());
 					}
 				} catch (IOException e) {
+					checkConnection();
 				}
 
 			}
@@ -194,10 +197,10 @@ public class Server {
 							}
 							out.write(buffer);
 							out.flush();
-							communicationClients.remove(client);
 							client.close();
+							checkConnection();
 						} catch (IOException e) {
-							communicationClients.remove(client);
+							checkConnection();
 						}
 
 					}
@@ -225,12 +228,12 @@ public class Server {
 							}
 							out.close();
 							in.close();
-							propertySendClients.remove(client);
 							client.close();
+							checkConnection();
 						} catch (SocketException se) {
-							propertySendClients.remove(client);
+							checkConnection();
 						} catch (IOException e) {
-							propertySendClients.remove(client);
+							checkConnection();
 						}
 
 					}
@@ -259,33 +262,48 @@ public class Server {
 						}
 						out.close();
 						in.close();
-						propertySendClients.remove(client);
 						client.close();
+						checkConnection();
 					} catch (SocketException se) {
-						propertySendClients.remove(client);
+						checkConnection();
 					} catch (IOException e) {
-						propertySendClients.remove(client);
+						checkConnection();
 					}
 
 				}
 			}).start();
 		}
 	}
-
-	public void closeServer() {
-		// TODO shutdown anything
-		for (Socket s : communicationClients) {
-			try {
-				s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+		
+	public synchronized void checkConnection() {
+		ArrayList<Socket> temp = new ArrayList<Socket>(propertySendClients);
+		for(Socket s : temp) {
+			if(s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
+				propertySendClients.remove(s);
 			}
 		}
-		try {
-			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
+		temp = new ArrayList<Socket>(communicationClients);
+		for(Socket s : temp) {
+			if(s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
+				communicationClients.remove(s);
+			}
 		}
-		pool.shutdown();
-
 	}
+
+//	public void closeServer() {
+//		// TODO shutdown anything
+//		for (Socket s : communicationClients) {
+//			try {
+//				s.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		try {
+//			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+//		} catch (InterruptedException e) {
+//		}
+//		pool.shutdown();
+//
+//	}
 }

@@ -227,7 +227,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				PlayerPanel player = this.playlistPanel.getPlayerPanel();
 				if(player != null) {
 					player.reloadPlaylist();
-					MusicData md = playlistPanel.getLanData().getMusicData(sm.getPosition());
+					MusicData md = playlistPanel.getLanData().getMusicData(this.lanData.getCurrentlyPlayed());
 					if(md.getSkip().isSkip()) {
 						player.doNextPlayListEntry();
 					}

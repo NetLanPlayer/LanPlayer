@@ -19,7 +19,6 @@ public class Client {
 
 	//private final ExecutorService pool;
 	private final String serverAddress;
-	private Socket server;
 	private static final int BUFFER_SIZE = 4096;
 	private ClientHandler clientHandler;
 	private ClientGui clientGui;
@@ -265,23 +264,5 @@ public class Client {
 		}
 		return ret.toString();
 	}
-
 	
-
-	/**
-	 * Proper close of ClientApplication. Shutdown threadpool and close socket.
-	 * 
-	 * @return void
-	 */
-	public void closeClient() {
-		try {
-			server.close();
-		} catch (IOException e) {
-		}
-//		try {
-//			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
-//		} catch (InterruptedException e) {
-//		}
-//		pool.shutdown();
-	}
 }

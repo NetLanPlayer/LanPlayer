@@ -310,7 +310,8 @@ public class PlaylistPanel extends JPanel {
 	public void setDeleteBtnState() {
 		try {
 			int modelIndex = playlistTable.convertRowIndexToModel(playlistTable.getSelectedRow());
-			if(modelIndex != lanData.getCurrentlyPlayed() - 1 && modelIndex != 0) {
+			MusicData md = (MusicData) playlistTable.getModel().getValueAt(modelIndex, 0);
+			if(modelIndex != lanData.getCurrentlyPlayed() - 1 && !md.getArtist().equals("LAN PLAYER")) {
 	        	controlPanel.getBtnDeleteTrack().setEnabled(true);
 	        }
 	        else {

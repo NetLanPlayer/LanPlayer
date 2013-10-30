@@ -1,7 +1,9 @@
 package server;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Observable;
 
 import lanplayer.LanData;
@@ -21,13 +23,14 @@ public class ServerHandler extends Observable  {
 		notifyObservers(new ReceivedFile(file, clientAddress));
 	}
 
-	public void handleClientMessage(String message, InetAddress clientAddress) {
+	public void handleClientMessage(String message, Socket client) {
 		message = message.trim();
 		if(message == null || message.isEmpty()) return;
 		System.out.println("Server: Received message: " + message);
 		
 		if(message.startsWith(ClientHandler.MSG_REQ_PROPERTY)) {
-			server.sendFile(ServerGui.LAN_DATA_FILE, clientAddress);
+			if(client == null) return;
+			server.sendFile(ServerGui.LAN_DATA_FILE, client.getInetAddress());
 		}
 		else if(message.startsWith(ClientHandler.MSG_REQ_SKIP)) {
 			String posStr = LanData.getValue(LanData.POS_TAG, message);
@@ -59,6 +62,5 @@ public class ServerHandler extends Observable  {
 			notifyObservers(new RatingMessage(position, ipPlusRating));
 		}
 	}
-
-			
+				
 }

@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.SwingConstants;
 
 public class ControlPanel extends JPanel {
 
@@ -42,6 +43,10 @@ public class ControlPanel extends JPanel {
 	}
 
 	private JComboBox<Integer> ratingBox;
+	public JComboBox<Integer> getRatingBox() {
+		return ratingBox;
+	}
+
 	private JButton btnRefreshPlaylist;
 
 	public JButton getBtnRefreshPlaylist() {
@@ -70,7 +75,7 @@ public class ControlPanel extends JPanel {
 		gbc_plControlPanel.gridy = 0;
 		add(plControlPanel, gbc_plControlPanel);
 		GridBagLayout gbl_plControlPanel = new GridBagLayout();
-		gbl_plControlPanel.columnWidths = new int[] { 60, 0, 30, 0, 50, 30, 0,
+		gbl_plControlPanel.columnWidths = new int[] { 50, 0, 30, 0, 60, 30, 0,
 				30, 0, 0, 0 };
 		gbl_plControlPanel.rowHeights = new int[] { 30, 0 };
 		gbl_plControlPanel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0,
@@ -79,9 +84,10 @@ public class ControlPanel extends JPanel {
 		plControlPanel.setLayout(gbl_plControlPanel);
 
 		skipField = new JTextField();
+		skipField.setHorizontalAlignment(SwingConstants.CENTER);
 		GridBagConstraints gbc_skipField = new GridBagConstraints();
-		gbc_skipField.insets = new Insets(5, 5, 5, 5);
 		gbc_skipField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_skipField.insets = new Insets(5, 5, 5, 5);
 		gbc_skipField.gridx = 0;
 		gbc_skipField.gridy = 0;
 		plControlPanel.add(skipField, gbc_skipField);

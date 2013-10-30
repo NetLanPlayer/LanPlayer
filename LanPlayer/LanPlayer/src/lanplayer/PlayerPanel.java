@@ -855,6 +855,9 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	}
 
 	private void cascadeOtherEntryPlaying() {
+		if(currentPlayList.getCurrentEntry() == null) {
+			return;
+		}
 		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();	
 		if(currentPlayIndex >= 0 && currentPlayIndex < playlistPanel.getPlaylist().size()) {
 			//System.out.println("Curr Index: " + currentPlayIndex);
@@ -893,10 +896,15 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 			//currentPlayList.next();
 			boolean skip = true;
 			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
-			while(skip) {
+			int count = 0;
+			while(skip && count < currentPlayList.size()) {
 				index = (index + 1) % currentPlayList.size();
 				MusicData md = (MusicData) playlistPanel.getPlaylistTable().getValueAt(index, 0);
 				skip = md.getSkip().isSkip();
+				count++;
+			}
+			if(count >= currentPlayList.size()) {
+				index = 0;
 			}
 			currentPlayList.setCurrentElement(index);
 			//System.out.println("Next Index: " + index);
