@@ -8,19 +8,21 @@ public class Rating implements Comparable<Rating> {
 	private HashMap<String, Integer> ratingMap = new HashMap<String, Integer>();
 	private int rating = 0;
 	
+	private int ratedAbove = 0;
+	
 	public int getRating() {
 		return rating;
 	}
 	
-	public boolean isRatedAbove(int rating) {
-		return this.rating >= rating;
+	public boolean isRatedAbove() {
+		return this.rating >= ratedAbove;
 	}
 	
 	public Integer hasRated(String ip) {
 		return ratingMap.get(ip);
 	}
 	
-	public Rating(HashMap<String, Integer> ratingMap) {
+	public Rating(HashMap<String, Integer> ratingMap, int ratedAbove) {
 		this.ratingMap = ratingMap;
 		int noRated = ratingMap.keySet().size();
 		if(noRated == 0) {
@@ -37,7 +39,8 @@ public class Rating implements Comparable<Rating> {
 			rating = sum / noRated;
 			if(rating > 5) rating = 5;
 		}
-
+		
+		this.ratedAbove = ratedAbove;
 	}
 	
 	public String toString() {

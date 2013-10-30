@@ -35,7 +35,7 @@ public class PlaylistTableCellRenderer extends DefaultTableCellRenderer implemen
 	            label.setHorizontalAlignment(SwingConstants.LEADING);
 	            label.setText(" " + (String) value);
 	        }
-	        else if(value instanceof Number || value instanceof TrackNumber || value instanceof Rating) {
+	        else if(value instanceof Number || value instanceof TrackNumber) {
 	            int countDigits = value.toString().length();
 	            label.setHorizontalAlignment(SwingConstants.TRAILING);
 	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
@@ -53,6 +53,19 @@ public class PlaylistTableCellRenderer extends DefaultTableCellRenderer implemen
 	            label.setHorizontalAlignment(SwingConstants.TRAILING);
 	            label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
 	            label.setText(value.toString() + " ");
+	        }
+	        else if(value instanceof Rating) {
+	        	Rating r = (Rating) value;
+	        	if(!r.isRatedAbove()) {
+	        		label.setForeground(Color.RED);
+	        	}
+	        	else {
+	        		label.setForeground(Color.BLACK);
+	        	}
+	        	 int countDigits = value.toString().length();
+		         label.setHorizontalAlignment(SwingConstants.TRAILING);
+		         label.setIconTextGap(table.getColumnModel().getColumn(0).getWidth() - (countDigits * 5) - 19);
+		         label.setText(value.toString() + " ");
 	        }
 	        else if(value instanceof SimpleDate) {
 	        	 label.setToolTipText(value.toString());

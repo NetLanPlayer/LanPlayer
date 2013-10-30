@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
+
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+
 import lanplayer.ITableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
+import main.ClientGui;
 
 public class ClientTableModel extends AbstractTableModel implements ITableModel, Observer {
 
@@ -21,10 +25,12 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 	
 	private LanData lanData;
 	private String[] columnNames;
+	private ClientGui clientGui;
 	
 	private int rowCount = 0;
 	
-	public ClientTableModel(LanData lanData, String[] columnNames) {
+	public ClientTableModel(ClientGui callee, LanData lanData, String[] columnNames) {
+		this.clientGui = callee;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		//this.lanData.addObserver(this);
@@ -139,37 +145,19 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 	@Override
 	public void update(Observable observable, Object obj) {
 		if(obj instanceof Properties) {
-			reloadList();
 			try {
-				//clientGui.removeRowSorter();
+//				clientGui.getClientTable().clearSelection();
+//				rowCount = 0;
+//				fireTableDataChanged();
+				reloadList();
 				fireTableDataChanged();
-				//clientGui.addRowSorter();
 			}
 			catch(Exception e) {
-				// piss off
+				//zomg
+				fireTableDataChanged();
 			}
 			System.out.println("Client: Refreshing Table Playlist");
 		}
-		
-//		if(obj.equals(LanData.FILE_TAG)) {			
-//			reloadList();
-//			fireTableDataChanged();
-////			clientGui.restoreSelection();
-////			PlayerPanel player = this.clientGui.getPlayerPanel();
-////			if(player != null) {
-////				player.reloadPlaylist();
-////			}
-//			
-//		}
-//		else if(obj.equals(LanData.CURRENTLY_PLAYED_TAG) || obj.equals(LanData.PLAYED_TAG)) {
-//			reloadList();
-//			fireTableDataChanged();
-////			clientGui.restoreSelection();
-////			clientGui.setDeleteBtnState();
-//		}
-//		else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
-//			
-//		}
 	}
 
 }

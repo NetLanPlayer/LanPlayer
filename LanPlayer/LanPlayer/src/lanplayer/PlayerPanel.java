@@ -869,18 +869,31 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	}
 	
 	
-	private int getRandomIndex() {
+	private ArrayList<Integer> getAvailableTracks() {
 		ArrayList<Integer> availableIndex = new ArrayList<Integer>();
-		if(randomPlayed.size() >= currentPlayList.size()) {
-			randomPlayed.clear();
-		}
-		
 		for(int i = 0; i < currentPlayList.size(); i++) {
-			if(!randomPlayed.contains(currentPlayList.getEntry(i).getFile())) {
+			MusicData md = (MusicData) playlistPanel.getPlaylistTable().getValueAt(i, 0);
+			boolean skip = md.getSkip().isSkip();
+			boolean ratedAbove = md.getRating().isRatedAbove();
+			if(!randomPlayed.contains(currentPlayList.getEntry(i).getFile()) && (!skip && ratedAbove)) {
 				availableIndex.add(i);
 			}
 		}
-
+		return availableIndex;
+	}
+	
+	private int getRandomIndex() {
+		ArrayList<Integer> availableIndex = getAvailableTracks();
+		//System.out.println("randomPlayed: " + randomPlayed.size() + " - available: " + availableIndex.size());
+		if(availableIndex.isEmpty()) {
+			System.out.println("cleared");
+			randomPlayed.clear();
+			availableIndex = getAvailableTracks();
+		}
+		if(availableIndex.isEmpty()) {
+			availableIndex.add(0);
+		}
+		
 		Random random = new Random();
 		int randomIndex = random.nextInt(availableIndex.size());
 		randomPlayed.add(currentPlayList.getEntry(availableIndex.get(randomIndex)).getFile());
@@ -889,27 +902,32 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	
 	public boolean doNextPlayListEntry() {		
 		boolean ok = false;
-		if(shuffle) {
-			currentPlayList.setCurrentElement(getRandomIndex());
-		}
 		while (currentPlayList != null && currentPlayList.hasNext() && !ok) {
-			//currentPlayList.next();
-			boolean skip = true;
-			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
-			int count = 0;
-			while(skip && count < currentPlayList.size()) {
-				index = (index + 1) % currentPlayList.size();
-				MusicData md = (MusicData) playlistPanel.getPlaylistTable().getValueAt(index, 0);
-				skip = md.getSkip().isSkip();
-				count++;
+			if(shuffle) {
+				currentPlayList.setCurrentElement(getRandomIndex());
 			}
-			if(count >= currentPlayList.size()) {
-				index = 0;
+			else {
+				//currentPlayList.next();
+				boolean skip = true;
+				boolean ratedAbove = false;
+				int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+				int count = 0;
+				while((skip || !ratedAbove) && count < currentPlayList.size()) {
+					index = (index + 1) % currentPlayList.size();
+					MusicData md = (MusicData) playlistPanel.getPlaylistTable().getValueAt(index, 0);
+					skip = md.getSkip().isSkip();
+					ratedAbove = md.getRating().isRatedAbove();
+					count++;
+				}
+				if(count >= currentPlayList.size()) {
+					index = 0;
+				}
+				currentPlayList.setCurrentElement(index);
+				//System.out.println("Next Index: " + index);
 			}
-			currentPlayList.setCurrentElement(index);
-			//System.out.println("Next Index: " + index);
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
+		
 		cascadeOtherEntryPlaying();
 		
 		return ok;
@@ -917,20 +935,27 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	private boolean doPrevPlayListEntry() {
 		boolean ok = false;
-		if(shuffle) {
-			currentPlayList.setCurrentElement(getRandomIndex());
-		}
+
 		while (currentPlayList != null && currentPlayList.hasPrevious() && !ok) {
 			//currentPlayList.previous();
-			int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
-			index = (index - 1);
-			if(index < 0) {
-				index = currentPlayList.size() - 1;
+			if(shuffle) {
+				Random random = new Random();
+				int randomIndex = random.nextInt(currentPlayList.size());
+				currentPlayList.setCurrentElement(randomIndex);
+				randomPlayed.clear();
 			}
-			currentPlayList.setCurrentElement(index);
-			//System.out.println("Next Index: " + index);
+			else {
+				int index = currentPlayList.getCurrentEntry().getIndexInPlaylist();
+				index = (index - 1);
+				if(index < 0) {
+					index = currentPlayList.size() - 1;
+				}
+				currentPlayList.setCurrentElement(index);
+				//System.out.println("Next Index: " + index);
+			}
 			ok = loadMultimediaFile(currentPlayList.getCurrentEntry(), true);
 		}
+		
 		cascadeOtherEntryPlaying();
 		
 		return ok;

@@ -34,7 +34,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.UnknownHostException;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -44,12 +46,14 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
+
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
+
 import javax.swing.JProgressBar;
 
 public class ClientGui extends JFrame {
@@ -89,6 +93,10 @@ public class ClientGui extends JFrame {
 
 	private JTable clientTable;
 
+	public JTable getClientTable() {
+		return clientTable;
+	}
+
 	private ClientTableModel clientTableModel;
 
 	private JScrollPane scrollPane;
@@ -106,6 +114,15 @@ public class ClientGui extends JFrame {
 	}
 
 	public static void main(String[] args) {
+		
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() { 
+			 public void uncaughtException(Thread thread, final Throwable throwable) {
+				 //System.out.println("Error in thread " + thread + ": " + throwable.getMessage());
+				 //throwable.printStackTrace();
+				 //HAAAHAAAA!!!
+			 }
+		 });
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
@@ -124,7 +141,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public ClientGui() {
-		setTitle("Frame");
+		setTitle("Lan Player Client (1.0)");
 		btnConnect = new JButton("Connect");
 		initLanData();
 		initialize();
@@ -358,7 +375,7 @@ public class ClientGui extends JFrame {
 		gbc_scrollPane.gridy = 0;
 		playlistPanel.add(scrollPane, gbc_scrollPane);
 		clientTable = new JTable();
-		clientTableModel = new ClientTableModel(this.lanData, playlistColumnNames);
+		clientTableModel = new ClientTableModel(this, this.lanData, playlistColumnNames);
 		clientTable.setModel(clientTableModel);
 		clientTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 

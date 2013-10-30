@@ -253,6 +253,19 @@ public class PlaylistPanel extends JPanel {
 			}
 		});
 		
+		controlPanel.getRatingBox().addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				int prevRatedAbove = lanData.getRatedAbove();
+				int newRatedAbove = (int) controlPanel.getRatingBox().getSelectedItem();
+				if(prevRatedAbove != newRatedAbove) {
+					lanData.setAndStoreRatedAbove(newRatedAbove);
+				}
+			}
+			
+		});
+		
 		controlPanel.getBtnSetSkip().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

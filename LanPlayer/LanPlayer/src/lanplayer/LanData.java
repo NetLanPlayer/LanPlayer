@@ -24,12 +24,14 @@ public class LanData extends Observable {
 	private int participants = ServerGui.INIT_PARTICIPANTS;
 	private int currentlyPlayed = 1;
 	private int lastPosition = 1;
+	private int ratedAbove = 0;
 	
 //	private final static int SEARCH_TIMER_MS = 5000;
 	
 	public final static String PARTICIPANTS_TAG = "[participants]";
 	public final static String LAST_POSITION_TAG = "[lastPos]";
 	public final static String CURRENTLY_PLAYED_TAG = "[currentlyPlayed]";
+	public final static String RATED_ABOVE_TAG = "[ratedAbove]";
 	public final static String PLACEHOLDER = "%";
 	public final static String POS_TAG = "[pos]" + PLACEHOLDER + "[/pos]";
 	public final static String PLAYED_TAG = "[played]" + PLACEHOLDER + "[/played]";
@@ -118,6 +120,11 @@ public class LanData extends Observable {
 		if(!participants) {
 			data.setProperty(PARTICIPANTS_TAG, "" + this.participants);
 		}
+		
+		boolean ratedAbove = loadRatedAbove();
+		if(!ratedAbove) {
+			data.setProperty(RATED_ABOVE_TAG, "" + this.ratedAbove);
+		}
 	}
 	
 	private void resetLoadedFiles() {
@@ -189,7 +196,7 @@ public class LanData extends Observable {
 		File musicFile = new File(file);
 		MusicData musicData = null;
 		try {
-			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, ratingStr, skipStr, date, ip, this.participants);
+			musicData = new MusicData(position, musicFile, titleStr, artistStr, albumStr, tracknoStr, durationStr, played, ratingStr, skipStr, date, ip, this.participants, this.ratedAbove);
 		} catch (Exception e) {
 			return null;
 		}
@@ -300,7 +307,7 @@ public class LanData extends Observable {
 			
 		MusicData temp = new MusicData();
 		try {
-			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, null, null, new Date(), ip, this.participants);
+			temp = new MusicData(lastPosition, file, null, null, null, null, null, 0, null, null, new Date(), ip, this.participants, this.ratedAbove);
 		} catch (MalformedURLException | UnsupportedAudioFileException e1) {
 		}
 		
@@ -402,6 +409,7 @@ public class LanData extends Observable {
 		loadCurrentlyPlayed();
 		loadLastPosition();
 		loadParticipants();
+		loadRatedAbove();
 	}
 	
 	/**
@@ -504,8 +512,26 @@ public class LanData extends Observable {
 	}
 	
 	/**
+	 * Sets and stores the ratedAbove value in class and property file.
+	 * @param ratedAbove int.
+	 * @return True if successful, false otherwise.
+	 */
+	public boolean setAndStoreRatedAbove(int ratedAbove) {
+		data.setProperty(RATED_ABOVE_TAG, ratedAbove + "");
+		try {
+			storeData();
+		} catch (IOException e) {
+			return false;
+		}
+		this.ratedAbove = ratedAbove;
+		setChanged();
+		notifyObservers(RATED_ABOVE_TAG);
+		return true;
+	}
+	
+	/**
 	 * Sets and stores the participants value in class and property file.
-	 * @param participants int max skip needed.
+	 * @param participants int.
 	 * @return True if successful, false otherwise.
 	 */
 	public boolean setAndStoreParticipants(int participants) {
@@ -522,6 +548,13 @@ public class LanData extends Observable {
 	}
 	
 	/**
+	 * @return Integer ratedAbove
+	 */
+	public Integer getRatedAbove() {
+		return ratedAbove;
+	}
+	
+	/**
 	 * @return Integer number of participants.
 	 */
 	public Integer getParticipants() {
@@ -534,7 +567,7 @@ public class LanData extends Observable {
 	
 	/**
 	 * Loads the number participants needed from properties file into this class.
-	 * @return Integer of the max skip needed. Is null if the loading was not successful.
+	 * @return Integer of participants. Is false if the loading was not successful.
 	 */
 	private boolean loadParticipants() {
 		if(data == null) return false;
@@ -546,6 +579,23 @@ public class LanData extends Observable {
 			return false;
 		}
 		participants = temp;
+		return true;
+	}
+	
+	/**
+	 * Loads ratedAbove needed from properties file into this class.
+	 * @return Integer of the max skip needed. Is null if the loading was not successful.
+	 */
+	private boolean loadRatedAbove() {
+		if(data == null) return false;
+		String ratedAboveStr = data.getProperty(RATED_ABOVE_TAG);
+		int temp = ratedAbove;
+		try {
+			temp = Integer.parseInt(ratedAboveStr);
+		} catch(NumberFormatException nfe) {
+			return false;
+		}
+		ratedAbove = temp;
 		return true;
 	}
 	

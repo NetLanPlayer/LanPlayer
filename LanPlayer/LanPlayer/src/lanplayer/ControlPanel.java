@@ -46,7 +46,7 @@ public class ControlPanel extends JPanel {
 	public JComboBox<Integer> getRatingBox() {
 		return ratingBox;
 	}
-
+	
 	private JButton btnRefreshPlaylist;
 
 	public JButton getBtnRefreshPlaylist() {
@@ -75,7 +75,7 @@ public class ControlPanel extends JPanel {
 		gbc_plControlPanel.gridy = 0;
 		add(plControlPanel, gbc_plControlPanel);
 		GridBagLayout gbl_plControlPanel = new GridBagLayout();
-		gbl_plControlPanel.columnWidths = new int[] { 50, 0, 30, 0, 60, 30, 0,
+		gbl_plControlPanel.columnWidths = new int[] { 50, 0, 30, 0, 50, 30, 0,
 				30, 0, 0, 0 };
 		gbl_plControlPanel.rowHeights = new int[] { 30, 0 };
 		gbl_plControlPanel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0,

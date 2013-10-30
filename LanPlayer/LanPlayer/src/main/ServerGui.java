@@ -24,8 +24,8 @@ public class ServerGui {
 		
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() { 
 			 public void uncaughtException(Thread thread, final Throwable throwable) {
-				 System.out.println("Error in thread " + thread + ": " + throwable.getMessage());
-				 throwable.printStackTrace();
+				 //System.out.println("Error in thread " + thread + ": " + throwable.getMessage());
+				 //throwable.printStackTrace();
 			 }
 		 });
 		

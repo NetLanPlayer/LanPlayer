@@ -104,10 +104,11 @@ public class MusicData implements Comparable<MusicData> {
 	 * @param date
 	 * @param ip
 	 * @param participants
+	 * @param ratedAbove
 	 * @throws MalformedURLException
 	 * @throws UnsupportedAudioFileException
 	 */
-	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, String rating, String skip, Date date, String ip, int participants) throws MalformedURLException, UnsupportedAudioFileException {
+	public MusicData(int position, File musicFile, String title, String artist, String album, String trackno, String duration, int played, String rating, String skip, Date date, String ip, int participants, int ratedAbove) throws MalformedURLException, UnsupportedAudioFileException {
 		this.position = position;
 		this.musicFile = musicFile;
 		this.ip = ip;
@@ -119,7 +120,7 @@ public class MusicData implements Comparable<MusicData> {
 		
 		this.duration = duration;
 		
-		this.rating = new Rating(gatherRatingIp(rating));
+		this.rating = new Rating(gatherRatingIp(rating), ratedAbove);
 
 		this.skip = new Skip(gatherSkipIp(skip), participants);
 		

@@ -142,7 +142,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 		String extension = rawFile.getName().substring(rawFile.getName().lastIndexOf("."), rawFile.getName().length());
 		String rawName = rawFile.getName().substring(0, rawFile.getName().lastIndexOf("."));
 		try {
-			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, null, null, null, null, this.lanData.getParticipants());
+			MusicData md = new MusicData(this.lanData.getLastPosition() + 1, rawFile, null, null, null, null, null, 0, null, null, null, null, this.lanData.getParticipants(),  this.lanData.getRatedAbove());
 			Integer trackno = md.getTrackNumber().getTrack();
 			String number = (trackno == null || trackno == 0) ? "" : "" + trackno;
 			String title = md.getTitle() == null || md.getTitle().isEmpty() ? rawName : md.getTitle();
@@ -189,7 +189,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				playlistPanel.setDeleteBtnState();				
 				server.sendFile(lanData.getFile());
 			}
-			else if(obj.equals(LanData.PARTICIPANTS_TAG)) {
+			else if(obj.equals(LanData.PARTICIPANTS_TAG) || obj.equals(LanData.RATED_ABOVE_TAG)) {
 				try {
 					this.lanData.loadData();
 				} catch (IOException e) {
@@ -203,7 +203,7 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				if(player != null) {
 					player.reloadPlaylist();
 					MusicData md = playlistPanel.getLanData().getMusicData( playlistPanel.getLanData().getCurrentlyPlayed());
-					if(md.getSkip().isSkip()) {
+					if(md.getSkip().isSkip() || !md.getRating().isRatedAbove()) {
 						player.doNextPlayListEntry();
 					}
 				}
