@@ -404,6 +404,7 @@ public class LanData extends Observable {
 		Properties temp = new Properties();
 		try(FileInputStream fis = new FileInputStream(propertyFile)) {
 			temp.load(fis);
+			fis.close();
 		}
 		data = temp;
 		loadCurrentlyPlayed();
@@ -419,6 +420,7 @@ public class LanData extends Observable {
 	public void storeData() throws IOException {
 		try(FileOutputStream out = new FileOutputStream(propertyFile)) {
 			data.store(out, "LAN DATA");
+			out.close();
 		}
 	}
 	

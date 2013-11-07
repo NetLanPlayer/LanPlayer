@@ -23,6 +23,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 import javax.swing.JTable;
@@ -97,6 +102,18 @@ public class PlaylistPanel extends JPanel {
 			} catch (Exception e) {
 			}
 		}
+		
+		if(!ServerGui.LAN_PLAYER_INIT.exists()) {
+			try {
+				Path lanplayerCopy = FileSystems.getDefault().getPath("./", "lanplayer");
+				Path targetPath = FileSystems.getDefault().getPath("./ServerData/", "lanplayer.xm");
+				Files.copy(lanplayerCopy, targetPath, StandardCopyOption.REPLACE_EXISTING);
+			    Files.setAttribute(targetPath, "dos:hidden", true);
+			} catch (IOException e) {
+			}
+
+		}
+		
 		lanData = new LanData(ServerGui.MUSIC_DIR, ServerGui.LAN_DATA_FILE, ServerGui.INIT_PARTICIPANTS, true);
 			
 		if(!lanData.hasEntries()) {
@@ -196,29 +213,6 @@ public class PlaylistPanel extends JPanel {
 //		    }
 //		});
 		
-		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(playlistTable.getModel()) {			
-			public boolean isSortable(int column) {
-				PlaylistTableModel ptm = (PlaylistTableModel) playlistTable.getModel();
-				if(ptm.isColumnSortable()) {
-					return super.isSortable(column);
-				}
-				else {
-					return false;
-				}
-			}
-		};
-		playlistTable.setRowSorter(playlistSorter);
-		playlistSorter.toggleSortOrder(0);
-		playlistSorter.setSortsOnUpdates(true);
-		playlistSorter.addRowSorterListener(new RowSorterListener() {
-
-			@Override
-			public void sorterChanged(RowSorterEvent arg0) {
-				playerPanel.reloadPlaylist();				
-			}
-			
-		});
-		
 		controlPanel.getSkipField().setText(this.lanData.getParticipants() + "");
 		controlPanel.getSkipField().addKeyListener(new KeyAdapter() {
 			@Override
@@ -307,6 +301,30 @@ public class PlaylistPanel extends JPanel {
 				restoreSelection();
 				lanData.refresh();
 			}
+		});
+		
+		TableRowSorter<TableModel> playlistSorter = new TableRowSorter<TableModel>(playlistTable.getModel()) {			
+			public boolean isSortable(int column) {
+				PlaylistTableModel ptm = (PlaylistTableModel) playlistTable.getModel();
+				if(ptm.isColumnSortable()) {
+					return super.isSortable(column);
+				}
+				else {
+					return false;
+				}
+			}
+		};
+
+		playlistTable.setRowSorter(playlistSorter);
+		playlistSorter.toggleSortOrder(0);
+		playlistSorter.setSortsOnUpdates(true);
+		playlistSorter.addRowSorterListener(new RowSorterListener() {
+
+			@Override
+			public void sorterChanged(RowSorterEvent arg0) {
+				playerPanel.reloadPlaylist();	
+			}
+			
 		});
 		
 	}

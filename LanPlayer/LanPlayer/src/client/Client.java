@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import javax.swing.SwingUtilities;
 
 import server.Server;
+import utilities.HideFile;
 import main.ClientGui;
 
 public class Client {
@@ -170,7 +172,13 @@ public class Client {
 					in.close();
 					server.close();
 					
+					try {
+						HideFile.hide(temp);
+					} catch (InterruptedException e) {
+					}
+					
 					temp.delete();
+					temp.deleteOnExit();
 					
 					receiveFile();
 				} catch (ConnectException ce) {
@@ -264,5 +272,5 @@ public class Client {
 		}
 		return ret.toString();
 	}
-	
+		
 }

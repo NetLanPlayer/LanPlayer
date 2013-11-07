@@ -855,7 +855,7 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	}
 
 	private void cascadeOtherEntryPlaying() {
-		if(currentPlayList.getCurrentEntry() == null) {
+		if(currentPlayList == null || currentPlayList.getCurrentEntry() == null) {
 			return;
 		}
 		int currentPlayIndex = currentPlayList.getCurrentEntry().getIndexInPlaylist();	
@@ -980,13 +980,16 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	 * @param mediaPLSFileURL
 	 */
 	private boolean loadMultimediaOrPlayListFile(URL mediaPLSFileURL) {
-		Log.info("");
+		//Log.info("");
 		// addFileToLastLoaded(mediaPLSFileURL);
 		currentPlayList = null;
 		try {
 			currentPlayList = PlayList.createFromFile(mediaPLSFileURL, false, true); // shuffle, repeating
 			if (currentPlayList != null) {
 				// getPlaylistGUI().setNewPlaylist(currentPlayList);
+//				int position = playlistPanel.getLanData().getCurrentlyPlayed();
+//				int viewIndex = playlistPanel.getPlaylistTable().convertRowIndexToView(position - 1);
+				//currentPlayList.setCurrentElement(0);
 				return doNextPlayListEntry();
 			}
 		} catch (Throwable ex) {
@@ -1052,19 +1055,19 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 	 */
 	public void doOpenFile(File[] files) {
 		if (files != null) {
-			if (files.length == 1) {
-				File f = files[0];
-				if (f.isFile()) {
-					String modFileName = f.getAbsolutePath();
-					int i = modFileName.lastIndexOf(File.separatorChar);
-					searchPath = modFileName.substring(0, i);
-					loadMultimediaOrPlayListFile(Helpers.createURLfromFile(f));
-				} else if (f.isDirectory()) {
-					searchPath = f.getAbsolutePath();
-				}
-			} else {
+//			if (files.length == 1) {
+//				File f = files[0];
+//				if (f.isFile()) {
+//					String modFileName = f.getAbsolutePath();
+//					int i = modFileName.lastIndexOf(File.separatorChar);
+//					searchPath = modFileName.substring(0, i);
+//					loadMultimediaOrPlayListFile(Helpers.createURLfromFile(f));
+//				} else if (f.isDirectory()) {
+//					searchPath = f.getAbsolutePath();
+//				}
+//			} else {
 				playlistRecieved(null, PlayList.createNewListWithFiles(files, false, true), null);
-			}
+//			}
 		}
 	}
 

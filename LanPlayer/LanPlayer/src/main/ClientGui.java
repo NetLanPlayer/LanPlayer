@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -33,9 +34,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.UnknownHostException;
+import java.util.Properties;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -61,10 +67,12 @@ public class ClientGui extends JFrame {
 	private final static int INIT_PARTICIPANTS = 1;
 	public final static File DATA_DIR = new File("./ClientData/");
 	public final static File LAN_DATA_FILE = new File("./ClientData/LanMusicData.property");
-
-	private final static String INIT_IP_TEXT = "localhost";
-
+	private final static File CONFIG_FILE = new File("./ClientData/Config.property");
+	private static String INIT_IP_TEXT = "localhost";
 	private final static String MY_IP = MyIp.getMyIP();
+	
+	private final static ImageIcon clientIcon = new ImageIcon("./ClientData/PlayerClient.png");
+
 
 	private LanData lanData = null;
 
@@ -133,6 +141,7 @@ public class ClientGui extends JFrame {
 				try {
 					ClientGui frame = new ClientGui();
 					frame.setVisible(true);
+					frame.setIconImage(clientIcon.getImage());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -143,10 +152,78 @@ public class ClientGui extends JFrame {
 	public ClientGui() {
 		setTitle("Lan Player Client (1.0)");
 		btnConnect = new JButton("Connect");
+		loadConfig();
 		initLanData();
 		initialize();
 	}
 
+	private void storeConfig(String ip) {
+		if(ip == null || ip.isEmpty()) return;
+		if (!DATA_DIR.exists()) {
+			DATA_DIR.mkdirs();
+		}
+		if (!CONFIG_FILE.exists()) {
+			try {
+				CONFIG_FILE.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		Properties configProp = new Properties();
+		try(FileOutputStream fos = new FileOutputStream(CONFIG_FILE)) {
+			configProp.setProperty("IP", ip);
+			configProp.store(fos, "LAN CLIENT CONFIG");
+			fos.close();
+		} catch (IOException e) {
+		}
+	}
+	
+	private void loadConfig() {
+		if (!DATA_DIR.exists()) {
+			DATA_DIR.mkdirs();
+		}
+		if (!CONFIG_FILE.exists()) {
+			try {
+				CONFIG_FILE.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		Properties configProp = new Properties();
+		try(FileInputStream fis = new FileInputStream(CONFIG_FILE)) {
+			configProp.load(fis);
+			String ip = configProp.getProperty("IP");
+			if(ip != null && !ip.isEmpty()) {
+				INIT_IP_TEXT = ip;
+				fis.close();
+			}
+			else {
+				fis.close();
+				storeConfig(INIT_IP_TEXT);
+			}
+		} catch (IOException e) {
+		}
+		
+	}
+	
+	private void initLanData() {
+		if (!DATA_DIR.exists()) {
+			DATA_DIR.mkdirs();
+		} else {
+//			File[] files = DATA_DIR.listFiles();
+//			for (File f : files) {
+//				if(!f.getName().equals(CONFIG_FILE.getName())) {
+//					f.delete();
+//				}
+//			}
+		}
+		if (!LAN_DATA_FILE.exists()) {
+			try {
+				LAN_DATA_FILE.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
+	}
+	
 	private void initialize() {
 		setMinimumSize(new Dimension(1200, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -551,6 +628,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public void connectedState() {
+		storeConfig(txtEnterIpAddress.getText());
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
@@ -611,24 +689,6 @@ public class ClientGui extends JFrame {
 		// else {
 		// txtEnterIpAddress.setText(INIT_IP_TEXT);
 		// }
-	}
-
-	private void initLanData() {
-		if (!DATA_DIR.exists()) {
-			DATA_DIR.mkdirs();
-		} else {
-			File[] files = DATA_DIR.listFiles();
-			for (File f : files) {
-				f.delete();
-			}
-		}
-		if (!LAN_DATA_FILE.exists()) {
-			try {
-				LAN_DATA_FILE.createNewFile();
-			} catch (Exception e) {
-			}
-		}
-		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
 	}
 
 	private void setClientTableColumnSizes() {
