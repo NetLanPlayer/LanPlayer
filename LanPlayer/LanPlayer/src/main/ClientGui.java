@@ -70,9 +70,8 @@ public class ClientGui extends JFrame {
 	private final static File CONFIG_FILE = new File("./ClientData/Config.property");
 	private static String INIT_IP_TEXT = "localhost";
 	private final static String MY_IP = MyIp.getMyIP();
-	
-	private final static ImageIcon clientIcon = new ImageIcon("./ClientData/PlayerClient.png");
 
+	private final static ImageIcon clientIcon = new ImageIcon("./ClientData/PlayerClient.png");
 
 	private LanData lanData = null;
 
@@ -122,15 +121,16 @@ public class ClientGui extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() { 
-			 public void uncaughtException(Thread thread, final Throwable throwable) {
-				 //System.out.println("Error in thread " + thread + ": " + throwable.getMessage());
-				 //throwable.printStackTrace();
-				 //HAAAHAAAA!!!
-			 }
-		 });
-		
+
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			public void uncaughtException(Thread thread, final Throwable throwable) {
+				// System.out.println("Error in thread " + thread + ": " +
+				// throwable.getMessage());
+				// throwable.printStackTrace();
+				// HAAAHAAAA!!!
+			}
+		});
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
@@ -152,13 +152,21 @@ public class ClientGui extends JFrame {
 	public ClientGui() {
 		setTitle("Lan Player Client (1.0)");
 		btnConnect = new JButton("Connect");
+
 		loadConfig();
 		initLanData();
 		initialize();
+		String ip = client.findServerAddress();
+		if (ip != null) {
+			txtEnterIpAddress.setText(ip);
+			connect();
+		}
+
 	}
 
 	private void storeConfig(String ip) {
-		if(ip == null || ip.isEmpty()) return;
+		if (ip == null || ip.isEmpty())
+			return;
 		if (!DATA_DIR.exists()) {
 			DATA_DIR.mkdirs();
 		}
@@ -169,14 +177,14 @@ public class ClientGui extends JFrame {
 			}
 		}
 		Properties configProp = new Properties();
-		try(FileOutputStream fos = new FileOutputStream(CONFIG_FILE)) {
+		try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE)) {
 			configProp.setProperty("IP", ip);
 			configProp.store(fos, "LAN CLIENT CONFIG");
 			fos.close();
 		} catch (IOException e) {
 		}
 	}
-	
+
 	private void loadConfig() {
 		if (!DATA_DIR.exists()) {
 			DATA_DIR.mkdirs();
@@ -188,32 +196,31 @@ public class ClientGui extends JFrame {
 			}
 		}
 		Properties configProp = new Properties();
-		try(FileInputStream fis = new FileInputStream(CONFIG_FILE)) {
+		try (FileInputStream fis = new FileInputStream(CONFIG_FILE)) {
 			configProp.load(fis);
 			String ip = configProp.getProperty("IP");
-			if(ip != null && !ip.isEmpty()) {
+			if (ip != null && !ip.isEmpty()) {
 				INIT_IP_TEXT = ip;
 				fis.close();
-			}
-			else {
+			} else {
 				fis.close();
 				storeConfig(INIT_IP_TEXT);
 			}
 		} catch (IOException e) {
 		}
-		
+
 	}
-	
+
 	private void initLanData() {
 		if (!DATA_DIR.exists()) {
 			DATA_DIR.mkdirs();
 		} else {
-//			File[] files = DATA_DIR.listFiles();
-//			for (File f : files) {
-//				if(!f.getName().equals(CONFIG_FILE.getName())) {
-//					f.delete();
-//				}
-//			}
+			// File[] files = DATA_DIR.listFiles();
+			// for (File f : files) {
+			// if(!f.getName().equals(CONFIG_FILE.getName())) {
+			// f.delete();
+			// }
+			// }
 		}
 		if (!LAN_DATA_FILE.exists()) {
 			try {
@@ -223,7 +230,7 @@ public class ClientGui extends JFrame {
 		}
 		lanData = new LanData(DATA_DIR, LAN_DATA_FILE, INIT_PARTICIPANTS, false);
 	}
-	
+
 	private void initialize() {
 		setMinimumSize(new Dimension(1200, 600));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -361,7 +368,7 @@ public class ClientGui extends JFrame {
 				JFileChooser chooser = new JFileChooser();
 				Action details = chooser.getActionMap().get("viewTypeDetails");
 				details.actionPerformed(null);
-//				chooser.showOpenDialog(frame);
+				// chooser.showOpenDialog(frame);
 				chooser.setDialogTitle("Search track or Directory");
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setFileFilter(new FileFilter() {
@@ -459,7 +466,6 @@ public class ClientGui extends JFrame {
 		clientTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				// TODO
 				if (clientTable.getSelectionModel().isSelectionEmpty()) {
 					ratingBox.setEnabled(false);
 					btnRate.setEnabled(false);
@@ -476,12 +482,11 @@ public class ClientGui extends JFrame {
 					} else {
 						btnSkip.setEnabled(true);
 					}
-					
+
 					Integer hasRated = md.getRating().hasRated(MY_IP);
-					if(hasRated != null) {
+					if (hasRated != null) {
 						ratingBox.setSelectedIndex(hasRated - 1);
-					}
-					else {
+					} else {
 						ratingBox.setSelectedIndex(0);
 					}
 
@@ -578,6 +583,7 @@ public class ClientGui extends JFrame {
 		gbc_btnRate.gridx = 2;
 		gbc_btnRate.gridy = 2;
 		playlistPanel.add(btnRate, gbc_btnRate);
+
 	}
 
 	public void addRowSorter() {
@@ -661,8 +667,8 @@ public class ClientGui extends JFrame {
 			client = new Client(txtEnterIpAddress.getText(), this);
 
 			client.getClientHandler().addObserver(clientTableModel); // adding
-																						// observer
-																						// here!
+																		// observer
+																		// here!
 			client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 
 		} catch (UnknownHostException e) {

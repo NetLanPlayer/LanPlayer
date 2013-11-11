@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
 
+	public static final int DATAGRAM_PORT = 54000;
 	public static final int REC_FILE_PORT = 55000;
 	public static final int SEND_FILE_PORT = 58000;
 	public static final int REC_MESSAGE_PORT = 56000;
@@ -52,8 +55,8 @@ public class Server {
 
 	private void initServer() {
 		/**
-		 * This serversocket accepts connections for RECEIVING TRACKS FROM CLIENT,
-		 * PORT: 55000
+		 * This serversocket accepts connections for RECEIVING TRACKS FROM
+		 * CLIENT, PORT: 55000
 		 **/
 		new Thread(new Runnable() {
 
@@ -174,6 +177,36 @@ public class Server {
 
 			}
 		}).start();
+
+		/**
+		 * This is the DatagramSocket for the noobs who can't type in ip's,
+		 * PORT: 54000
+		 * 
+		 **/
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					while (true) {
+						DatagramSocket ds = new DatagramSocket(DATAGRAM_PORT);
+						byte[] recBuf = new byte[256];
+						DatagramPacket recPacket = new DatagramPacket(recBuf, recBuf.length);
+						ds.receive(recPacket);
+						System.out.println(recPacket.getSocketAddress() + " " + recPacket.getSocketAddress().toString().length());
+						byte[] sendBuf = new String("thisismyip").getBytes();
+
+						DatagramPacket sendPacket = new DatagramPacket(sendBuf, sendBuf.length, recPacket.getSocketAddress());
+						ds.send(sendPacket);
+						System.out.println("sent by server");
+						ds.close();
+					}
+				} catch (SocketException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
 	}
 
 	/**
@@ -274,36 +307,36 @@ public class Server {
 			}).start();
 		}
 	}
-		
+
 	public synchronized void checkConnection() {
 		ArrayList<Socket> temp = new ArrayList<Socket>(propertySendClients);
-		for(Socket s : temp) {
-			if(s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
+		for (Socket s : temp) {
+			if (s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
 				propertySendClients.remove(s);
 			}
 		}
 		temp = new ArrayList<Socket>(communicationClients);
-		for(Socket s : temp) {
-			if(s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
+		for (Socket s : temp) {
+			if (s.isInputShutdown() || s.isOutputShutdown() || s.isClosed()) {
 				communicationClients.remove(s);
 			}
 		}
 	}
 
-//	public void closeServer() {
-//		// TODO shutdown anything
-//		for (Socket s : communicationClients) {
-//			try {
-//				s.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		try {
-//			pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
-//		} catch (InterruptedException e) {
-//		}
-//		pool.shutdown();
-//
-//	}
+	// public void closeServer() {
+	// // TODO shutdown anything
+	// for (Socket s : communicationClients) {
+	// try {
+	// s.close();
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// }
+	// }
+	// try {
+	// pool.awaitTermination(1000, TimeUnit.MILLISECONDS);
+	// } catch (InterruptedException e) {
+	// }
+	// pool.shutdown();
+	//
+	// }
 }
