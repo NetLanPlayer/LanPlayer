@@ -14,12 +14,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
@@ -32,7 +28,6 @@ public class Server {
 
 	private List<Socket> communicationClients;
 	private List<Socket> propertySendClients;
-	private ExecutorService pool;
 	private String fileLocation;
 	private AtomicInteger nameCounter = new AtomicInteger(1);
 	private static final int BUFFER_SIZE = 4096;
@@ -48,7 +43,6 @@ public class Server {
 		fileLocation = mp3Location;
 		propertySendClients = Collections.synchronizedList(new LinkedList<Socket>());
 		communicationClients = Collections.synchronizedList(new LinkedList<Socket>());
-		pool = Executors.newCachedThreadPool();
 		initServer();
 		System.out.println("Server started");
 	}

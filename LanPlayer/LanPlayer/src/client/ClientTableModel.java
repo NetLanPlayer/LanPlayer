@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
-
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-
 import lanplayer.ITableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
@@ -25,12 +22,10 @@ public class ClientTableModel extends AbstractTableModel implements ITableModel,
 	
 	private LanData lanData;
 	private String[] columnNames;
-	private ClientGui clientGui;
 	
 	private int rowCount = 0;
 	
 	public ClientTableModel(ClientGui callee, LanData lanData, String[] columnNames) {
-		this.clientGui = callee;
 		this.lanData = lanData;
 		this.columnNames = columnNames;
 		//this.lanData.addObserver(this);

@@ -16,19 +16,14 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import de.quippy.javamod.io.GaplessSoundOutputStreamImpl;
 import de.quippy.javamod.io.SoundOutputStream;
 import de.quippy.javamod.main.gui.PlayThread;
@@ -108,7 +103,6 @@ public class PlayerPanel extends JPanel implements DspProcessorCallBack, PlayThr
 
 	private SeekBarPanel seekBarPanel = null;
 
-	private String searchPath = null;
 
 	private LEDScrollPanel ledScrollPanel = null;
 
