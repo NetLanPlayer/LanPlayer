@@ -652,6 +652,10 @@ public class ClientGui extends JFrame {
 
 	private void connect() {
 		try {
+			String address = Client.findServerAddress();
+			if (address != null) {
+				txtEnterIpAddress.setText(address);
+			}
 			client = new Client(txtEnterIpAddress.getText(), this);
 
 			client.getClientHandler().addObserver(clientTableModel); // adding
@@ -677,7 +681,7 @@ public class ClientGui extends JFrame {
 	protected void connectButtonAction() {
 		if (!txtEnterIpAddress.isEditable()) {
 			disconnectedState();
-		} else if (ipVal.validate(txtEnterIpAddress.getText())) {
+		} else if (ipVal.validate(txtEnterIpAddress.getText()) || Client.findServerAddress() != null) {
 			connect();
 		}
 		// else {
