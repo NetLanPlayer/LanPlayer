@@ -149,6 +149,9 @@ public class ClientGui extends JFrame {
 			txtEnterIpAddress.setText(ip);
 			connect();
 		}
+		else {
+			disconnectedState(false);
+		}
 
 	}
 
@@ -594,7 +597,7 @@ public class ClientGui extends JFrame {
 		clientTable.setRowSorter(null);
 	}
 
-	public void disconnectedState() {
+	public void disconnectedState(final boolean setText) {
 		initLanData();
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -611,7 +614,9 @@ public class ClientGui extends JFrame {
 				clientTable.setEnabled(false);
 				ratingBox.setEnabled(false);
 				clientTableModel.setRowCount(0);
-				txtEnterIpAddress.setText("Connection failed or it disconnected");
+				if(setText) {
+					txtEnterIpAddress.setText("Connection failed or it disconnected");
+				}
 				uploadBar.setEnabled(false);
 				enablePathAndSearch(false);
 				removeRowSorter();
@@ -664,12 +669,12 @@ public class ClientGui extends JFrame {
 			client.sendMessage(ClientHandler.MSG_REQ_PROPERTY);
 
 		} catch (UnknownHostException e) {
-			disconnectedState();
+			disconnectedState(true);
 			txtEnterIpAddress.setText("Connection failed, try again...");
 			txtEnterIpAddress.setEditable(true);
 			return;
 		} catch (IOException e) {
-			disconnectedState();
+			disconnectedState(true);
 			txtEnterIpAddress.setText("Connection failed, try again...");
 			txtEnterIpAddress.setEditable(true);
 			return;
@@ -680,7 +685,7 @@ public class ClientGui extends JFrame {
 
 	protected void connectButtonAction() {
 		if (!txtEnterIpAddress.isEditable()) {
-			disconnectedState();
+			disconnectedState(true);
 		} else if (ipVal.validate(txtEnterIpAddress.getText()) || Client.findServerAddress() != null) {
 			connect();
 		}

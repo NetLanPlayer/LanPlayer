@@ -72,9 +72,9 @@ public class Client {
 						in.close();
 						socket.close();
 					} catch (UnknownHostException e) {
-						clientGui.disconnectedState();
+						clientGui.disconnectedState(true);
 					} catch (IOException e) {
-						clientGui.disconnectedState();
+						clientGui.disconnectedState(true);
 					}
 					int percent = ((int) Math.ceil((100.0 / size))) * (i + 1);
 					if (percent < 0)
@@ -118,10 +118,10 @@ public class Client {
 					out.flush();
 					server.close();
 				} catch (ConnectException ce) {
-					clientGui.disconnectedState();
+					clientGui.disconnectedState(true);
 					return;
 				} catch (IOException e) {
-					clientGui.disconnectedState();
+					clientGui.disconnectedState(true);
 					return;
 				}
 				// clientGui.connectedState();
@@ -187,13 +187,13 @@ public class Client {
 
 					receiveFile();
 				} catch (ConnectException ce) {
-					clientGui.disconnectedState();
+					clientGui.disconnectedState(true);
 					return;
 				} catch (UnknownHostException e) {
-					clientGui.disconnectedState();
+					clientGui.disconnectedState(true);
 					return;
 				} catch (IOException e) {
-					clientGui.disconnectedState();
+					clientGui.disconnectedState(true);
 					return;
 				}
 				// clientGui.connectedState();
