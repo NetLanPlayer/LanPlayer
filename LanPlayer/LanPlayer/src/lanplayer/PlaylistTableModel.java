@@ -11,6 +11,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.table.AbstractTableModel;
 
 import main.ServerGui;
+import server.CommandMessage;
 import server.RatingMessage;
 import server.ReceivedFile;
 import server.Server;
@@ -249,6 +250,46 @@ public class PlaylistTableModel extends AbstractTableModel implements ITableMode
 				}
 				
 				server.sendFile(lanData.getFile());
+			}
+			else if(obj instanceof CommandMessage) {
+				CommandMessage cm = (CommandMessage) obj;
+				String command = cm.getCommand();
+				if(command == null) return;
+				
+				if(command.equals(CommandMessage.NEXT)) {
+					PlayerPanel player = this.playlistPanel.getPlayerPanel();
+					if(player != null) {
+						player.reloadPlaylist();
+						player.doNextPlayListEntry();
+					}
+					
+					server.sendFile(lanData.getFile());
+				}
+				else if(command.equals(CommandMessage.PLAY)) {
+					PlayerPanel player = this.playlistPanel.getPlayerPanel();
+					player.userSelectedPlaylistEntry(cm.getPosition() - 1);
+				}
+				else if(command.equals(CommandMessage.SKIP)) {
+					
+					for(int i = 1; i <= this.lanData.getParticipants(); i++) {
+						this.lanData.storeSkip(cm.getPosition(), "127.0.0." + i);
+					}
+					
+					reloadList();
+					fireTableDataChanged();
+					playlistPanel.restoreSelection();
+					
+					PlayerPanel player = this.playlistPanel.getPlayerPanel();
+					if(player != null) {
+						player.reloadPlaylist();
+						MusicData md = playlistPanel.getLanData().getMusicData(this.lanData.getCurrentlyPlayed());
+						if(md.getSkip().isSkip()) {
+							player.doNextPlayListEntry();
+						}
+					}
+					
+					server.sendFile(lanData.getFile());
+				}
 			}
 		}
 	}

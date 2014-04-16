@@ -14,7 +14,7 @@ public class MainPanel extends JFrame {
 	private static final long serialVersionUID = -3366064443983574030L;
 
 	public MainPanel(Server server) {
-		setTitle("Lan Player Server (1.0)");
+		setTitle("Lan Player Server (1.1)");
 		
 		try {
 			Helpers.registerAllClasses(); // essential

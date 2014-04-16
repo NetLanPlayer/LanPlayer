@@ -15,6 +15,7 @@ public class ClientHandler extends Observable {
 	public final static String MSG_REQ_PROPERTY = "MSG_REQ_PROPERTY";
 	public final static String MSG_REQ_SKIP = "MSG_REQ_SKIP";
 	public final static String MSG_REQ_RATING = "MSG_REQ_RATING";
+	public final static String MSG_REQ_COMMAND = "MSG_REQ_COMMAND";
 	
 	public void handleServerMessage(String message) {
 		System.out.println("Client: Received message from server: " + message);

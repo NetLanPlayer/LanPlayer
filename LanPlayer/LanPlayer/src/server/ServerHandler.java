@@ -59,6 +59,28 @@ public class ServerHandler extends Observable  {
 			setChanged();
 			notifyObservers(new RatingMessage(position, ipPlusRating));
 		}
+		else if(message.startsWith(ClientHandler.MSG_REQ_COMMAND)) {
+			String command = null;
+			if(message.startsWith(ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.NEXT)) {
+				command = CommandMessage.NEXT;
+			}
+			else if(message.startsWith(ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.PLAY)) {
+				command = CommandMessage.PLAY;
+			}
+			else if(message.startsWith(ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.SKIP)) {
+				command = CommandMessage.SKIP;
+			}
+			String posStr = LanData.getValue(LanData.POS_TAG, message);
+			Integer position = null;
+			try {
+				position = Integer.parseInt(posStr);
+			}
+			catch(NumberFormatException nfe) {
+			}
+			if(position == null || command == null || command.isEmpty()) return;
+			setChanged();
+			notifyObservers(new CommandMessage(position, command));
+		}
 	}
 				
 }

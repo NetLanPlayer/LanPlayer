@@ -13,7 +13,8 @@ public class Skip implements Comparable<Skip> {
 	
 	public Skip(HashSet<String> ips, int participants) {
 		this.skipIp = ips;
-		this.maxSkipNeeded = (int) Math.ceil( (double) participants / 2);
+		this.maxSkipNeeded = participants;
+		//this.maxSkipNeeded = (int) Math.ceil( (double) participants / 2);
 	}
 	
 	public boolean hasSkipped(String ip) {

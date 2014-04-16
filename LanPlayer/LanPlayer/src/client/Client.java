@@ -288,7 +288,6 @@ public class Client {
 			buf = new byte[256];
 			ds.setSoTimeout(1000);
 			packet = new DatagramPacket(buf, buf.length);
-			System.out.println("sent by client");
 			ds.receive(packet);
 			StringBuilder sb = new StringBuilder("");
 			for (char c : packet.getSocketAddress().toString().toCharArray()) {

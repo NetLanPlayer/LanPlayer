@@ -93,7 +93,7 @@ public class ControlPanel extends JPanel {
 		plControlPanel.add(skipField, gbc_skipField);
 		skipField.setColumns(5);
 
-		btnSetSkip = new JButton("Set Participants");
+		btnSetSkip = new JButton("Set Max Skips");
 		btnSetSkip.setEnabled(false);
 		GridBagConstraints gbc_btnSetSkip = new GridBagConstraints();
 		gbc_btnSetSkip.fill = GridBagConstraints.VERTICAL;

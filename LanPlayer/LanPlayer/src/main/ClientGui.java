@@ -1,31 +1,46 @@
 package main;
 
+import server.CommandMessage;
 import utilities.IPAddressValidator;
 import utilities.MyIp;
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JTextField;
+
 import java.awt.GridBagConstraints;
+
 import javax.swing.JButton;
+
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +48,7 @@ import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.UnknownHostException;
 import java.util.Properties;
+
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,12 +58,14 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JComboBox;
+
 import client.Client;
 import client.ClientHandler;
 import client.ClientTableModel;
 import lanplayer.LanData;
 import lanplayer.MusicData;
 import lanplayer.PlaylistTableCellRenderer;
+
 import javax.swing.JProgressBar;
 
 public class ClientGui extends JFrame {
@@ -138,7 +156,7 @@ public class ClientGui extends JFrame {
 	}
 
 	public ClientGui() {
-		setTitle("Lan Player Client (1.0)");
+		setTitle("Lan Player Client (1.1)");
 		btnConnect = new JButton("Connect");
 
 		loadConfig();
@@ -235,7 +253,7 @@ public class ClientGui extends JFrame {
 		gbl_contentPane.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
 		gbl_contentPane.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
-
+		
 		connectPanel = new JPanel();
 		connectPanel.setBorder(new TitledBorder(null, "Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_connectPanel = new GridBagConstraints();
@@ -301,7 +319,7 @@ public class ClientGui extends JFrame {
 				connectButtonAction();
 			}
 		});
-
+		
 		uploadPanel = new JPanel();
 		uploadPanel.setBorder(new TitledBorder(null, "Music File Upload", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_uploadPanel = new GridBagConstraints();
@@ -434,16 +452,16 @@ public class ClientGui extends JFrame {
 		gbc_playlistPanel.gridy = 2;
 		contentPane.add(playlistPanel, gbc_playlistPanel);
 		GridBagLayout gbl_playlistPanel = new GridBagLayout();
-		gbl_playlistPanel.columnWidths = new int[] { 0, 60, 90, 0 };
-		gbl_playlistPanel.rowHeights = new int[] { 0, 0, 0, 0 };
+		gbl_playlistPanel.columnWidths = new int[] { 0, 70, 90, 0 };
+		gbl_playlistPanel.rowHeights = new int[] { 0, 0, 0, 60, 0 };
 		gbl_playlistPanel.columnWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
-		gbl_playlistPanel.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_playlistPanel.rowWeights = new double[] { 0.0, 0.0, 1.0, 1.0, Double.MIN_VALUE };
 		playlistPanel.setLayout(gbl_playlistPanel);
 
 		scrollPane = new JScrollPane();
 		scrollPane.setEnabled(false);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridheight = 3;
+		gbc_scrollPane.gridheight = 4;
 		gbc_scrollPane.insets = new Insets(5, 5, 5, 5);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
@@ -574,6 +592,15 @@ public class ClientGui extends JFrame {
 		gbc_btnRate.gridx = 2;
 		gbc_btnRate.gridy = 2;
 		playlistPanel.add(btnRate, gbc_btnRate);
+		
+		clientTable.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK), "nextAction");
+		clientTable.getActionMap().put("nextAction", new NextAction());
+		
+		clientTable.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK), "skipAction");
+		clientTable.getActionMap().put("skipAction", new SkipAction());
+		
+		clientTable.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK), "playAction");
+		clientTable.getActionMap().put("playAction", new PlayAction());
 
 	}
 
@@ -733,6 +760,57 @@ public class ClientGui extends JFrame {
 		for (int i = 1; i <= 5; i++) {
 			ratingBox.addItem(i);
 		}
+	}
+	
+	class NextAction extends AbstractAction {
+
+		private static final long serialVersionUID = 143958695980101871L;
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			if (clientTable.isEnabled()) {
+				int viewRowIndex = clientTable.getSelectedRow();
+				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+				String message = ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.NEXT + "=" + LanData.setValue(LanData.POS_TAG, "" + md.getPosition());
+				client.sendMessage(message);				
+			}
+		}
+
+	}
+	
+	class SkipAction extends AbstractAction {
+
+		private static final long serialVersionUID = -8595790162658542897L;
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			if (!clientTable.getSelectionModel().isSelectionEmpty()) {
+				int viewRowIndex = clientTable.getSelectedRow();
+				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+				String message = ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.SKIP + "=" + LanData.setValue(LanData.POS_TAG, "" + md.getPosition());
+				client.sendMessage(message);
+			}
+		}
+		
+	}
+	
+	class PlayAction extends AbstractAction {
+
+		private static final long serialVersionUID = -3633243570219827557L;
+
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			if (!clientTable.getSelectionModel().isSelectionEmpty()) {
+				int viewRowIndex = clientTable.getSelectedRow();
+				int modelRowIndex = clientTable.convertRowIndexToModel(viewRowIndex);
+				MusicData md = (MusicData) clientTableModel.getValueAt(modelRowIndex, 0);
+				String message = ClientHandler.MSG_REQ_COMMAND + "_" + CommandMessage.PLAY + "=" + LanData.setValue(LanData.POS_TAG, "" + md.getPosition());
+				client.sendMessage(message);				
+			}
+		}
+		
 	}
 
 }
